@@ -56,6 +56,14 @@
     "memberOnlyRead": true
   },
   {
+    "name": "collectionFinancialMerchantPlatform",
+    "policy": "OR('Org0MSP.member', 'Org1MSP.member', 'Org4MSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 3,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
     "name": "collectionIssueFinancialPlatform",
     "policy": "OR('Org0MSP.member', 'Org1MSP.member', 'Org2MSP.member')",
     "requiredPeerCount": 0,
@@ -80,4 +88,3 @@
     "memberOnlyRead": true
   }
 ]
-s

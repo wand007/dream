@@ -42,8 +42,8 @@ type FinancialOrgGeneralAccountPrivateData struct {
 	ID              string  `json:"id"`              //金融机构ID
 	CardNo          string  `json:"cardNo"`          //金融机构公管账户账号
 	FinancialOrgID  string  `json:"financialOrgID"`  //金融机构ID FinancialOrg.ID
-	CertificateNo   string  `json:"certificateNo"`   //个体证件号
-	CertificateType string  `json:"certificateType"` //个体证件类型 (身份证/港澳台证/护照/军官证)¬
+	CertificateNo   string  `json:"certificateNo"`   //持卡者证件号
+	CertificateType string  `json:"certificateType"` //持卡者证件类型 (身份证/港澳台证/护照/军官证)¬
 	CurrentBalance  float64 `json:"currentBalance"`  //金融机构共管账户余额(现金)
 	AccStatus       int     `json:"accStatus"`       //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
@@ -113,7 +113,10 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 	return string(Avalbytes), nil
 }
 
-func (t *FinancialChainCode) CreateManagedAccountToMerchant(ctx contractapi.TransactionContextInterface) (string, error) {
+/**
+  新增金融机构公管账户私有数据
+ */
+func (t *FinancialChainCode) CreateManagedAccount(ctx contractapi.TransactionContextInterface) (string, error) {
 
 	transMap, err := ctx.GetStub().GetTransient()
 	if err != nil {
@@ -150,7 +153,7 @@ func (t *FinancialChainCode) CreateManagedAccountToMerchant(ctx contractapi.Tran
 		return "", errors.New("商户机构ID不能为空")
 	}
 	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchant", id)
+	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchantPlatform", id)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
 		return "", errors.New(jsonResp)
@@ -163,7 +166,7 @@ func (t *FinancialChainCode) CreateManagedAccountToMerchant(ctx contractapi.Tran
 	// Mongo Query string 语法见上文链接
 	queryString := fmt.Sprintf(`{"selector":{"cardNo":"%s"}}`, transientInput.CardNo)
 	// 富查询的返回结果可能为多条 所以这里返回的是一个迭代器 需要我们进一步的处理来获取需要的结果
-	resultsIterator, err := ctx.GetStub().GetPrivateDataQueryResult("collectionPlatform", queryString)
+	resultsIterator, err := ctx.GetStub().GetPrivateDataQueryResult("collectionFinancialMerchantPlatform", queryString)
 
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + transientInput.CardNo + "\"}"
@@ -177,11 +180,101 @@ func (t *FinancialChainCode) CreateManagedAccountToMerchant(ctx contractapi.Tran
 
 	carAsBytes, _ := json.Marshal(transientInput)
 
-	err = ctx.GetStub().PutPrivateData("transientInput", id, carAsBytes)
+	err = ctx.GetStub().PutPrivateData("collectionFinancialMerchantPlatform", id, carAsBytes)
 	if err != nil {
 		return "", errors.New("商户公管账户保存失败" + err.Error())
 	}
 	return string(Avalbytes), nil
+}
+
+/**
+ 新增金融机构一般账户私有数据
+ */
+func (t *FinancialChainCode) CreateGeneralAccount(ctx contractapi.TransactionContextInterface, collectionName string) (string, error) {
+
+	transMap, err := ctx.GetStub().GetTransient()
+	if err != nil {
+		return "", errors.New("Error getting transient: " + err.Error())
+	}
+
+	individualPrivateDataJsonBytes, ok := transMap["individual"]
+	if !ok {
+		return "", errors.New("individual must be a key in the transient map")
+	}
+
+	if len(individualPrivateDataJsonBytes) == 0 {
+		return "", errors.New("individual value in the transient map must be a non-empty JSON string")
+	}
+	var transientInput FinancialOrgGeneralAccountPrivateData
+	err = json.Unmarshal(individualPrivateDataJsonBytes, &transientInput)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(individualPrivateDataJsonBytes))
+	}
+	id := transientInput.ID
+	if len(id) == 0 {
+		return "", errors.New("金融机构公管账户ID不能为空")
+	}
+	if len(transientInput.CardNo) == 0 {
+		return "", errors.New("金融机构公管账户账号不能为空")
+	}
+	if len(transientInput.FinancialOrgID) == 0 {
+		return "", errors.New("金融机构ID不能为空")
+	}
+	if len(transientInput.CertificateNo) == 0 {
+		return "", errors.New("持卡者证件号不能为空")
+	}
+	if len(transientInput.CertificateType) == 0 {
+		return "", errors.New("持卡者证件类型不能为空")
+	}
+	// Get the state from the ledger
+	Avalbytes, err := ctx.GetStub().GetPrivateData(collectionName, id)
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
+		return "", errors.New(jsonResp)
+	}
+
+	if Avalbytes != nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + id + "\"}"
+		return "", errors.New(jsonResp)
+	}
+	// Mongo Query string 语法见上文链接
+	queryString := fmt.Sprintf(`{"selector":{"cardNo":"%s"}}`, transientInput.CardNo)
+	// 富查询的返回结果可能为多条 所以这里返回的是一个迭代器 需要我们进一步的处理来获取需要的结果
+	resultsIterator, err := ctx.GetStub().GetPrivateDataQueryResult(collectionName, queryString)
+
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + transientInput.CardNo + "\"}"
+		return "", errors.New(jsonResp)
+	}
+
+	if resultsIterator != nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + transientInput.CardNo + "\"}"
+		return "", errors.New(jsonResp)
+	}
+
+	carAsBytes, _ := json.Marshal(transientInput)
+
+	err = ctx.GetStub().PutPrivateData(collectionName, id, carAsBytes)
+	if err != nil {
+		return "", errors.New("商户公管账户保存失败" + err.Error())
+	}
+	return string(Avalbytes), nil
+}
+
+func (t *FinancialChainCode) CreateManagedAccountToMerchant(ctx contractapi.TransactionContextInterface) (string, error) {
+	return t.CreateGeneralAccount(ctx, "collectionFinancialMerchant")
+}
+
+func (t *FinancialChainCode) CreateManagedAccountToPlatform(ctx contractapi.TransactionContextInterface) (string, error) {
+	return t.CreateGeneralAccount(ctx, "collectionFinancialPlatform")
+}
+
+func (t *FinancialChainCode) CreateManagedAccountToAgency(ctx contractapi.TransactionContextInterface) (string, error) {
+	return t.CreateGeneralAccount(ctx, "collectionFinancialAgency")
+}
+
+func (t *FinancialChainCode) CreateManagedAccountToIssue(ctx contractapi.TransactionContextInterface) (string, error) {
+	return t.CreateGeneralAccount(ctx, "collectionFinancialIssue")
 }
 
 func main() {

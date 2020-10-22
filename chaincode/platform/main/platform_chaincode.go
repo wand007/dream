@@ -82,8 +82,8 @@ type FinancialOrgGeneralAccountPrivateData struct {
 	ID              string  `json:"id"`              //金融机构ID
 	CardNo          string  `json:"cardNo"`          //金融机构公管账户账号
 	FinancialOrgID  string  `json:"financialOrgID"`  //金融机构ID FinancialOrg.ID
-	CertificateNo   string  `json:"certificateNo"`   //个体证件号
-	CertificateType string  `json:"certificateType"` //个体证件类型 (身份证/港澳台证/护照/军官证)¬
+	CertificateNo   string  `json:"certificateNo"`   //持卡者证件号
+	CertificateType string  `json:"certificateType"` //持卡者证件类型 (身份证/港澳台证/护照/军官证)
 	CurrentBalance  float64 `json:"currentBalance"`  //金融机构共管账户余额(现金)
 	AccStatus       int     `json:"accStatus"`       //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }

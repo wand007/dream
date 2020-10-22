@@ -1,22 +1,15 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
 type PlatformChainCode struct {
 	contractapi.Contract
-}
-
-func main() {
-	cc, err := contractapi.NewChaincode(new(PlatformChainCode))
-	if err != nil {
-		panic(err.Error())
-	}
-	if err := cc.Start(); err != nil {
-		fmt.Printf("Error starting ABstore chaincode: %s", err)
-	}
 }
 
 /**
@@ -43,10 +36,10 @@ type PlatformOrg struct {
  个体属性
  */
 type Individual struct {
-	ID            string `json:"id"`         //个体ID
-	Name          string `json:"name"`       //个体名称
-	PlatformOrgID string `json:"issueOrgID"` //平台机构ID PlatformOrg.ID
-	Status        string `json:"status"`     //个体状态(启用/禁用)
+	ID            string `json:"id"`            //个体ID
+	Name          string `json:"name"`          //个体名称
+	PlatformOrgID string `json:"platformOrgID"` //平台机构ID PlatformOrg.ID
+	Status        int    `json:"status"`        //个体状态(启用/禁用)
 }
 
 /**
@@ -55,7 +48,7 @@ type Individual struct {
 type IndividualPrivateData struct {
 	ID              string `json:"id"`              //个体ID Individual.ID
 	CertificateNo   string `json:"certificateNo"`   //个体证件号
-	CertificateType string `json:"certificateType"` //个体证件类型 (身份证/港澳台证/护照/军官证)
+	CertificateType int    `json:"certificateType"` //个体证件类型 (身份证/港澳台证/护照/军官证)
 }
 
 /**
@@ -65,7 +58,7 @@ type FinancialOrg struct {
 	ID     string `json:"id"`     //金融机构ID
 	Name   string `json:"name"`   //金融机构名称
 	Code   string `json:"code"`   //金融机构代码
-	Status string `json:"status"` //金融机构状态(启用/禁用)
+	Status int    `json:"status"` //金融机构状态(启用/禁用)
 }
 
 /**
@@ -79,7 +72,7 @@ type FinancialOrgManagedAccountPrivateData struct {
 	MerchantOrgID         string  `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
 	CurrentBalance        float64 `json:"currentBalance"`        //金融机构共管账户余额(现金)
 	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
-	Status                string  `json:"status"`                //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
+	Status                int     `json:"status"`                //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
 /**
@@ -92,7 +85,7 @@ type FinancialOrgGeneralAccountPrivateData struct {
 	CertificateNo   string  `json:"certificateNo"`   //个体证件号
 	CertificateType string  `json:"certificateType"` //个体证件类型 (身份证/港澳台证/护照/军官证)¬
 	CurrentBalance  float64 `json:"currentBalance"`  //金融机构共管账户余额(现金)
-	Status          string  `json:"status"`          //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
+	Status          int     `json:"status"`          //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
 /**
@@ -101,7 +94,7 @@ type FinancialOrgGeneralAccountPrivateData struct {
 type IssueOrg struct {
 	ID     string `json:"id"`     //下发机构ID
 	Name   string `json:"name"`   //下发机构名称
-	Status string `json:"status"` //下发机构状态(启用/禁用)
+	Status int    `json:"status"` //下发机构状态(启用/禁用)
 }
 
 /**
@@ -152,7 +145,7 @@ type AgencyOrgFinancialAccountPrivateData struct {
 type MerchantOrg struct {
 	ID     string `json:"id"`     //金融机构ID
 	Name   string `json:"name"`   //金融机构名称
-	Status string `json:"status"` //金融机构状态(启用/禁用)
+	Status int    `json:"status"` //金融机构状态(启用/禁用)
 }
 
 /**
@@ -166,4 +159,81 @@ type MerchantOrgFinancialAccountPrivateData struct {
 	CurrentBalance        float64 `json:"currentBalance"`        //金融机构共管账户余额(现金)
 	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
 	AccStatus             int     `json:"accStatus"`             //系统账户状态(正常/冻结/禁用)
+}
+
+func (t *PlatformChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("PlatformChainCode Init")
+	id := "1000000001"
+	name := "上帝监管平台"
+	platformOrg := PlatformOrg{ID: id, Name: name}
+
+	carAsBytes, _ := json.Marshal(platformOrg)
+	err := ctx.GetStub().PutState(id, carAsBytes)
+
+	if err != nil {
+		return fmt.Errorf("Failed to put to world state. %s", err.Error())
+	}
+	return nil
+}
+
+func (t *PlatformChainCode) FindById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	if len(id) == 0 {
+		return "", errors.New("平台id不能为空")
+	}
+	bytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return "", errors.New("平台查询失败！")
+	}
+	if bytes == nil {
+		return "", fmt.Errorf("平台数据不存在，读到的%s对应的数据为空！", id)
+	}
+	return string(bytes), nil
+}
+
+func (t *PlatformChainCode) FindIndividualById(ctx contractapi.TransactionContextInterface, issueOrgId string) (string, error) {
+	if len(issueOrgId) == 0 {
+		return "", errors.New("平台id不能为空")
+	}
+	trans := [][]byte{[]byte("findById"), []byte("id"), []byte(issueOrgId)}
+	response := ctx.GetStub().InvokeChaincode("individualCC", trans, "mychannel")
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to findById chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return "", fmt.Errorf(errStr)
+	}
+
+	fmt.Printf("FindIssueOrgById chaincode successful. Got response %s", string(response.Payload))
+	return string(response.Payload), nil
+
+}
+
+func (t *PlatformChainCode) FindIssueOrgById(ctx contractapi.TransactionContextInterface, issueOrgId string) (string, error) {
+	if len(issueOrgId) == 0 {
+		return "", errors.New("平台id不能为空")
+	}
+	trans := [][]byte{[]byte("FindById"), []byte("id"), []byte(issueOrgId)}
+	response := ctx.GetStub().InvokeChaincode("issueOrgCC", trans, "mychannel")
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to findById chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return "", fmt.Errorf(errStr)
+	}
+
+	fmt.Printf("FindIssueOrgById chaincode successful. Got response %s", string(response.Payload))
+	return string(response.Payload), nil
+
+}
+
+func main() {
+	chaincode, err := contractapi.NewChaincode(new(PlatformChainCode))
+	if err != nil {
+		fmt.Printf("Error create PlatformChainCode chaincode: %s", err.Error())
+		return
+	}
+	if err := chaincode.Start(); err != nil {
+		fmt.Printf("Error starting PlatformChainCode chaincode: %s", err.Error())
+	}
+
 }

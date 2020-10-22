@@ -40,35 +40,6 @@ type PlatformOrg struct {
 }
 
 /**
-   下发机构属性
- */
-type IssueOrg struct {
-	ID     string `json:"id"`     //下发机构ID
-	Name   string `json:"name"`   //下发机构名称
-	Status string `json:"status"` //下发机构状态(启用/禁用)
-}
-
-/**
-   下发机构私有数据属性
- */
-type IssueOrgPrivateData struct {
-	ID        string  `json:"id"`        //下发机构ID IssueOrg.ID
-	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
-}
-
-/**
-   下发机构金融账户私有数据属性
- */
-type IssueOrgFinancialAccountPrivateData struct {
-	ID                    string  `json:"id"`                    //下发机构账户ID
-	IssueOrgID            string  `json:"issueOrgID"`            //下发机构ID IssueOrg.ID
-	FinancialCode         string  `json:"financialCode"`         //金融机构代码
-	FinancialCardNo       string  `json:"financialCardNo"`       //金融机构下发机构账号
-	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构下发机构账户凭证余额
-	AccStatus             int     `json:"accStatus"`             //系统账户状态(正常/冻结/禁用)
-}
-
-/**
  个体属性
  */
 type Individual struct {
@@ -125,24 +96,31 @@ type FinancialOrgGeneralAccountPrivateData struct {
 }
 
 /**
- 商户机构属性
+   下发机构属性
  */
-type MerchantOrg struct {
-	ID     string `json:"id"`     //金融机构ID
-	Name   string `json:"name"`   //金融机构名称
-	Status string `json:"status"` //金融机构状态(启用/禁用)
+type IssueOrg struct {
+	ID     string `json:"id"`     //下发机构ID
+	Name   string `json:"name"`   //下发机构名称
+	Status string `json:"status"` //下发机构状态(启用/禁用)
 }
 
 /**
-   商户机构金融账户私有数据属性
+   下发机构私有数据属性
  */
-type MerchantOrgFinancialAccountPrivateData struct {
-	ID                    string  `json:"id"`                    //商户机构账户ID
-	MerchantOrgID         string  `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
+type IssueOrgPrivateData struct {
+	ID        string  `json:"id"`        //下发机构ID IssueOrg.ID
+	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
+}
+
+/**
+   下发机构金融账户私有数据属性
+ */
+type IssueOrgFinancialAccountPrivateData struct {
+	ID                    string  `json:"id"`                    //下发机构账户ID
+	IssueOrgID            string  `json:"issueOrgID"`            //下发机构ID IssueOrg.ID
 	FinancialCode         string  `json:"financialCode"`         //金融机构代码
-	FinancialCardNo       string  `json:"financialCardNo"`       //金融机构商户机构账号
-	CurrentBalance        float64 `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	FinancialCardNo       string  `json:"financialCardNo"`       //金融机构下发机构账号
+	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构下发机构账户凭证余额
 	AccStatus             int     `json:"accStatus"`             //系统账户状态(正常/冻结/禁用)
 }
 
@@ -165,5 +143,27 @@ type AgencyOrgFinancialAccountPrivateData struct {
 	FinancialCardNo       string  `json:"financialCardNo"`       //金融机构代理商机构账号
 	CurrentBalance        float64 `json:"currentBalance"`        //金融机构共管账户余额(现金)
 	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构代理商机构账户凭证(token)余额
+	AccStatus             int     `json:"accStatus"`             //系统账户状态(正常/冻结/禁用)
+}
+
+/**
+ 商户机构属性
+ */
+type MerchantOrg struct {
+	ID     string `json:"id"`     //金融机构ID
+	Name   string `json:"name"`   //金融机构名称
+	Status string `json:"status"` //金融机构状态(启用/禁用)
+}
+
+/**
+   商户机构金融账户私有数据属性
+ */
+type MerchantOrgFinancialAccountPrivateData struct {
+	ID                    string  `json:"id"`                    //商户机构账户ID
+	MerchantOrgID         string  `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
+	FinancialCode         string  `json:"financialCode"`         //金融机构代码
+	FinancialCardNo       string  `json:"financialCardNo"`       //金融机构商户机构账号
+	CurrentBalance        float64 `json:"currentBalance"`        //金融机构共管账户余额(现金)
+	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
 	AccStatus             int     `json:"accStatus"`             //系统账户状态(正常/冻结/禁用)
 }

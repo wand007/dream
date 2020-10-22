@@ -123,18 +123,18 @@ func (t *FinancialChainCode) CreateManagedAccount(ctx contractapi.TransactionCon
 		return "", errors.New("Error getting transient: " + err.Error())
 	}
 
-	individualPrivateDataJsonBytes, ok := transMap["individual"]
+	financialPrivateDataJsonBytes, ok := transMap["financial"]
 	if !ok {
-		return "", errors.New("individual must be a key in the transient map")
+		return "", errors.New("financial must be a key in the transient map")
 	}
 
-	if len(individualPrivateDataJsonBytes) == 0 {
-		return "", errors.New("individual value in the transient map must be a non-empty JSON string")
+	if len(financialPrivateDataJsonBytes) == 0 {
+		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
 	}
 	var transientInput FinancialOrgManagedAccountPrivateData
-	err = json.Unmarshal(individualPrivateDataJsonBytes, &transientInput)
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
 	if err != nil {
-		return "", errors.New("Failed to decode JSON of: " + string(individualPrivateDataJsonBytes))
+		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
 	id := transientInput.ID
 	if len(id) == 0 {
@@ -197,18 +197,18 @@ func (t *FinancialChainCode) CreateGeneralAccount(ctx contractapi.TransactionCon
 		return "", errors.New("Error getting transient: " + err.Error())
 	}
 
-	individualPrivateDataJsonBytes, ok := transMap["individual"]
+	financialPrivateDataJsonBytes, ok := transMap["financial"]
 	if !ok {
-		return "", errors.New("individual must be a key in the transient map")
+		return "", errors.New("financial must be a key in the transient map")
 	}
 
-	if len(individualPrivateDataJsonBytes) == 0 {
-		return "", errors.New("individual value in the transient map must be a non-empty JSON string")
+	if len(financialPrivateDataJsonBytes) == 0 {
+		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
 	}
 	var transientInput FinancialOrgGeneralAccountPrivateData
-	err = json.Unmarshal(individualPrivateDataJsonBytes, &transientInput)
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
 	if err != nil {
-		return "", errors.New("Failed to decode JSON of: " + string(individualPrivateDataJsonBytes))
+		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
 	id := transientInput.ID
 	if len(id) == 0 {

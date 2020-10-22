@@ -213,7 +213,6 @@ func (t *IndividualChainCode) FindById(ctx contractapi.TransactionContextInterfa
 		return "", fmt.Errorf("个体数据不存在，读到的%s对应的数据为空！", id)
 	}
 	return string(bytes), nil
-
 }
 
 func (t *IndividualChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
@@ -228,8 +227,24 @@ func (t *IndividualChainCode) FindPrivateDataById(ctx contractapi.TransactionCon
 		return "", fmt.Errorf("个体私有数据不存在，读到的%s对应的私有数据为空！", id)
 	}
 	return string(bytes), nil
+}
+
+
+func (t *IndividualChainCode) FindPage(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) (string, error) {
+	if len(id) == 0 {
+		return "", errors.New("个体id不能为空")
+	}
+	bytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return "", errors.New("个体查询失败！")
+	}
+	if bytes == nil {
+		return "", fmt.Errorf("个体数据不存在，读到的%s对应的数据为空！", id)
+	}
+	return string(bytes), nil
 
 }
+
 
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(IndividualChainCode))

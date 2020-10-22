@@ -22,11 +22,11 @@ type FinancialOrg struct {
 }
 
 /**
-   金融机构公管账户私有数据属性
+   金融机构共管账户私有数据属性
  */
 type FinancialOrgManagedAccountPrivateData struct {
 	ID                    string  `json:"id"`                    //金融机构ID
-	CardNo                string  `json:"cardNo"`                //金融机构公管账户账号
+	CardNo                string  `json:"cardNo"`                //金融机构共管账户账号
 	FinancialOrgID        string  `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
 	PlatformOrgID         string  `json:"platformOrgID"`         //平台机构ID PlatformOrg.ID
 	MerchantOrgID         string  `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
@@ -40,7 +40,7 @@ type FinancialOrgManagedAccountPrivateData struct {
  */
 type FinancialOrgGeneralAccountPrivateData struct {
 	ID              string  `json:"id"`              //金融机构ID
-	CardNo          string  `json:"cardNo"`          //金融机构公管账户账号
+	CardNo          string  `json:"cardNo"`          //金融机构共管账户账号
 	FinancialOrgID  string  `json:"financialOrgID"`  //金融机构ID FinancialOrg.ID
 	CertificateNo   string  `json:"certificateNo"`   //持卡者证件号
 	CertificateType string  `json:"certificateType"` //持卡者证件类型 (身份证/港澳台证/护照/军官证)¬
@@ -114,7 +114,7 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 }
 
 /**
-  新增金融机构公管账户私有数据
+  新增金融机构共管账户私有数据
  */
 func (t *FinancialChainCode) CreateManagedAccount(ctx contractapi.TransactionContextInterface) (string, error) {
 
@@ -141,7 +141,7 @@ func (t *FinancialChainCode) CreateManagedAccount(ctx contractapi.TransactionCon
 		return "", errors.New("金融机构ID不能为空")
 	}
 	if len(transientInput.CardNo) == 0 {
-		return "", errors.New("金融机构公管账户账号不能为空")
+		return "", errors.New("金融机构共管账户账号不能为空")
 	}
 	if len(transientInput.FinancialOrgID) == 0 {
 		return "", errors.New("金融机构ID不能为空")
@@ -182,7 +182,7 @@ func (t *FinancialChainCode) CreateManagedAccount(ctx contractapi.TransactionCon
 
 	err = ctx.GetStub().PutPrivateData("collectionFinancialMerchantPlatform", id, carAsBytes)
 	if err != nil {
-		return "", errors.New("商户公管账户保存失败" + err.Error())
+		return "", errors.New("商户共管账户保存失败" + err.Error())
 	}
 	return string(Avalbytes), nil
 }
@@ -212,10 +212,10 @@ func (t *FinancialChainCode) CreateGeneralAccount(ctx contractapi.TransactionCon
 	}
 	id := transientInput.ID
 	if len(id) == 0 {
-		return "", errors.New("金融机构公管账户ID不能为空")
+		return "", errors.New("金融机构共管账户ID不能为空")
 	}
 	if len(transientInput.CardNo) == 0 {
-		return "", errors.New("金融机构公管账户账号不能为空")
+		return "", errors.New("金融机构共管账户账号不能为空")
 	}
 	if len(transientInput.FinancialOrgID) == 0 {
 		return "", errors.New("金融机构ID不能为空")
@@ -256,7 +256,7 @@ func (t *FinancialChainCode) CreateGeneralAccount(ctx contractapi.TransactionCon
 
 	err = ctx.GetStub().PutPrivateData(collectionName, id, carAsBytes)
 	if err != nil {
-		return "", errors.New("商户公管账户保存失败" + err.Error())
+		return "", errors.New("商户共管账户保存失败" + err.Error())
 	}
 	return string(Avalbytes), nil
 }
@@ -275,6 +275,50 @@ func (t *FinancialChainCode) CreateManagedAccountToAgency(ctx contractapi.Transa
 
 func (t *FinancialChainCode) CreateManagedAccountToIssue(ctx contractapi.TransactionContextInterface) (string, error) {
 	return t.CreateGeneralAccount(ctx, "collectionFinancialIssue")
+}
+
+func (t *FinancialChainCode) FindById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	if len(id) == 0 {
+		return "", errors.New("金融机构id不能为空")
+	}
+	bytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return "", errors.New("金融机构查询失败！")
+	}
+	if bytes == nil {
+		return "", fmt.Errorf("金融机构数据不存在，读到的%s对应的数据为空！", id)
+	}
+	return string(bytes), nil
+}
+
+func (t *FinancialChainCode) FindMerchantPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	return t.FindPrivateDataById(ctx, id, "collectionFinancialMerchant")
+}
+
+func (t *FinancialChainCode) FindPlatformPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	return t.FindPrivateDataById(ctx, id, "collectionFinancialPlatform")
+}
+
+func (t *FinancialChainCode) FindAgencyPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	return t.FindPrivateDataById(ctx, id, "collectionFinancialAgency")
+}
+
+func (t *FinancialChainCode) FindIssuePrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	return t.FindPrivateDataById(ctx, id, "collectionFinancialIssue")
+}
+
+func (t *FinancialChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string, collectionName string) (string, error) {
+	if len(id) == 0 {
+		return "", errors.New("金融机构id不能为空")
+	}
+	bytes, err := ctx.GetStub().GetPrivateData("collectionPlatform", id)
+	if err != nil {
+		return "", errors.New("金融机构私有数据查询失败！")
+	}
+	if bytes == nil {
+		return "", fmt.Errorf("金融机构私有数据不存在，读到的%s对应的私有数据为空！", id)
+	}
+	return string(bytes), nil
 }
 
 func main() {

@@ -8,6 +8,14 @@
     "memberOnlyRead": true
   },
   {
+    "name": "collectionPlatformAll",
+    "policy": "OR('Org0MSP.member', 'Org1MSP.member', 'Org2MSP.member', 'Org3MSP.member', 'Org4MSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 3,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
     "name": "collectionFinancial",
     "policy": "OR('Org1MSP.member')",
     "requiredPeerCount": 0,
@@ -16,8 +24,24 @@
     "memberOnlyRead": true
   },
   {
-    "name": "collectionPlatformAll",
-    "policy": "OR('Org0MSP.member', 'Org1MSP.member', 'Org2MSP.member', 'Org3MSP.member', 'Org4MSP.member')",
+    "name": "collectionFinancialIssue",
+    "policy": "OR('Org0MSP.member', 'Org2MSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 3,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
+    "name": "collectionFinancialAgency",
+    "policy": "OR('Org0MSP.member', 'Org3MSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 3,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
+    "name": "collectionFinancialMerchant",
+    "policy": "OR('Org0MSP.member', 'Org4MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 3,
     "blockToLive": 0,

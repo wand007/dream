@@ -240,5 +240,4 @@ func main() {
 	if err := chaincode.Start(); err != nil {
 		fmt.Printf("Error starting PlatformChainCode chaincode: %s", err.Error())
 	}
-
 }

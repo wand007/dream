@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"time"
 )
 
 type IndividualChainCode struct {
@@ -37,6 +39,15 @@ type IndividualTransientInput struct {
 	CertificateNo   string `json:"certificateNo"`   //个体证件号
 	CertificateType int    `json:"certificateType"` //个体证件类型 (身份证/港澳台证/护照/军官证)
 	Status          int    `json:"status"`          //个体状态(启用/禁用)
+}
+
+// QueryResult structure used for handling result of query
+type QueryResult struct {
+	Record              *Individual
+	TxId                string    `json:"txId"`
+	Timestamp           time.Time `json:"timestamp"`
+	FetchedRecordsCount int       `json:"fetchedRecordsCount"`
+	Bookmark            string    `json:"bookmark"`
 }
 
 func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
@@ -97,7 +108,7 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 		}
 	}
 	//私有数据防重复添加
-	bytes, err = ctx.GetStub().GetPrivateData("collectionPlatform", id)
+	bytes, err = ctx.GetStub().GetPrivateData("collectionIndividual", id)
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}
@@ -109,7 +120,7 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 			CertificateType: individualTransientInput.CertificateType,
 		}
 		carAsBytes, _ := json.Marshal(individualPrivateData)
-		err = ctx.GetStub().PutPrivateData("collectionPlatform", id, carAsBytes)
+		err = ctx.GetStub().PutPrivateData("collectionIndividual", id, carAsBytes)
 		if err != nil {
 			return "", errors.New("个体私有数据保存失败" + err.Error())
 		}
@@ -173,7 +184,7 @@ func (t *IndividualChainCode) Update(ctx contractapi.TransactionContextInterface
 		return "", errors.New("个体公开数据更新失败" + err.Error())
 	}
 	//私有数据
-	bytes, err = ctx.GetStub().GetPrivateData("collectionPlatform", id)
+	bytes, err = ctx.GetStub().GetPrivateData("collectionIndividual", id)
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}
@@ -194,7 +205,7 @@ func (t *IndividualChainCode) Update(ctx contractapi.TransactionContextInterface
 	}
 
 	carAsBytes, _ = json.Marshal(individualPrivateData)
-	err = ctx.GetStub().PutPrivateData("collectionPlatform", id, carAsBytes)
+	err = ctx.GetStub().PutPrivateData("collectionIndividual", id, carAsBytes)
 	if err != nil {
 		return "", errors.New("个体私有数据更新失败" + err.Error())
 	}
@@ -219,7 +230,7 @@ func (t *IndividualChainCode) FindPrivateDataById(ctx contractapi.TransactionCon
 	if len(id) == 0 {
 		return "", errors.New("个体id不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionPlatform", id)
+	bytes, err := ctx.GetStub().GetPrivateData("collectionIndividual", id)
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}
@@ -229,22 +240,51 @@ func (t *IndividualChainCode) FindPrivateDataById(ctx contractapi.TransactionCon
 	return string(bytes), nil
 }
 
+func (t *IndividualChainCode) QueryIndividualSimpleWithPagination(ctx contractapi.TransactionContextInterface, queryString, bookmark string, pageSize int) ([]*QueryResult, error) {
+	if len(queryString) == 0 {
+		return nil, errors.New("查询条件不能为空")
+	}
 
-func (t *IndividualChainCode) FindPage(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("个体id不能为空")
-	}
-	bytes, err := ctx.GetStub().GetState(id)
-	if err != nil {
-		return "", errors.New("个体查询失败！")
-	}
-	if bytes == nil {
-		return "", fmt.Errorf("个体数据不存在，读到的%s对应的数据为空！", id)
-	}
-	return string(bytes), nil
-
+	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
 }
 
+// getQueryResultForQueryStringWithPagination executes the passed in query string with
+// pagination info. Result set is built and returned as a byte array containing the JSON results.
+func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string,
+	pageSize int32, bookmark string) ([]*QueryResult, error) {
+
+	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
+// constructQueryResponseFromIterator constructs a JSON array containing query results from
+// a given result iterator
+func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*QueryResult, error) {
+
+	resp := []*QueryResult{}
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		newRecord := new(QueryResult)
+		err = json.Unmarshal(queryResponse.Value, newRecord)
+		if err != nil {
+			return nil, err
+		}
+
+		resp = append(resp, newRecord)
+	}
+
+	return resp, nil
+}
 
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(IndividualChainCode))

@@ -7,27 +7,26 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-type FinancialManagedAccountChaincode struct {
+type FinancialGeneralAccountChaincode struct {
 	contractapi.Contract
 }
 
 /**
-   金融机构共管账户私有数据属性
+   金融机构一般账户私有数据属性
  */
-type FinancialOrgManagedAccountPrivateData struct {
-	CardNo                string  `json:"cardNo"`                //金融机构共管账户账号
-	FinancialOrgID        string  `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
-	PlatformOrgID         string  `json:"platformOrgID"`         //平台机构ID PlatformOrg.ID
-	MerchantOrgID         string  `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
-	CurrentBalance        float64 `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
-	AccStatus             int     `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
+type FinancialOrgGeneralAccountPrivateData struct {
+	CardNo          string `json:"cardNo"`          //金融机构公管账户账号(唯一不重复)
+	FinancialOrgID  string `json:"financialOrgID"`  //金融机构ID FinancialOrg.ID
+	CertificateNo   string `json:"certificateNo"`   //持卡者证件号
+	CertificateType string `json:"certificateType"` //持卡者证件类型 (身份证/港澳台证/护照/军官证)
+	CurrentBalance  int    `json:"currentBalance"`  //金融机构共管账户余额(现金)
+	AccStatus       int    `json:"accStatus"`       //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
 /**
   新增金融机构共管账户私有数据
  */
-func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
+func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
 
 	transMap, err := ctx.GetStub().GetTransient()
 	if err != nil {
@@ -42,7 +41,7 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 	if len(financialPrivateDataJsonBytes) == 0 {
 		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
 	}
-	var transientInput FinancialOrgManagedAccountPrivateData
+	var transientInput FinancialOrgGeneralAccountPrivateData
 	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
@@ -53,11 +52,11 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 	if len(transientInput.FinancialOrgID) == 0 {
 		return "", errors.New("金融机构ID不能为空")
 	}
-	if len(transientInput.PlatformOrgID) == 0 {
-		return "", errors.New("金平台机构ID不能为空")
+	if len(transientInput.CertificateNo) == 0 {
+		return "", errors.New("持卡者证件号不能为空")
 	}
-	if len(transientInput.MerchantOrgID) == 0 {
-		return "", errors.New("商户机构ID不能为空")
+	if len(transientInput.CertificateType) == 0 {
+		return "", errors.New("持卡者证件类型不能为空")
 	}
 	// Get the state from the ledger
 	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchantPlatform", transientInput.CardNo)
@@ -94,7 +93,7 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 	return string(Avalbytes), nil
 }
 
-func (t *FinancialManagedAccountChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("共管账户id不能为空")
 	}
@@ -108,7 +107,7 @@ func (t *FinancialManagedAccountChaincode) FindPrivateDataById(ctx contractapi.T
 	return string(bytes), nil
 }
 
-func (t *FinancialManagedAccountChaincode) Recharge(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, Amount uint) (string, error) {
+func (t *FinancialGeneralAccountChaincode) Recharge(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, Amount uint) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转入共管账户卡号不能为空")
 	}
@@ -125,7 +124,7 @@ func (t *FinancialManagedAccountChaincode) Recharge(ctx contractapi.TransactionC
 	return string(bytes), nil
 }
 
-func (t *FinancialManagedAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("共管账户id不能为空")
 	}
@@ -140,7 +139,7 @@ func (t *FinancialManagedAccountChaincode) TransferAsset(ctx contractapi.Transac
 }
 
 func main() {
-	chaincode, err := contractapi.NewChaincode(new(FinancialManagedAccountChaincode))
+	chaincode, err := contractapi.NewChaincode(new(FinancialGeneralAccountChaincode))
 	if err != nil {
 		fmt.Printf("Error create PlatformChainCode chaincode: %s", err.Error())
 		return

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"go/constant"
 )
 
 type FinancialChainCode struct {
@@ -48,6 +47,16 @@ type FinancialOrgManagedAccountPrivateData struct {
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
 	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
+}
+
+/**
+   充值操作参数
+ */
+type RechargeTransientInput struct {
+	ID            string `json:"id"`            //金融机构ID
+	ManagedCardNo string `json:"managedCardNo"` //公管账户卡号 FinancialOrgManagedAccountPrivateData.CardNo
+	GeneralCardNo string `json:"generalCardNo"` //一般账户卡号 FinancialOrgGeneralAccountPrivateData.CardNo
+	Amount        int    `json:"amount"`        //充值金额
 }
 
 func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string,
@@ -189,13 +198,39 @@ func (t *FinancialChainCode) CreateGeneralAccount(ctx contractapi.TransactionCon
 	return string(Avalbytes), nil
 }
 
-func (t *FinancialChainCode) Recharge(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, Amount uint) (string, error) {
+func (t *FinancialChainCode) Recharge(ctx contractapi.TransactionContextInterface) (string, error) {
+	transMap, err := ctx.GetStub().GetTransient()
+	if err != nil {
+		return "", errors.New("Error getting transient: " + err.Error())
+	}
+
+	individualPrivateDataJsonBytes, ok := transMap["individual"]
+	if !ok {
+		return "", errors.New("individual must be a key in the transient map")
+	}
+
+	if len(individualPrivateDataJsonBytes) == 0 {
+		return "", errors.New("individual value in the transient map must be a non-empty JSON string")
+	}
+	//公开数据
+	var rechargeTransientInput RechargeTransientInput
+	err = json.Unmarshal(individualPrivateDataJsonBytes, &rechargeTransientInput)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(individualPrivateDataJsonBytes))
+	}
+	id := rechargeTransientInput.ID
+	if len(id) == 0 {
+		return "", errors.New("转入操作ID不能为空")
+	}
+	managedCardNo := rechargeTransientInput.ManagedCardNo
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转入共管账户卡号不能为空")
 	}
+	generalCardNo := rechargeTransientInput.GeneralCardNo
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转出一般账户卡号不能为空")
 	}
+	Amount := rechargeTransientInput.Amount
 
 	generalAccountPrivateData, err := findGeneralAccountPrivateDataById(ctx, generalCardNo)
 	if err != nil {
@@ -204,8 +239,9 @@ func (t *FinancialChainCode) Recharge(ctx contractapi.TransactionContextInterfac
 	if generalAccountPrivateData == nil {
 		return "", errors.New("一般账户卡号记录不存在")
 	}
-	if complex(Amount,   generalAccountPrivateData.CurrentBalance) == 0{
-
+	//账户余额不能超过转账操作金额
+	if generalAccountPrivateData.CurrentBalance < Amount {
+		return "", errors.New("转出账户余额不足")
 	}
 	managedAccountPrivateData, err := findManagedAccountPrivateDataById(ctx, managedCardNo)
 	if err != nil {
@@ -215,7 +251,10 @@ func (t *FinancialChainCode) Recharge(ctx contractapi.TransactionContextInterfac
 		return "", errors.New("共管账户卡号记录不存在")
 	}
 
-	return string(bytes), nil
+	//todo 增加共管账户
+	//todo 减少一般账户
+
+	return id, nil
 }
 
 func findManagedAccountPrivateDataById(ctx contractapi.TransactionContextInterface, managedCardNo string) (*FinancialOrgManagedAccountPrivateData, error) {

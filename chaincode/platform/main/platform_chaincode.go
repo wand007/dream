@@ -45,14 +45,14 @@ type Individual struct {
 /**
  派发记录属性
  */
-type DistributionRecord struct {
-	ID            string  `json:"id"`            //个体ID
+type DistributionRecordPrivateData struct {
+	ID            string  `json:"id"`            //派发记录ID
 	IndividualID  string  `json:"individualID"`  //个体ID Individual.ID
 	MerchantOrgID string  `json:"merchantOrgID"` //商户机构ID MerchantOrg.ID
 	AgencyOrgID   string  `json:"merchantOrgID"` //代理商机构ID AgencyOrg.ID
 	IssueOrgID    string  `json:"issueOrgID"`    //下发机构ID IssueOrg.ID
-	Amount        int     `json:"amount"`        //个体ID 派发金额
-	Rate          float64 `json:"rate"`          //个体ID 派发费率
+	Amount        int     `json:"amount"`        //派发金额
+	Rate          float64 `json:"rate"`          //派发费率
 	CardNo        string  `json:"cardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	CardCode      string  `json:"code"`          //金融机构代码 FinancialOrg.Code
 	Status        int     `json:"status"`        //个体状态(启用/禁用)
@@ -135,17 +135,17 @@ type IssueOrgFinancialAccountPrivateData struct {
  代理商机构属性
  */
 type AgencyOrg struct {
-	ID     string `json:"id"`     //金融机构ID
-	Name   string `json:"name"`   //金融机构名称
-	Status string `json:"status"` //金融机构状态(启用/禁用)
+	ID     string `json:"id"`     //代理商机构ID
+	Name   string `json:"name"`   //代理商机构名称
+	Status string `json:"status"` //代理商机构状态(启用/禁用)
 }
 
 /**
  代理商机构私有数据属性
  */
 type AgencyOrgPrivateData struct {
-	ID        string  `json:"id"`        //金融机构ID
-	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
+	ID        string  `json:"id"`        //代理商机构ID
+	RateBasic float64 `json:"rateBasic"` //代理商机构基础费率
 }
 
 /**

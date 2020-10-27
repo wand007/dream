@@ -13,9 +13,9 @@ type DistributionRecordChaincode struct {
 }
 
 const CHANNEL_NAME string = "mychannel"
-const CHAINCODE_NAME_FINANCIAL_ORG string = "financialOrgCC"
-const CHAINCODE_NAME_AGENCY_ORG string = "agencyOrgCC"
-const CHAINCODE_NAME_MERCHANT_ORG string = "merchantOrgCC"
+const CHAINCODE_NAME_FINANCIAL_ORG string = "financialCC"
+const CHAINCODE_NAME_AGENCY_ORG string = "agencyCC"
+const CHAINCODE_NAME_MERCHANT_ORG string = "merchantCC"
 
 /**
  派发记录属性

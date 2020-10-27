@@ -13,7 +13,7 @@ type FinancialChainCode struct {
 }
 
 const CHANNEL_NAME string = "mychannel"
-const CHAINCODE_NAME_ISSUE_ORG string = "issueOrgCC"
+const CHAINCODE_NAME_ISSUE_ORG string = "issueCC"
 
 /**
    金融机构属性

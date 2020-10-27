@@ -13,19 +13,7 @@ type PlatformChainCode struct {
 }
 
 const CHANNEL_NAME string = "mychannel"
-const CHAINCODE_NAME_ISSUE_ORG string = "issueOrgCC"
-
-/**
-
-角色：
-平台（上帝/监管）机构----org0
-金融机构----org1
-下发机构----org2
-代理商----org3
-商户----org4
-个体----属于org0平台，商户可见基本信息，没有单独的组织节点
-
- */
+const CHAINCODE_NAME_ISSUE_ORG string = "issueCC"
 
 /**
    平台机构属性

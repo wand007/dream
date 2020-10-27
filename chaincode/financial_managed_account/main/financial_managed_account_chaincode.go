@@ -15,13 +15,12 @@ type FinancialManagedAccountChaincode struct {
    金融机构共管账户私有数据属性
  */
 type FinancialOrgManagedAccountPrivateData struct {
-	CardNo                string  `json:"cardNo"`                //金融机构共管账户账号
-	FinancialOrgID        string  `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
-	PlatformOrgID         string  `json:"platformOrgID"`         //平台机构ID PlatformOrg.ID
-	MerchantOrgID         string  `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
-	CurrentBalance        float64 `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance float64 `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
-	AccStatus             int     `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
+	CardNo                string `json:"cardNo"`                //金融机构共管账户账号
+	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
+	PlatformOrgID         string `json:"platformOrgID"`         //平台机构ID PlatformOrg.ID
+	MerchantOrgID         string `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
 /**
@@ -108,12 +107,15 @@ func (t *FinancialManagedAccountChaincode) FindPrivateDataById(ctx contractapi.T
 	return string(bytes), nil
 }
 
-func (t *FinancialManagedAccountChaincode) Recharge(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, Amount uint) (string, error) {
+func (t *FinancialManagedAccountChaincode) Recharge(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转入共管账户卡号不能为空")
 	}
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转出一般账户卡号不能为空")
+	}
+	if amount < 0 {
+		return "",errors.New("转账金额不能小于0")
 	}
 	bytes, err := ctx.GetStub().GetPrivateData("collectionFinancial", managedCardNo)
 	if err != nil {
@@ -125,18 +127,54 @@ func (t *FinancialManagedAccountChaincode) Recharge(ctx contractapi.TransactionC
 	return string(bytes), nil
 }
 
-func (t *FinancialManagedAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("共管账户id不能为空")
+func (t *FinancialManagedAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmount int) error {
+	if len(managedCardNo) == 0 {
+		return errors.New("共管账户卡号不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchantPlatform", id)
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchantPlatform", managedCardNo)
 	if err != nil {
-		return "", errors.New("共管账户查询失败！")
+		return errors.New("共管账户查询失败！")
 	}
-	if bytes == nil {
-		return "", fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", id)
+	if financialPrivateDataJsonBytes == nil {
+		return fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", managedCardNo)
 	}
-	return string(bytes), nil
+	var transientInput FinancialOrgManagedAccountPrivateData
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
+	if err != nil {
+		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
+	}
+	newCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
+	if newCurrentBalance < 0 {
+		return errors.New("共管账户票据余额不足")
+	}
+	transientInput.VoucherCurrentBalance = newCurrentBalance
+	assetJSON, _ := json.Marshal(transientInput)
+	return ctx.GetStub().PutState(managedCardNo, assetJSON)
+}
+
+func (t *FinancialManagedAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmount int) error {
+	if len(managedCardNo) == 0 {
+		return errors.New("共管账户卡号不能为空")
+	}
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchantPlatform", managedCardNo)
+	if err != nil {
+		return errors.New("共管账户查询失败！")
+	}
+	if financialPrivateDataJsonBytes == nil {
+		return fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", managedCardNo)
+	}
+	var transientInput FinancialOrgManagedAccountPrivateData
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
+	if err != nil {
+		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
+	}
+	newCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
+	if newCurrentBalance < 0 {
+		return errors.New("共管账户票据余额不足")
+	}
+	transientInput.VoucherCurrentBalance = newCurrentBalance
+	assetJSON, _ := json.Marshal(transientInput)
+	return ctx.GetStub().PutState(managedCardNo, assetJSON)
 }
 
 func main() {

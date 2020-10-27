@@ -12,6 +12,9 @@ type PlatformChainCode struct {
 	contractapi.Contract
 }
 
+const CHANNEL_NAME string = "mychannel"
+const CHAINCODE_NAME_ISSUE_ORG string = "issueOrgCC"
+
 /**
 
 角色：
@@ -55,7 +58,7 @@ type DistributionRecordPrivateData struct {
 	Rate          float64 `json:"rate"`          //派发费率
 	CardNo        string  `json:"cardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	CardCode      string  `json:"code"`          //金融机构代码 FinancialOrg.Code
-	Status        int     `json:"status"`        //个体状态(启用/禁用)
+	Status        int     `json:"status"`        //派发状态(启用/禁用)
 }
 
 /**
@@ -78,6 +81,15 @@ type FinancialOrg struct {
 }
 
 /**
+   金融机构私有数据属性
+ */
+type FinancialOrgPrivateData struct {
+	ID                    string `json:"id"`                    //金融机构ID FinancialOrg.ID
+	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+}
+
+/**
    金融机构公管账户私有数据属性
  */
 type FinancialOrgManagedAccountPrivateData struct {
@@ -85,7 +97,6 @@ type FinancialOrgManagedAccountPrivateData struct {
 	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
 	IssueOrgID            string `json:"issueOrgID"`            //下发机构ID IssueOrg.ID
 	MerchantOrgID         string `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
-	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
 	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
@@ -94,12 +105,13 @@ type FinancialOrgManagedAccountPrivateData struct {
    金融机构一般账户私有数据属性
  */
 type FinancialOrgGeneralAccountPrivateData struct {
-	CardNo          string `json:"cardNo"`          //金融机构公管账户账号(唯一不重复)
-	FinancialOrgID  string `json:"financialOrgID"`  //金融机构ID FinancialOrg.ID
-	CertificateNo   string `json:"certificateNo"`   //持卡者证件号
-	CertificateType string `json:"certificateType"` //持卡者证件类型 (身份证/港澳台证/护照/军官证)
-	CurrentBalance  int    `json:"currentBalance"`  //金融机构共管账户余额(现金)
-	AccStatus       int    `json:"accStatus"`       //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
+	CardNo                string `json:"cardNo"`                //金融机构公管账户账号(唯一不重复)
+	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
+	CertificateNo         string `json:"certificateNo"`         //持卡者证件号
+	CertificateType       string `json:"certificateType"`       //持卡者证件类型 (身份证/港澳台证/护照/军官证)
+	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
 /**
@@ -226,7 +238,7 @@ func (t *PlatformChainCode) FindIndividualById(ctx contractapi.TransactionContex
 		return "", errors.New("平台id不能为空")
 	}
 	trans := [][]byte{[]byte("findById"), []byte("id"), []byte(issueOrgId)}
-	response := ctx.GetStub().InvokeChaincode("individualCC", trans, "mychannel")
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
 
 	if response.Status != shim.OK {
 		errStr := fmt.Sprintf("Failed to findById chaincode. Got error: %s", string(response.Payload))
@@ -244,7 +256,7 @@ func (t *PlatformChainCode) FindIssueOrgById(ctx contractapi.TransactionContextI
 		return "", errors.New("平台id不能为空")
 	}
 	trans := [][]byte{[]byte("FindById"), []byte("id"), []byte(issueOrgId)}
-	response := ctx.GetStub().InvokeChaincode("issueOrgCC", trans, "mychannel")
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
 
 	if response.Status != shim.OK {
 		errStr := fmt.Sprintf("Failed to findById chaincode. Got error: %s", string(response.Payload))

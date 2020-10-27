@@ -4,12 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
 type DistributionRecordChaincode struct {
 	contractapi.Contract
 }
+
+const CHANNEL_NAME string = "mychannel"
+const CHAINCODE_NAME_ISSUE_ORG string = "issueOrgCC"
 
 /**
  派发记录属性
@@ -24,7 +28,7 @@ type DistributionRecordPrivateData struct {
 	Rate          float64 `json:"rate"`          //派发费率
 	CardNo        string  `json:"cardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	CardCode      string  `json:"code"`          //金融机构代码 FinancialOrg.Code
-	Status        int     `json:"status"`        //个体状态(启用/禁用)
+	Status        int     `json:"status"`        //派发状态(启用/禁用)
 }
 
 /**
@@ -99,6 +103,29 @@ func (t *DistributionRecordChaincode) Create(ctx contractapi.TransactionContextI
 	//todo 转账
 
 	return transientInput.ID, nil
+}
+
+func TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
+	if len(managedCardNo) == 0 {
+		return "", errors.New("转入共管账户卡号不能为空")
+	}
+	if len(generalCardNo) == 0 {
+		return "", errors.New("转出一般账户卡号不能为空")
+	}
+	if amount < 0 {
+		return "", errors.New("转账金额不能小于0")
+	}
+	trans := [][]byte{[]byte("TransferAsset"), []byte("managedCardNo"), []byte(managedCardNo), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to TransferAsset chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return "", fmt.Errorf(errStr)
+	}
+
+	fmt.Printf("FindIssueOrgById chaincode successful. Got response %s", string(response.Payload))
+	return string(response.Payload), nil
 }
 
 func (t *DistributionRecordChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {

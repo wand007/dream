@@ -12,29 +12,33 @@ type AgencyOrgChainCode struct {
 }
 
 /**
- 代理商机构属性
+ 商户机构私有数据属性
  */
-type AgencyOrg struct {
-	ID     string `json:"id"`     //代理商机构ID
-	Name   string `json:"name"`   //代理商机构名称
-	Status int    `json:"status"` //代理商机构状态(启用/禁用)
+type MerchantOrg struct {
+	ID          string `json:"id"`            //商户机构ID
+	Name        string `json:"name"`          //商户机构名称
+	AgencyOrgID string `json:"merchantOrgID"` //代理商机构ID AgencyOrg.ID
+	Status      int    `json:"status"`        //金融机构状态(启用/禁用)
 }
 
 /**
- 代理商机构私有数据属性
+ 商户机构属性
  */
-type AgencyOrgPrivateData struct {
-	ID        string  `json:"id"`        //代理商机构ID
-	RateBasic float64 `json:"rateBasic"` //代理商机构基础费率
+type MerchantOrgPrivateData struct {
+	ID        string  `json:"id"`        //商户机构ID
+	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
 }
 
-func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string) (string, error) {
+func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, AgencyOrgID string) (string, error) {
 
 	if len(id) == 0 {
-		return "", errors.New("金融机构ID不能为空")
+		return "", errors.New("商户机构ID不能为空")
 	}
 	if len(name) == 0 {
-		return "", errors.New("金融机构名称不能为空")
+		return "", errors.New("商户机构名称不能为空")
+	}
+	if len(AgencyOrgID) == 0 {
+		return "", errors.New("代理商机构ID不能为空")
 	}
 	// Get the state from the ledger
 	Avalbytes, err := ctx.GetStub().GetState(id)
@@ -64,7 +68,7 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return "", errors.New("Error getting transient: " + err.Error())
 	}
-	financialPrivateDataJsonBytes, ok := transMap["issue"]
+	financialPrivateDataJsonBytes, ok := transMap["agency"]
 	if !ok {
 		return "", errors.New("financial must be a key in the transient map")
 	}
@@ -72,7 +76,7 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 	if len(financialPrivateDataJsonBytes) == 0 {
 		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
 	}
-	var transientInput AgencyOrgPrivateData
+	var transientInput MerchantOrgPrivateData
 	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
@@ -83,8 +87,9 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 	if transientInput.RateBasic == 0 {
 		return "", errors.New("下发机构基础费率不能为0")
 	}
+	err = ctx.GetStub().PutPrivateData("collectionAgency",id, financialPrivateDataJsonBytes)
 
-	financial := &AgencyOrg{
+	financial := &MerchantOrg{
 		ID:     id,
 		Name:   name,
 		Status: 0,
@@ -92,6 +97,7 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 	carAsBytes, _ := json.Marshal(financial)
 
 	err = ctx.GetStub().PutState(id, carAsBytes)
+
 	if err != nil {
 		return "", errors.New("金融机构保存失败" + err.Error())
 	}
@@ -116,7 +122,7 @@ func (t *AgencyOrgChainCode) FindPrivateDataById(ctx contractapi.TransactionCont
 	if len(id) == 0 {
 		return "", errors.New("金融机构id不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionPlatform", id)
+	bytes, err := ctx.GetStub().GetPrivateData("collectionAgency", id)
 	if err != nil {
 		return "", errors.New("金融机构私有数据查询失败！")
 	}

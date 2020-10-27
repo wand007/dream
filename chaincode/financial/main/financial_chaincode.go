@@ -34,7 +34,6 @@ type FinancialOrgPrivateData struct {
 	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
 }
 
-
 /**
    金融机构共管账户私有数据属性
  */
@@ -354,12 +353,83 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 
 	return "", nil
 }
+/**
+  共管账户向一般账户交易票据
+ */
+func (t *FinancialChainCode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmount int) (string, error) {
+	if len(managedCardNo) == 0 {
+		return "", errors.New("转出共管账户卡号不能为空")
+	}
+	if len(generalCardNo) == 0 {
+		return "", errors.New("转入一般账户卡号不能为空")
+	}
+	if voucherAmount < 0 {
+		return "", errors.New("转账金额不能小于0")
+	}
+
+	//公管账户
+	managedAccountPrivateData, err := findManagedAccountPrivateDataById(ctx, managedCardNo)
+	if err != nil {
+		return "", err
+	}
+	if managedAccountPrivateData == nil {
+		return "", errors.New("共管账户卡号记录不存在")
+	}
+	//账户余额不能超过转账操作金额
+	if managedAccountPrivateData.CurrentBalance < voucherAmount {
+		return "", errors.New("共管账户余额不足")
+	}
+
+	//一般账户
+	generalAccountPrivateData, err := findGeneralAccountPrivateDataById(ctx, generalCardNo)
+	if err != nil {
+		return "", err
+	}
+	if generalAccountPrivateData == nil {
+		return "", errors.New("一般账户卡号记录不存在")
+	}
+	if managedAccountPrivateData.FinancialOrgID != generalAccountPrivateData.FinancialOrgID {
+		return "", errors.New("请选择相同的金融机构")
+	}
+
+	//减少共管账户票据余额
+	err = TransferManagedVoucherAsset(ctx, managedCardNo, -voucherAmount)
+	if err != nil {
+		return "", err
+	}
+	//增加一般户票据余额
+	err = TransferGeneralVoucherAsset(ctx, generalCardNo, voucherAmount)
+	if err != nil {
+		return "", err
+	}
+
+	return "", nil
+}
 
 func TransferGeneralAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}
 	trans := [][]byte{[]byte("TransferAsset"), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to FindPrivateDataById chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return errors.New(errStr)
+	}
+	bytes := response.Payload
+	if bytes != nil {
+		return errors.New(string(bytes))
+	}
+	return nil
+}
+
+func TransferGeneralVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
+	if len(generalCardNo) == 0 {
+		return errors.New("一般账户卡号不能为空")
+	}
+	trans := [][]byte{[]byte("TransferVoucherAsset"), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
 	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
 
 	if response.Status != shim.OK {

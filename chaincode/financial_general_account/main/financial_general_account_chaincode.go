@@ -176,7 +176,10 @@ func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.T
 	return string(bytes), nil
 }
 
-func (t *FinancialGeneralAccountChaincode) Recharge(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
+/**
+  现金交易
+ */
+func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}
@@ -195,16 +198,19 @@ func (t *FinancialGeneralAccountChaincode) Recharge(ctx contractapi.TransactionC
 	if err != nil {
 		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
-	newVoucherCurrentBalance := transientInput.VoucherCurrentBalance + amount
-	if newVoucherCurrentBalance < 0 {
+	newCurrentBalance := transientInput.CurrentBalance + amount
+	if newCurrentBalance < 0 {
 		return errors.New("一般账户现金余额不足")
 	}
-	transientInput.VoucherCurrentBalance = newVoucherCurrentBalance
+	transientInput.CurrentBalance = newCurrentBalance
 	assetJSON, _ := json.Marshal(transientInput)
 	return ctx.GetStub().PutState(generalCardNo, assetJSON)
 }
 
-func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
+/**
+  票据交易
+ */
+func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}

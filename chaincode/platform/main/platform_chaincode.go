@@ -196,7 +196,7 @@ type MerchantOrgFinancialAccountPrivateData struct {
 
 func (t *PlatformChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("PlatformChainCode Init")
-	id := "1000000001"
+	id := "768877118787432448"
 	name := "上帝监管平台"
 	platformOrg := PlatformOrg{ID: id, Name: name}
 

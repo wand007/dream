@@ -50,6 +50,29 @@ type QueryResult struct {
 	Bookmark            string    `json:"bookmark"`
 }
 
+func (t *IndividualChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("IndividualChainCode Init")
+	//公开数据
+	merchantOrg := Individual{ID: "760934239574175744", Name: "默认商户机构", AgencyOrgID: "764441096829812736", Status: 1}
+
+	carAsBytes, _ := json.Marshal(merchantOrg)
+	err := ctx.GetStub().PutState(merchantOrg.ID, carAsBytes)
+
+	if err != nil {
+		return fmt.Errorf("Failed to put to world state. %s", err.Error())
+	}
+	//私有数据
+	merchantOrgPrivateData := MerchantOrgPrivateData{ID: merchantOrg.ID, RateBasic: 0.65}
+
+	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
+	err = ctx.GetStub().PutPrivateData("collectionAgency", merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
+
+	if err != nil {
+		return fmt.Errorf("Failed to put to world state. %s", err.Error())
+	}
+	return nil
+}
+
 func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
 
 	transMap, err := ctx.GetStub().GetTransient()

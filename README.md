@@ -37,3 +37,13 @@ https://github.com/hyperledger/fabric-samples
 | issue_chaincode.go |org2 | 下发机构链码 | issueCC |
 | agency_chaincode.go |org3 | 代理商机构链码 | agencyCC |
 | merchant_chaincode.go |org4 | 商户机构链码 | merchantCC |
+
+
+私有数据集定义：
+
+|  **私有数据集名称** | **组织节点** | **私有数据集描述** |  **包含节点** |
+| -------------|------------------------------|------------------|------------------|
+| collectionFinancial |org1 | 金融机构私有数据集 | org0 + org1 |
+| collectionIssue |org2 | 下发机构私有数据集 | org0 + org2 |
+| collectionAgency |org3 | 代理商机构私有数据集 | org0 + org3 |
+| collectionAgency |org4 | 商户机构私有数据集 | org0 + org4 |

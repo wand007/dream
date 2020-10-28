@@ -28,21 +28,55 @@ type IssueOrgPrivateData struct {
 	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
 }
 
+func (t *IssueChaincode) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("IssueChaincode Init")
+	//公开数据
+	issueOrgs := []IssueOrg{
+		{ID: "I766005404604841984", Name: "默认下发机构1", Status: 1},
+		{ID: "I764441096829812736", Name: "默认下发机构2", Status: 1},
+	}
+	for _, asset := range issueOrgs {
+		assetJSON, err := json.Marshal(asset)
+		if err != nil {
+			return err
+		}
+
+		err = ctx.GetStub().PutState(asset.ID, assetJSON)
+		if err != nil {
+			return fmt.Errorf("Failed to put to world state. %s", err.Error())
+		}
+		//私有数据
+		issueOrgPrivateDatas := IssueOrgPrivateData{ID: asset.ID, RateBasic: 0.6}
+		assetJSON, err = json.Marshal(issueOrgPrivateDatas)
+		if err != nil {
+			return err
+		}
+
+		err = ctx.GetStub().PutPrivateData("collectionIssue", asset.ID, assetJSON)
+		if err != nil {
+			return fmt.Errorf("Failed to put to world state. %s", err.Error())
+		}
+	}
+
+	return nil
+}
+
 /**
-  新增金融机构共管账户私有数据
+  新增下发机构共管账户私有数据
  */
 func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id string, name string) (string, error) {
+	//公有数据入参参数
 	if len(id) == 0 {
 		return "", errors.New("下发机构ID不能为空")
 	}
 	if len(name) == 0 {
 		return "", errors.New("下发机构名称不能为空")
 	}
+	//私有数据入参参数
 	transMap, err := ctx.GetStub().GetTransient()
 	if err != nil {
 		return "", errors.New("Error getting transient: " + err.Error())
 	}
-
 	financialPrivateDataJsonBytes, ok := transMap["issue"]
 	if !ok {
 		return "", errors.New("financial must be a key in the transient map")
@@ -56,15 +90,12 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
-	if len(transientInput.ID) == 0 {
-		return "", errors.New("下发机构ID不能为空")
-	}
 	if transientInput.RateBasic == 0 {
 		return "", errors.New("下发机构基础费率不能为0")
 	}
-
+	//防重复提交
 	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionFinancialIssue", id)
+	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionIssue", id)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
 		return "", errors.New(jsonResp)
@@ -74,6 +105,7 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 		jsonResp := "{\"Error\":\"Nil amount for " + id + "\"}"
 		return "", errors.New(jsonResp)
 	}
+
 	// Mongo Query string 语法见上文链接
 	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, name)
 	// 富查询的返回结果可能为多条 所以这里返回的是一个迭代器 需要我们进一步的处理来获取需要的结果
@@ -88,12 +120,25 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 		jsonResp := "{\"Error\":\"Nil amount for " + name + "\"}"
 		return "", errors.New(jsonResp)
 	}
+	//公开数据
+	issueOrg := IssueOrg{ID: id, Name: name, Status: 1}
 
-	carAsBytes, _ := json.Marshal(transientInput)
+	carAsBytes, _ := json.Marshal(issueOrg)
+	err = ctx.GetStub().PutState(issueOrg.ID, carAsBytes)
 
-	err = ctx.GetStub().PutPrivateData("collectionFinancialIssue", id, carAsBytes)
 	if err != nil {
-		return "", errors.New("商户共管账户保存失败" + err.Error())
+		return "", fmt.Errorf("Failed to put to world state. %s", err.Error())
+	}
+
+	//私有数据
+	transientInput.ID = id
+	merchantOrgPrivateData := IssueOrgPrivateData{ID: issueOrg.ID, RateBasic: transientInput.RateBasic}
+
+	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
+	err = ctx.GetStub().PutPrivateData("collectionIssue", merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to put to world state. %s", err.Error())
 	}
 	return id, nil
 }

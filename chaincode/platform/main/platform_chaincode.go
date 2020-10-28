@@ -196,12 +196,10 @@ type MerchantOrgFinancialAccountPrivateData struct {
 
 func (t *PlatformChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("PlatformChainCode Init")
-	id := "768877118787432448"
-	name := "上帝监管平台"
-	platformOrg := PlatformOrg{ID: id, Name: name}
+	platformOrg := PlatformOrg{ID: "P768877118787432448", Name: "上帝监管平台"}
 
 	carAsBytes, _ := json.Marshal(platformOrg)
-	err := ctx.GetStub().PutState(id, carAsBytes)
+	err := ctx.GetStub().PutState(platformOrg.ID, carAsBytes)
 
 	if err != nil {
 		return fmt.Errorf("Failed to put to world state. %s", err.Error())

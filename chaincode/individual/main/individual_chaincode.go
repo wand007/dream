@@ -53,7 +53,7 @@ type QueryResult struct {
 func (t *IndividualChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("IndividualChainCode Init")
 	//公开数据
-	merchantOrg := Individual{ID: "760934239574175744", Name: "默认商户机构", AgencyOrgID: "764441096829812736", Status: 1}
+	merchantOrg := Individual{ID: "760934239574175744", Name: "默认个体", PlatformOrgID: "P768877118787432448", Status: 1}
 
 	carAsBytes, _ := json.Marshal(merchantOrg)
 	err := ctx.GetStub().PutState(merchantOrg.ID, carAsBytes)
@@ -62,7 +62,7 @@ func (t *IndividualChainCode) InitLedger(ctx contractapi.TransactionContextInter
 		return fmt.Errorf("Failed to put to world state. %s", err.Error())
 	}
 	//私有数据
-	merchantOrgPrivateData := MerchantOrgPrivateData{ID: merchantOrg.ID, RateBasic: 0.65}
+	merchantOrgPrivateData := IndividualPrivateData{ID: merchantOrg.ID, CertificateNo: "88888888"}
 
 	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
 	err = ctx.GetStub().PutPrivateData("collectionAgency", merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)

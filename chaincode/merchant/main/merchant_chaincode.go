@@ -27,9 +27,9 @@ type MerchantOrg struct {
  商户机构属性
  */
 type MerchantOrgPrivateData struct {
-	ID          string  `json:"id"`         //商户机构ID
-	AgencyOrgID string  `json:"issueOrgID"` //代理商机构ID AgencyOrg.ID
-	RateBasic   float64 `json:"rateBasic"`  //下发机构基础费率
+	ID          string  `json:"id"`          //商户机构ID
+	AgencyOrgID string  `json:"agencyOrgID"` //代理商机构ID AgencyOrg.ID
+	RateBasic   float64 `json:"rateBasic"`   //下发机构基础费率
 }
 
 func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {

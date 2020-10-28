@@ -45,5 +45,5 @@ https://github.com/hyperledger/fabric-samples
 | -------------|------------------------------|------------------|------------------|
 | collectionFinancial |org1 | 金融机构私有数据集 | org0 + org1 |
 | collectionIssue |org2 | 下发机构私有数据集 | org0 + org2 |
-| collectionAgency |org3 | 代理商机构私有数据集 | org0 + org3 |
+| collectionMerchant |org3 | 代理商机构私有数据集 | org0 + org3 |
 | collectionAgency |org4 | 商户机构私有数据集 | org0 + org4 |

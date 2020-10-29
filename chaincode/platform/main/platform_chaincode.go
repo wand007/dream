@@ -37,18 +37,22 @@ type Individual struct {
  派发记录属性
  */
 type DistributionRecordPrivateData struct {
-	ID              string  `json:"id"`            //派发记录ID
-	IndividualID    string  `json:"individualID"`  //个体ID Individual.ID
-	MerchantOrgID   string  `json:"merchantOrgID"` //商户机构ID MerchantOrg.ID
-	AgencyOrgID     string  `json:"merchantOrgID"` //代理商机构ID AgencyOrg.ID
-	IssueOrgID      string  `json:"issueOrgID"`    //下发机构ID IssueOrg.ID
-	Amount          int     `json:"amount"`        //派发金额
-	Rate            float64 `json:"rate"`          //派发费率
-	ManagedCardNo   string  `json:"managedCardNo"` //金融机构公管账户账号 FinancialOrgManagedAccountPrivateData.CardNo
-	ManagedCardCode string  `json:"managedCode"`   //金融机构代码 FinancialOrg.Code
-	GeneralCardNo   string  `json:"generalCardNo"` //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
-	GeneralCardCode string  `json:"generalCode"`   //金融机构代码 FinancialOrg.Code
-	Status          int     `json:"status"`        //派发状态(0:未下发/1:已下发)
+	ID                   string  `json:"id"`                   //派发记录ID
+	PlatformOrgID        string  `json:"platformOrgID"`        //平台机构ID PlatformOrg.ID
+	FinancialOrgID       string  `json:"financialOrgID"`       //金融机构ID FinancialOrg.ID
+	IndividualID         string  `json:"individualID"`         //个体ID Individual.ID
+	MerchantOrgID        string  `json:"merchantOrgID"`        //商户机构ID MerchantOrg.ID
+	AgencyOrgID          string  `json:"merchantOrgID"`        //代理商机构ID AgencyOrg.ID
+	IssueOrgID           string  `json:"issueOrgID"`           //下发机构ID IssueOrg.ID
+	ManagedAccountCardNo string  `json:"managedAccountCardNo"` //共管账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	IssueCardNo          string  `json:"issueCardNo"`          //下发机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	IndividualCardNo     string  `json:"individualCardNo"`     //个体一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	AgencyCardNo         string  `json:"managedCardNo"`        //代理商机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	ManagedCardNo        string  `json:"managedCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	GeneralCardNo        string  `json:"generalCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	Amount               int     `json:"amount"`               //派发金额
+	Rate                 float64 `json:"rate"`                 //派发费率
+	Status               int     `json:"status"`               //派发状态(0:未下发/1:已下发)
 }
 
 /**

@@ -19,6 +19,10 @@ const CHANNEL_NAME string = "mychannel"
 const (
 	//金融机构链码
 	CHAINCODE_NAME_FINANCIAL_ORG string = "financialCC"
+	//金融机构共管户链码
+	CHAINCODE_NAME_FINANCIAL_MANAGED_ACCOUNT string = "financialManagedAccountCC"
+	//下发机构链码
+	CHAINCODE_NAME_ISSUE_ORG string = "issueCC"
 	//代理商机构链码
 	CHAINCODE_NAME_AGENCY_ORG string = "agencyCC"
 	//商户机构链码
@@ -32,18 +36,48 @@ const COLLECTION_DISTRIBUTION_RECORD string = "collectionDistributionRecord"
  派发记录属性
  */
 type DistributionRecordPrivateData struct {
-	ID              string  `json:"id"`            //派发记录ID
-	IndividualID    string  `json:"individualID"`  //个体ID Individual.ID
-	MerchantOrgID   string  `json:"merchantOrgID"` //商户机构ID MerchantOrg.ID
-	AgencyOrgID     string  `json:"merchantOrgID"` //代理商机构ID AgencyOrg.ID
-	IssueOrgID      string  `json:"issueOrgID"`    //下发机构ID IssueOrg.ID
-	Amount          int     `json:"amount"`        //派发金额
-	Rate            float64 `json:"rate"`          //派发费率
-	ManagedCardNo   string  `json:"managedCardNo"` //金融机构公管账户账号 FinancialOrgManagedAccountPrivateData.CardNo
-	ManagedCardCode string  `json:"managedCode"`   //金融机构代码 FinancialOrg.Code
-	GeneralCardNo   string  `json:"generalCardNo"` //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
-	GeneralCardCode string  `json:"generalCode"`   //金融机构代码 FinancialOrg.Code
-	Status          int     `json:"status"`        //派发状态(0:未下发/1:已下发)
+	ID                   string  `json:"id"`                   //派发记录ID
+	PlatformOrgID        string  `json:"platformOrgID"`        //平台机构ID PlatformOrg.ID
+	FinancialOrgID       string  `json:"financialOrgID"`       //金融机构ID FinancialOrg.ID
+	IndividualID         string  `json:"individualID"`         //个体ID Individual.ID
+	MerchantOrgID        string  `json:"merchantOrgID"`        //商户机构ID MerchantOrg.ID
+	AgencyOrgID          string  `json:"merchantOrgID"`        //代理商机构ID AgencyOrg.ID
+	IssueOrgID           string  `json:"issueOrgID"`           //下发机构ID IssueOrg.ID
+	ManagedAccountCardNo string  `json:"managedAccountCardNo"` //共管账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	IssueCardNo          string  `json:"issueCardNo"`          //下发机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	IndividualCardNo     string  `json:"individualCardNo"`     //个体一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	AgencyCardNo         string  `json:"managedCardNo"`        //代理商机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	ManagedCardNo        string  `json:"managedCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	GeneralCardNo        string  `json:"generalCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	Amount               int     `json:"amount"`               //派发金额
+	Rate                 float64 `json:"rate"`                 //派发费率
+	Status               int     `json:"status"`               //派发状态(0:未下发/1:已下发)
+}
+
+/**
+   金融机构共管账户私有数据属性
+ */
+type FinancialOrgManagedAccountPrivateData struct {
+	CardNo                string `json:"cardNo"`                //金融机构共管账户账号
+	PlatformOrgID         string `json:"platformOrgID"`         //平台机构ID PlatformOrg.ID
+	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
+	IssueOrgID            string `json:"issueOrgID"`            //下发机构ID IssueOrg.ID
+	MerchantOrgID         string `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
+	AgencyOrgID           string `json:"merchantOrgID"`         //代理商机构ID AgencyOrg.ID
+	IssueCardNo           string `json:"issueCardNo"`           //下发机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	AgencyCardNo          string `json:"managedCardNo"`         //代理商机构一般账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	ManagedCardNo         string `json:"managedCardNo"`         //代理商机构一般账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	GeneralCardNo         string `json:"generalCardNo"`         //商户机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
+}
+
+/**
+   下发机构私有数据属性
+ */
+type IssueOrgPrivateData struct {
+	ID        string  `json:"id"`        //下发机构ID IssueOrg.ID
+	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
 }
 
 /**
@@ -58,8 +92,21 @@ type AgencyOrgPrivateData struct {
  商户机构属性
  */
 type MerchantOrgPrivateData struct {
-	ID        string  `json:"id"`        //商户机构ID
-	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
+	ID          string  `json:"id"`          //商户机构ID
+	AgencyOrgID string  `json:"agencyOrgID"` //代理商机构ID AgencyOrg.ID
+	RateBasic   float64 `json:"rateBasic"`   //下发机构基础费率
+}
+
+/**
+ 派发记录属性
+ */
+type DistributionRecordTransientInput struct {
+	ID                   string  `json:"id"`                   //派发记录ID
+	IndividualID         string  `json:"individualID"`         //个体ID Individual.ID
+	ManagedAccountCardNo string  `json:"managedAccountCardNo"` //共管账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	IndividualCardNo     string  `json:"individualCardNo"`     //个体一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	Amount               int     `json:"amount"`               //派发金额
+	Rate                 float64 `json:"rate"`                 //派发费率
 }
 
 /**
@@ -79,121 +126,179 @@ func (t *DistributionRecordChaincode) Create(ctx contractapi.TransactionContextI
 	if len(financialPrivateDataJsonBytes) == 0 {
 		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
 	}
-	var distributionRecordPrivateData DistributionRecordPrivateData
-	err = json.Unmarshal(financialPrivateDataJsonBytes, &distributionRecordPrivateData)
+	var transientInput DistributionRecordTransientInput
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
-	if len(distributionRecordPrivateData.ID) == 0 {
+	if len(transientInput.ID) == 0 {
 		return "", errors.New("派发记录ID不能为空")
 	}
-	if len(distributionRecordPrivateData.IndividualID) == 0 {
+	if len(transientInput.IndividualID) == 0 {
 		return "", errors.New("个体ID不能为空")
 	}
-	if len(distributionRecordPrivateData.MerchantOrgID) == 0 {
-		return "", errors.New("商户机构ID不能为空")
-	}
-	if len(distributionRecordPrivateData.AgencyOrgID) == 0 {
-		return "", errors.New("代理商机构ID不能为空")
-	}
-	if len(distributionRecordPrivateData.IssueOrgID) == 0 {
-		return "", errors.New("下发机构ID不能为空")
-	}
-	if len(distributionRecordPrivateData.ManagedCardNo) == 0 {
-		return "", errors.New("公管账户金融机构账号不能为空")
-	}
-	if len(distributionRecordPrivateData.ManagedCardCode) == 0 {
-		return "", errors.New("公管账户金融机构代码不能为空")
-	}
-	if len(distributionRecordPrivateData.GeneralCardNo) == 0 {
-		return "", errors.New("一般账户金融机构账号不能为空")
-	}
-	if len(distributionRecordPrivateData.GeneralCardCode) == 0 {
-		return "", errors.New("一般账户金融机构代码不能为空")
-	}
-	if distributionRecordPrivateData.Amount == 0 {
+	if transientInput.Amount == 0 {
 		return "", errors.New("派发金额不能为0")
 	}
-	if distributionRecordPrivateData.Rate == 0 {
+	if transientInput.Rate == 0 {
 		return "", errors.New("派发费率不能为0")
 	}
 
 	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_DISTRIBUTION_RECORD, distributionRecordPrivateData.ID)
+	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_DISTRIBUTION_RECORD, transientInput.ID)
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + distributionRecordPrivateData.ID + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get state for " + transientInput.ID + "\"}"
 		return "", errors.New(jsonResp)
 	}
 
 	if Avalbytes != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + distributionRecordPrivateData.ID + "\"}"
+		jsonResp := "{\"Error\":\"Nil amount for " + transientInput.ID + "\"}"
 		return "", errors.New(jsonResp)
 	}
-	// 共管账户向个人一般账户转账票据
-	_, err = TransferVoucherAsset(ctx, distributionRecordPrivateData.ManagedCardNo, distributionRecordPrivateData.GeneralCardNo, distributionRecordPrivateData.Amount)
+
+	//金融机构共管账户私有数据
+	managedAccountPrivateData, err := findManagedAccountPrivateDataById(ctx, transientInput.ManagedAccountCardNo)
 	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+	if managedAccountPrivateData == nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
 	//商户机构
-	agencyOrgPrivateData, err := findAgencyPrivateDataById(ctx, distributionRecordPrivateData.AgencyOrgID)
-	if err != nil {
-		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
-	}
-	if agencyOrgPrivateData == nil {
-		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
-	}
-
-	//代理商机构
-	merchantOrgPrivateData, err := findMerchantPrivateDataById(ctx, distributionRecordPrivateData.MerchantOrgID)
+	merchantOrgPrivateData, err := findMerchantPrivateDataById(ctx, managedAccountPrivateData.MerchantOrgID)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
 	if merchantOrgPrivateData == nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
-	//代理商佣金
-	merchantBrokerage, err := CalculationBrokerage(merchantOrgPrivateData.RateBasic, agencyOrgPrivateData.RateBasic, distributionRecordPrivateData.Amount)
-	if err != nil {
-		return "", err
-	}
-	// 共管账户向代理商一般账户转账佣金票据
-	_, err = TransferVoucherAsset(ctx, distributionRecordPrivateData.ManagedCardNo, distributionRecordPrivateData.GeneralCardNo, merchantBrokerage)
+	//代理商机构
+	orgManagedAccountPrivateData, err := findAgencyPrivateDataById(ctx, merchantOrgPrivateData.AgencyOrgID)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
-	//商户佣金
-	agencyBrokerage, err := CalculationBrokerage(agencyOrgPrivateData.RateBasic, distributionRecordPrivateData.Rate, distributionRecordPrivateData.Amount)
-	if err != nil {
-		return "", err
-	}
-	// 共管账户向商户一般账户转账佣金票据
-	_, err = TransferVoucherAsset(ctx, distributionRecordPrivateData.ManagedCardNo, distributionRecordPrivateData.GeneralCardNo, agencyBrokerage)
-	if err != nil {
+	if orgManagedAccountPrivateData == nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
-	}
-	//修改下发记录状态
-	distributionRecordPrivateData.Status = 1
-	carAsBytes, _ := json.Marshal(distributionRecordPrivateData)
-	err = ctx.GetStub().PutPrivateData(COLLECTION_DISTRIBUTION_RECORD, distributionRecordPrivateData.ID, carAsBytes)
-	if err != nil {
-		return "", errors.New("商户共管账户保存失败" + err.Error())
 	}
 
-	return distributionRecordPrivateData.ID, nil
+	//下发机构
+	issueOrgPrivateData, err := findIssuePrivateDataById(ctx, managedAccountPrivateData.IssueOrgID)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+	if issueOrgPrivateData == nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+
+	//共管账户向个人一般账户转账票据
+	_, err = TransferVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, transientInput.IndividualCardNo, transientInput.Amount)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+	//下发机构佣金
+	issueBrokerage, err := CalculationBrokerage(issueOrgPrivateData.RateBasic, orgManagedAccountPrivateData.RateBasic, transientInput.Amount)
+	if err != nil {
+		return "", err
+	}
+	//共管账户向代理商一般账户转账佣金票据
+	_, err = TransferVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, managedAccountPrivateData.GeneralCardNo, issueBrokerage)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+	//代理商佣金
+	merchantBrokerage, err := CalculationBrokerage(orgManagedAccountPrivateData.RateBasic, merchantOrgPrivateData.RateBasic, transientInput.Amount)
+	if err != nil {
+		return "", err
+	}
+	//共管账户向代理商一般账户转账佣金票据
+	_, err = TransferVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, managedAccountPrivateData.AgencyCardNo, merchantBrokerage)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+	//构造下发记录
+	distributionRecordPrivateDat := DistributionRecordPrivateData{
+		ID:                   transientInput.ID,
+		PlatformOrgID:        managedAccountPrivateData.PlatformOrgID,
+		FinancialOrgID:       managedAccountPrivateData.FinancialOrgID,
+		IndividualID:         transientInput.IndividualID,
+		MerchantOrgID:        managedAccountPrivateData.MerchantOrgID,
+		AgencyOrgID:          managedAccountPrivateData.AgencyOrgID,
+		IssueOrgID:           managedAccountPrivateData.IssueOrgID,
+		ManagedAccountCardNo: transientInput.ManagedAccountCardNo,
+		IssueCardNo:          managedAccountPrivateData.IssueCardNo,
+		IndividualCardNo:     transientInput.IndividualCardNo,
+		AgencyCardNo:         managedAccountPrivateData.AgencyCardNo,
+		ManagedCardNo:        managedAccountPrivateData.ManagedCardNo,
+		GeneralCardNo:        managedAccountPrivateData.GeneralCardNo,
+		Amount:               transientInput.Amount,
+		Rate:                 transientInput.Rate,
+		Status:               1,
+	}
+	carAsBytes, _ := json.Marshal(distributionRecordPrivateDat)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_DISTRIBUTION_RECORD, distributionRecordPrivateDat.ID, carAsBytes)
+	if err != nil {
+		return "", errors.New("下发记录保存失败" + err.Error())
+	}
+
+	return transientInput.ID, nil
 }
 
 func (t *DistributionRecordChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
-		return "", errors.New("共管账户id不能为空")
+		return "", errors.New("下发记录id不能为空")
 	}
 	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_DISTRIBUTION_RECORD, id)
 	if err != nil {
-		return "", errors.New("共管账户查询失败！")
+		return "", errors.New("下发记录查询失败！")
 	}
 	if bytes == nil {
-		return "", fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", id)
+		return "", fmt.Errorf("下发记录数据不存在，读到的%s对应的数据为空！", id)
 	}
 	return string(bytes), nil
+}
+
+func findManagedAccountPrivateDataById(ctx contractapi.TransactionContextInterface, cardNo string) (*FinancialOrgManagedAccountPrivateData, error) {
+	if len(cardNo) == 0 {
+		return nil, errors.New("金融机构共管账户账号不能为空")
+	}
+	trans := [][]byte{[]byte("FindPrivateDataById"), []byte("id"), []byte(cardNo)}
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_FINANCIAL_MANAGED_ACCOUNT, trans, CHANNEL_NAME)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to FindPrivateDataById chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return nil, fmt.Errorf(errStr)
+	}
+
+	managedAccountPrivateData := new(FinancialOrgManagedAccountPrivateData)
+	err := json.Unmarshal(response.Payload, &managedAccountPrivateData)
+	if err != nil {
+		return nil, errors.New("Failed to decode JSON of: " + string(response.Payload))
+	}
+
+	return managedAccountPrivateData, nil
+}
+
+func findIssuePrivateDataById(ctx contractapi.TransactionContextInterface, id string) (*IssueOrgPrivateData, error) {
+	if len(id) == 0 {
+		return nil, errors.New("下发机构ID不能为空")
+	}
+	trans := [][]byte{[]byte("FindPrivateDataById"), []byte("id"), []byte(id)}
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to FindPrivateDataById chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return nil, fmt.Errorf(errStr)
+	}
+
+	issueOrgPrivateData := new(IssueOrgPrivateData)
+	err := json.Unmarshal(response.Payload, &issueOrgPrivateData)
+	if err != nil {
+		return nil, errors.New("Failed to decode JSON of: " + string(response.Payload))
+	}
+
+	return issueOrgPrivateData, nil
 }
 
 func findAgencyPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (*AgencyOrgPrivateData, error) {
@@ -209,13 +314,13 @@ func findAgencyPrivateDataById(ctx contractapi.TransactionContextInterface, id s
 		return nil, fmt.Errorf(errStr)
 	}
 
-	managedAccountPrivateData := new(AgencyOrgPrivateData)
-	err := json.Unmarshal(response.Payload, &managedAccountPrivateData)
+	agencyOrgPrivateData := new(AgencyOrgPrivateData)
+	err := json.Unmarshal(response.Payload, &agencyOrgPrivateData)
 	if err != nil {
 		return nil, errors.New("Failed to decode JSON of: " + string(response.Payload))
 	}
 
-	return managedAccountPrivateData, nil
+	return agencyOrgPrivateData, nil
 }
 
 func findMerchantPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (*MerchantOrgPrivateData, error) {
@@ -231,13 +336,13 @@ func findMerchantPrivateDataById(ctx contractapi.TransactionContextInterface, id
 		return nil, fmt.Errorf(errStr)
 	}
 
-	managedAccountPrivateData := new(MerchantOrgPrivateData)
-	err := json.Unmarshal(response.Payload, &managedAccountPrivateData)
+	merchantOrgPrivateData := new(MerchantOrgPrivateData)
+	err := json.Unmarshal(response.Payload, &merchantOrgPrivateData)
 	if err != nil {
 		return nil, errors.New("Failed to decode JSON of: " + string(response.Payload))
 	}
 
-	return managedAccountPrivateData, nil
+	return merchantOrgPrivateData, nil
 }
 
 func TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {

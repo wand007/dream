@@ -50,11 +50,11 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 		{CardNo: "6229486603953152819", FinancialOrgID: "F766005404604841984", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 		{CardNo: "6229488603953152825", FinancialOrgID: "F766374712807800832", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 		//商户机构
-		{CardNo: "6229486603953174011", FinancialOrgID: "F766005404604841984", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "6229488603953174027", FinancialOrgID: "F766374712807800832", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229486603953174011", FinancialOrgID: "F766005404604841984", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229488603953174027", FinancialOrgID: "F766374712807800832", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 		//代理商机构
-		{CardNo: "6229486603953188912", FinancialOrgID: "F766005404604841984", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "6229488603953188928", FinancialOrgID: "F766374712807800832", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229486603953188912", FinancialOrgID: "F766005404604841984", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229488603953188928", FinancialOrgID: "F766374712807800832", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 		//下发机构
 		{CardNo: "6229486603953201814", FinancialOrgID: "F766005404604841984", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 		{CardNo: "6229488603953201820", FinancialOrgID: "F766374712807800832", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},

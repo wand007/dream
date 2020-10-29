@@ -19,9 +19,15 @@ const COLLECTION_FINANCIAL_MANAGED_ACCOUNT string = "collectionFinancialManagedA
  */
 type FinancialOrgManagedAccountPrivateData struct {
 	CardNo                string `json:"cardNo"`                //金融机构共管账户账号
-	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
 	PlatformOrgID         string `json:"platformOrgID"`         //平台机构ID PlatformOrg.ID
+	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
+	IssueOrgID            string `json:"issueOrgID"`            //下发机构ID IssueOrg.ID
 	MerchantOrgID         string `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
+	AgencyOrgID           string `json:"merchantOrgID"`         //代理商机构ID AgencyOrg.ID
+	IssueCardNo           string `json:"issueCardNo"`           //下发机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	AgencyCardNo          string `json:"managedCardNo"`         //代理商机构一般账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	ManagedCardNo         string `json:"managedCardNo"`         //代理商机构一般账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	GeneralCardNo         string `json:"generalCardNo"`         //商户机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
@@ -30,11 +36,11 @@ func (t *FinancialManagedAccountChaincode) InitLedger(ctx contractapi.Transactio
 	fmt.Println("FinancialManagedAccountChaincode Init")
 	//私有数据
 	managedAccountPrivateData := []FinancialOrgManagedAccountPrivateData{
-		{CardNo: "3036603953562710", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766005404604841984", PlatformOrgID: "P768877118787432448", VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "3038603953562825", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766005404604841984", PlatformOrgID: "P768877118787432448", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3036603953562710", AgencyOrgID: "A766005404604841984", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766005404604841984", IssueOrgID: "I766005404604841984", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229486603953201814",AgencyCardNo:"6229486603953188912" ,ManagedCardNo: "6229486603953188912", GeneralCardNo: "6229486603953174011", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3038603953562825", AgencyOrgID: "A766374712807800832", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766005404604841984", IssueOrgID: "I764441096829812736", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229488603953201820", AgencyCardNo:"6229488603953188928" ,ManagedCardNo: "6229488603953188928", GeneralCardNo: "6229488603953174027", VoucherCurrentBalance: 0, AccStatus: 1},
 
-		{CardNo: "3036603953578518", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766374712807800832", PlatformOrgID: "P768877118787432448", VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "3038603953578524", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766374712807800832", PlatformOrgID: "P768877118787432448", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3036603953578518", AgencyOrgID: "A766005404604841984", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766374712807800832", IssueOrgID: "I766005404604841984", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229486603953201814",AgencyCardNo:"6229486603953188912" , ManagedCardNo: "6229486603953188912", GeneralCardNo: "6229486603953174011", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3038603953578524", AgencyOrgID: "A766374712807800832", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766374712807800832", IssueOrgID: "I764441096829812736", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229488603953201820",AgencyCardNo:"6229488603953188928" , ManagedCardNo: "6229488603953188928", GeneralCardNo: "6229488603953174027", VoucherCurrentBalance: 0, AccStatus: 1},
 	}
 	for _, asset := range managedAccountPrivateData {
 		assetJSON, err := json.Marshal(asset)
@@ -83,8 +89,26 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 	if len(transientInput.PlatformOrgID) == 0 {
 		return "", errors.New("平台机构ID不能为空")
 	}
+	if len(transientInput.IssueOrgID) == 0 {
+		return "", errors.New("下发机构ID不能为空")
+	}
 	if len(transientInput.MerchantOrgID) == 0 {
 		return "", errors.New("商户机构ID不能为空")
+	}
+	if len(transientInput.AgencyOrgID) == 0 {
+		return "", errors.New("代理商机构ID不能为空")
+	}
+	if len(transientInput.IssueCardNo) == 0 {
+		return "", errors.New("下发机构一般账户账号不能为空")
+	}
+	if len(transientInput.ManagedCardNo) == 0 {
+		return "", errors.New("代理商机构一般账户账号不能为空")
+	}
+	if len(transientInput.GeneralCardNo) == 0 {
+		return "", errors.New("商户机构一般账户账号不能为空")
+	}
+	if len(transientInput.AgencyCardNo) == 0 {
+		return "", errors.New("代理商机构一般账户账号不能为空")
 	}
 	// Get the state from the ledger
 	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_MANAGED_ACCOUNT, transientInput.CardNo)

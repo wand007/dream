@@ -18,9 +18,10 @@ const COLLECTION_AGENCY string = "collectionAgency"
  代理商机构属性
  */
 type AgencyOrg struct {
-	ID     string `json:"id"`     //代理商机构ID
-	Name   string `json:"name"`   //代理商机构名称
-	Status int    `json:"status"` //代理商机构状态(启用/禁用)
+	ID                      string `json:"id"`                      //代理商机构ID
+	Name                    string `json:"name"`                    //代理商机构名称
+	UnifiedSocialCreditCode string `json:"unifiedSocialCreditCode"` //统一社会信用代码
+	Status                  int    `json:"status"`                  //代理商机构状态(启用/禁用)
 }
 
 /**
@@ -36,8 +37,8 @@ func (t *AgencyOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterf
 	fmt.Println("AgencyOrgChainCode Init")
 	//公开数据
 	financialOrgs := []AgencyOrg{
-		{ID: "A766005404604841984", Name: "代理商机构1", Status: 1},
-		{ID: "A766374712807800832", Name: "代理商机构2", Status: 1},
+		{ID: "A766005404604841984", Name: "代理商机构1", UnifiedSocialCreditCode: "92370112MA3F23MB5N", Status: 1},
+		{ID: "A766374712807800832", Name: "代理商机构2", UnifiedSocialCreditCode: "92370104MA3DR08A4D", Status: 1},
 	}
 	for _, asset := range financialOrgs {
 		assetJSON, err := json.Marshal(asset)
@@ -74,13 +75,16 @@ func (t *AgencyOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterf
 /**
    新增代理机构共管账户私有数据
  */
-func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string) (string, error) {
+func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, unifiedSocialCreditCode string) (string, error) {
 	//公有数据入参参数
 	if len(id) == 0 {
 		return "", errors.New("代理商机构ID不能为空")
 	}
 	if len(name) == 0 {
 		return "", errors.New("代理商机构名称不能为空")
+	}
+	if len(unifiedSocialCreditCode) == 0 {
+		return "", errors.New("统一社会信用代码不能为空")
 	}
 	//私有数据入参参数
 	transMap, err := ctx.GetStub().GetTransient()
@@ -134,9 +138,10 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 
 	//公开数据
 	financial := &AgencyOrg{
-		ID:     id,
-		Name:   name,
-		Status: 0,
+		ID:                      id,
+		Name:                    name,
+		UnifiedSocialCreditCode: unifiedSocialCreditCode,
+		Status:                  0,
 	}
 
 	carAsBytes, _ := json.Marshal(financial)

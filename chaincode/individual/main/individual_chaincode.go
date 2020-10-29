@@ -13,6 +13,24 @@ type IndividualChainCode struct {
 	contractapi.Contract
 }
 
+//私有数据集名称
+const COLLECTION_INDIVIDUAL string = "collectionIndividual"
+
+const (
+	//默认
+	CERTIFICATE_TYPE_0 int = 0
+	//身份证
+	CERTIFICATE_TYPE_1 int = 1
+	//港澳台证
+	CERTIFICATE_TYPE_2 int = 2
+	//护照
+	CERTIFICATE_TYPE_3 int = 3
+	//军官证
+	CERTIFICATE_TYPE_4 int = 4
+	//统一社会信用代码
+	CERTIFICATE_TYPE_5 int = 5
+)
+
 /**
  个体属性
  */
@@ -53,7 +71,7 @@ type QueryResult struct {
 func (t *IndividualChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("IndividualChainCode Init")
 	//公开数据
-	merchantOrg := Individual{ID: "760934239574175744", Name: "默认个体", PlatformOrgID: "P768877118787432448", Status: 1}
+	merchantOrg := Individual{ID: "IN760934239574175744", Name: "默认个体", PlatformOrgID: "P768877118787432448", Status: 1}
 
 	carAsBytes, _ := json.Marshal(merchantOrg)
 	err := ctx.GetStub().PutState(merchantOrg.ID, carAsBytes)
@@ -62,10 +80,10 @@ func (t *IndividualChainCode) InitLedger(ctx contractapi.TransactionContextInter
 		return fmt.Errorf("Failed to put to world state. %s", err.Error())
 	}
 	//私有数据
-	merchantOrgPrivateData := IndividualPrivateData{ID: merchantOrg.ID, CertificateNo: "88888888"}
+	merchantOrgPrivateData := IndividualPrivateData{ID: merchantOrg.ID, CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1}
 
 	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
-	err = ctx.GetStub().PutPrivateData("collectionAgency", merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_INDIVIDUAL, merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
 
 	if err != nil {
 		return fmt.Errorf("Failed to put to world state. %s", err.Error())
@@ -73,6 +91,9 @@ func (t *IndividualChainCode) InitLedger(ctx contractapi.TransactionContextInter
 	return nil
 }
 
+/**
+  新增个体数据
+ */
 func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
 
 	transMap, err := ctx.GetStub().GetTransient()
@@ -131,7 +152,7 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 		}
 	}
 	//私有数据防重复添加
-	bytes, err = ctx.GetStub().GetPrivateData("collectionIndividual", id)
+	bytes, err = ctx.GetStub().GetPrivateData(COLLECTION_INDIVIDUAL, id)
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}
@@ -143,7 +164,7 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 			CertificateType: individualTransientInput.CertificateType,
 		}
 		carAsBytes, _ := json.Marshal(individualPrivateData)
-		err = ctx.GetStub().PutPrivateData("collectionIndividual", id, carAsBytes)
+		err = ctx.GetStub().PutPrivateData(COLLECTION_INDIVIDUAL, id, carAsBytes)
 		if err != nil {
 			return "", errors.New("个体私有数据保存失败" + err.Error())
 		}
@@ -207,7 +228,7 @@ func (t *IndividualChainCode) Update(ctx contractapi.TransactionContextInterface
 		return "", errors.New("个体公开数据更新失败" + err.Error())
 	}
 	//私有数据
-	bytes, err = ctx.GetStub().GetPrivateData("collectionIndividual", id)
+	bytes, err = ctx.GetStub().GetPrivateData(COLLECTION_INDIVIDUAL, id)
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}
@@ -228,7 +249,7 @@ func (t *IndividualChainCode) Update(ctx contractapi.TransactionContextInterface
 	}
 
 	carAsBytes, _ = json.Marshal(individualPrivateData)
-	err = ctx.GetStub().PutPrivateData("collectionIndividual", id, carAsBytes)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_INDIVIDUAL, id, carAsBytes)
 	if err != nil {
 		return "", errors.New("个体私有数据更新失败" + err.Error())
 	}
@@ -253,7 +274,7 @@ func (t *IndividualChainCode) FindPrivateDataById(ctx contractapi.TransactionCon
 	if len(id) == 0 {
 		return "", errors.New("个体id不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionIndividual", id)
+	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_INDIVIDUAL, id)
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}

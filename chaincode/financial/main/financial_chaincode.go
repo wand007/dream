@@ -54,13 +54,12 @@ type FinancialOrgManagedAccountPrivateData struct {
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
-
 func (t *FinancialChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("FinancialChainCode Init")
 	//公开数据
 	financialOrgs := []FinancialOrg{
-		{ID: "F766005404604841984", Name: "默认金融机构1", Code: "F1", Status: 1},
-		{ID: "F766374712807800832", Name: "默认金融机构2", Code: "F2", Status: 1},
+		{ID: "F766005404604841984", Name: "默认金融机构1", Code: "1", Status: 1},
+		{ID: "F766374712807800832", Name: "默认金融机构2", Code: "2", Status: 1},
 	}
 	for _, asset := range financialOrgs {
 		assetJSON, err := json.Marshal(asset)
@@ -580,7 +579,6 @@ func (t *FinancialChainCode) FindPrivateDataById(ctx contractapi.TransactionCont
 	}
 	return string(bytes), nil
 }
-
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(FinancialChainCode))
 	if err != nil {

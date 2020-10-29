@@ -18,9 +18,10 @@ const COLLECTION_MERCHANT string = "collectionMerchant"
  商户机构私有数据属性
  */
 type MerchantOrg struct {
-	ID     string `json:"id"`     //商户机构ID
-	Name   string `json:"name"`   //商户机构名称
-	Status int    `json:"status"` //金融机构状态(启用/禁用)
+	ID                      string `json:"id"`                      //商户机构ID
+	Name                    string `json:"name"`                    //商户机构名称
+	UnifiedSocialCreditCode string `json:"unifiedSocialCreditCode"` //统一社会信用代码
+	Status                  int    `json:"status"`                  //金融机构状态(启用/禁用)
 }
 
 /**
@@ -37,8 +38,8 @@ func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInte
 	fmt.Println("IssueChaincode Init")
 	//公开数据
 	issueOrgs := []MerchantOrg{
-		{ID: "M766005404604841984", Name: "默认商户机构1", Status: 1},
-		{ID: "M764441096829812736", Name: "默认商户机构2", Status: 1},
+		{ID: "M766005404604841984", Name: "默认商户机构1", UnifiedSocialCreditCode: "91370181MA3D7J9W3W", Status: 1},
+		{ID: "M764441096829812736", Name: "默认商户机构2", UnifiedSocialCreditCode: "91370100MA3MP74K7A", Status: 1},
 	}
 	for _, asset := range issueOrgs {
 		assetJSON, err := json.Marshal(asset)
@@ -74,7 +75,7 @@ func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInte
 /**
    新建商户机构
  */
-func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, agencyOrgID string) (string, error) {
+func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, unifiedSocialCreditCode string, agencyOrgID string) (string, error) {
 	//公有数据入参参数
 	if len(id) == 0 {
 		return "", errors.New("商户机构ID不能为空")
@@ -84,6 +85,9 @@ func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterfac
 	}
 	if len(agencyOrgID) == 0 {
 		return "", errors.New("代理商机构ID不能为空")
+	}
+	if len(unifiedSocialCreditCode) == 0 {
+		return "", errors.New("统一社会信用代码不能为空")
 	}
 	// Get the state from the ledger
 	Avalbytes, err := ctx.GetStub().GetState(id)
@@ -133,22 +137,22 @@ func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterfac
 		return "", errors.New(jsonResp)
 	}
 	//Mongo Query string 语法
-	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, name)
+	queryString := fmt.Sprintf(`{"selector":{"unifiedSocialCreditCode":"%s"}}`, unifiedSocialCreditCode)
 	// 富查询的返回结果可能为多条 所以这里返回的是一个迭代器 需要我们进一步的处理来获取需要的结果
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
 
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + name + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get state for " + unifiedSocialCreditCode + "\"}"
 		return "", errors.New(jsonResp)
 	}
 
 	if resultsIterator != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + name + "\"}"
+		jsonResp := "{\"Error\":\"Nil amount for " + unifiedSocialCreditCode + "\"}"
 		return "", errors.New(jsonResp)
 	}
 
 	//公开数据
-	merchantOrg := MerchantOrg{ID: id, Name: name, Status: 1}
+	merchantOrg := MerchantOrg{ID: id, Name: name, UnifiedSocialCreditCode: unifiedSocialCreditCode, Status: 1}
 
 	carAsBytes, _ := json.Marshal(merchantOrg)
 	err = ctx.GetStub().PutState(merchantOrg.ID, carAsBytes)

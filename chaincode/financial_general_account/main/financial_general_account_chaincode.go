@@ -87,7 +87,7 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 		return "", errors.New("Error getting transient: " + err.Error())
 	}
 
-	financialPrivateDataJsonBytes, ok := transMap["general"]
+	financialPrivateDataJsonBytes, ok := transMap["generalAccount"]
 	if !ok {
 		return "", errors.New("financial must be a key in the transient map")
 	}

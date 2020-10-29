@@ -91,7 +91,7 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return "", errors.New("Error getting transient: " + err.Error())
 	}
-	financialPrivateDataJsonBytes, ok := transMap["issue"]
+	financialPrivateDataJsonBytes, ok := transMap["agency"]
 	if !ok {
 		return "", errors.New("financial must be a key in the transient map")
 	}

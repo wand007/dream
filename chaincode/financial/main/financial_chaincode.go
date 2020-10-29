@@ -181,7 +181,7 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 //		return "", errors.New("Error getting transient: " + err.Error())
 //	}
 //
-//	individualPrivateDataJsonBytes, ok := transMap["individual"]
+//	individualPrivateDataJsonBytes, ok := transMap["transient"]
 //	if !ok {
 //		return "", errors.New("individual must be a key in the transient map")
 //	}
@@ -275,7 +275,7 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 //		return "", errors.New("Error getting transient: " + err.Error())
 //	}
 //
-//	individualPrivateDataJsonBytes, ok := transMap["individual"]
+//	individualPrivateDataJsonBytes, ok := transMap["transient"]
 //	if !ok {
 //		return "", errors.New("individual must be a key in the transient map")
 //	}

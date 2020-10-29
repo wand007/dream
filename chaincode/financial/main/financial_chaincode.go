@@ -56,7 +56,7 @@ type FinancialOrgManagedAccountPrivateData struct {
 
 func (t *FinancialChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("FinancialChainCode Init")
-	//公开数据
+	//私有数据
 	financialOrgs := []FinancialOrg{
 		{ID: "F766005404604841984", Name: "默认金融机构1", Code: "1", Status: 1},
 		{ID: "F766374712807800832", Name: "默认金融机构2", Code: "2", Status: 1},

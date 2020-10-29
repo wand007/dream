@@ -11,22 +11,9 @@ type FinancialGeneralAccountChaincode struct {
 	contractapi.Contract
 }
 
-const (
-	//个人一般账户私有数据集名称
-	COLLECTION_FINANCIAL_INDIVIDUAL string = "collectionFinancialIndividual"
+//私有数据集名称
+const COLLECTION_FINANCIAL_GENERAL_ACCOUNT string = "collectionFinancialOrgGeneralAccount"
 
-	//商户机构一般账户私有数据集名称
-	COLLECTION_FINANCIAL_MERCHANT string = "collectionFinancialMerchant"
-
-	//平台机构一般账户私有数据集名称
-	COLLECTION_FINANCIAL_PLATFORM string = "collectionFinancialPlatform"
-
-	//代理机构一般账户私有数据集名称
-	COLLECTION_FINANCIAL_AGENCY string = "collectionFinancialAgency"
-
-	//下发机构一般账户私有数据集名称
-	COLLECTION_FINANCIAL_ISSUE string = "collectionFinancialIssue"
-)
 const (
 	//默认
 	CERTIFICATE_TYPE_0 int = 0
@@ -56,122 +43,44 @@ type FinancialOrgGeneralAccountPrivateData struct {
 }
 
 func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	fmt.Println("IssueChaincode Init")
-	//个体
-	individualOrg1 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7636941931858894848", FinancialOrgID: "F766005404604841984", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	individualOrg2 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7636941931858894848", FinancialOrgID: "F766374712807800832", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	//商户机构
-	merchantOrg1 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766005404604841984", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	merchantOrg2 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766374712807800832", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	//代理商机构
-	agencyOrg1 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766005404604841984", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	agencyOrg2 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766374712807800832", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	//下发机构
-	issueOrg1 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766005404604841984", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	issueOrg2 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766374712807800832", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	//平台机构
-	platformOrg1 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766005404604841984", CertificateNo: "91370100MA3MP74K7A", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
-	platformOrg2 := FinancialOrgGeneralAccountPrivateData{CardNo: "I7637019072143298560", FinancialOrgID: "F766374712807800832", CertificateNo: "91370100MA3MP74K7A", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1}
+	fmt.Println("FinancialGeneralAccountChaincode Init")
 
-	//个体私有数据
-	individualOrg1JSON, err := json.Marshal(individualOrg1)
-	if err != nil {
-		return err
+	generalAccountPrivateDatas := []FinancialOrgGeneralAccountPrivateData{
+		//个体
+		{CardNo: "6229486603953152819", FinancialOrgID: "F766005404604841984", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229488603953152825", FinancialOrgID: "F766374712807800832", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		//商户机构
+		{CardNo: "6229486603953174011", FinancialOrgID: "F766005404604841984", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229488603953174027", FinancialOrgID: "F766374712807800832", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		//代理商机构
+		{CardNo: "6229486603953188912", FinancialOrgID: "F766005404604841984", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229488603953188928", FinancialOrgID: "F766374712807800832", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		//下发机构
+		{CardNo: "6229486603953201814", FinancialOrgID: "F766005404604841984", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229488603953201820", FinancialOrgID: "F766374712807800832", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		//平台机构
+		{CardNo: "6229486603953250118", FinancialOrgID: "F766005404604841984", CertificateNo: "91370100MA3MP74K7A", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229488603953250124", FinancialOrgID: "F766374712807800832", CertificateNo: "91370100MA3MP74K7A", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_INDIVIDUAL, individualOrg1.CardNo, individualOrg1JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
+	//私有数据
+	for _, asset := range generalAccountPrivateDatas {
+		assetJSON, err := json.Marshal(asset)
+		if err != nil {
+			return err
+		}
 
-	individualOrg2JSON, err := json.Marshal(individualOrg2)
-	if err != nil {
-		return err
+		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
+		if err != nil {
+			return fmt.Errorf("Failed to put to world state. %s", err.Error())
+		}
 	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_INDIVIDUAL, individualOrg2.CardNo, individualOrg2JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-
-	//商户机构私有数据
-	merchantOrg1JSON, err := json.Marshal(merchantOrg1)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_MERCHANT, merchantOrg1.CardNo, merchantOrg1JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-
-	merchantOrg2JSON, err := json.Marshal(merchantOrg2)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_MERCHANT, merchantOrg2.CardNo, merchantOrg2JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-	//代理商机构私有数据
-	agencyOrg1JSON, err := json.Marshal(agencyOrg1)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_AGENCY, agencyOrg1.CardNo, agencyOrg1JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-
-	agencyOrg2JSON, err := json.Marshal(agencyOrg2)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_AGENCY, agencyOrg2.CardNo, agencyOrg2JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-	//下发机构私有数据
-	issueOrg1JSON, err := json.Marshal(issueOrg1)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_ISSUE, issueOrg1.CardNo, issueOrg1JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-
-	issueOrg2JSON, err := json.Marshal(issueOrg2)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_ISSUE, issueOrg2.CardNo, issueOrg2JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-	//平台机构私有数据
-	platformOrg1JSON, err := json.Marshal(platformOrg1)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_PLATFORM, platformOrg1.CardNo, platformOrg1JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-
-	platformOrg2JSON, err := json.Marshal(platformOrg2)
-	if err != nil {
-		return err
-	}
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_PLATFORM, platformOrg2.CardNo, platformOrg2JSON)
-	if err != nil {
-		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	}
-
 	return nil
 }
 
 /**
  新增金融机构一般账户私有数据
  */
-func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionContextInterface, collectionName string) (string, error) {
+func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
 
 	transMap, err := ctx.GetStub().GetTransient()
 	if err != nil {
@@ -204,7 +113,7 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 		return "", errors.New("持卡者证件类型不能为空")
 	}
 	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData(collectionName, transientInput.CardNo)
+	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, transientInput.CardNo)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + transientInput.CardNo + "\"}"
 		return "", errors.New(jsonResp)
@@ -216,49 +125,15 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 	}
 	carAsBytes, _ := json.Marshal(transientInput)
 
-	err = ctx.GetStub().PutPrivateData(collectionName, transientInput.CardNo, carAsBytes)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, transientInput.CardNo, carAsBytes)
 	if err != nil {
 		return "", errors.New("商户共管账户保存失败" + err.Error())
 	}
 	return "", nil
 }
 
-func (t *FinancialGeneralAccountChaincode) CreateGeneralAccountToIndividual(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_INDIVIDUAL)
-}
-
-func (t *FinancialGeneralAccountChaincode) CreateGeneralAccountToMerchant(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_MERCHANT)
-}
-
-func (t *FinancialGeneralAccountChaincode) CreateGeneralAccountToAgency(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_AGENCY)
-}
-
-func (t *FinancialGeneralAccountChaincode) CreateGeneralAccountToIssue(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_ISSUE)
-}
-
-func (t *FinancialGeneralAccountChaincode) CreateGeneralAccountToPlatform(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_PLATFORM)
-}
-
-func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("共管账户id不能为空")
-	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchantPlatform", id)
-	if err != nil {
-		return "", errors.New("共管账户查询失败！")
-	}
-	if bytes == nil {
-		return "", fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", id)
-	}
-	return string(bytes), nil
-}
-
 /**
-  现金交易
+  现金交易--充值用
  */
 func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
 	if len(generalCardNo) == 0 {
@@ -267,7 +142,7 @@ func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.Transac
 	if amount < 0 {
 		return errors.New("一般账户充值金额不能小于0")
 	}
-	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData("collectionFinancial", generalCardNo)
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
 	if err != nil {
 		return errors.New("一般账户查询失败！")
 	}
@@ -289,13 +164,13 @@ func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.Transac
 }
 
 /**
-  票据交易
+  票据交易--下发用
  */
 func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}
-	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData("collectionFinancialMerchantPlatform", generalCardNo)
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
 	if err != nil {
 		return errors.New("一般账户查询失败！")
 	}
@@ -314,6 +189,20 @@ func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.
 	transientInput.VoucherCurrentBalance = newVoucherCurrentBalance
 	assetJSON, _ := json.Marshal(transientInput)
 	return ctx.GetStub().PutState(generalCardNo, assetJSON)
+}
+
+func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	if len(id) == 0 {
+		return "", errors.New("共管账户id不能为空")
+	}
+	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, id)
+	if err != nil {
+		return "", errors.New("共管账户查询失败！")
+	}
+	if bytes == nil {
+		return "", fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", id)
+	}
+	return string(bytes), nil
 }
 
 func main() {

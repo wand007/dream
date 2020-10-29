@@ -154,11 +154,11 @@ func (t *FinancialManagedAccountChaincode) TransferVoucherAsset(ctx contractapi.
 	if err != nil {
 		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
-	newCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
-	if newCurrentBalance < 0 {
+	newVoucherCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
+	if newVoucherCurrentBalance < 0 {
 		return errors.New("共管账户票据余额不足")
 	}
-	transientInput.VoucherCurrentBalance = newCurrentBalance
+	transientInput.VoucherCurrentBalance = newVoucherCurrentBalance
 	assetJSON, _ := json.Marshal(transientInput)
 	return ctx.GetStub().PutState(managedCardNo, assetJSON)
 }

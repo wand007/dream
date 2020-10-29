@@ -12,10 +12,21 @@ type DistributionRecordChaincode struct {
 	contractapi.Contract
 }
 
+//通道名称
 const CHANNEL_NAME string = "mychannel"
-const CHAINCODE_NAME_FINANCIAL_ORG string = "financialCC"
-const CHAINCODE_NAME_AGENCY_ORG string = "agencyCC"
-const CHAINCODE_NAME_MERCHANT_ORG string = "merchantCC"
+
+//链码名称
+const (
+	//金融机构链码
+	CHAINCODE_NAME_FINANCIAL_ORG string = "financialCC"
+	//代理商机构链码
+	CHAINCODE_NAME_AGENCY_ORG string = "agencyCC"
+	//商户机构链码
+	CHAINCODE_NAME_MERCHANT_ORG string = "merchantCC"
+)
+
+//私有数据集名称
+const COLLECTION_DISTRIBUTION_RECORD string = "collectionDistributionRecord"
 
 /**
  派发记录属性
@@ -68,90 +79,55 @@ func (t *DistributionRecordChaincode) Create(ctx contractapi.TransactionContextI
 	if len(financialPrivateDataJsonBytes) == 0 {
 		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
 	}
-	var transientInput DistributionRecordPrivateData
-	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
+	var distributionRecordPrivateData DistributionRecordPrivateData
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &distributionRecordPrivateData)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
-	if len(transientInput.ID) == 0 {
+	if len(distributionRecordPrivateData.ID) == 0 {
 		return "", errors.New("派发记录ID不能为空")
 	}
-	if len(transientInput.IndividualID) == 0 {
+	if len(distributionRecordPrivateData.IndividualID) == 0 {
 		return "", errors.New("个体ID不能为空")
 	}
-	if len(transientInput.MerchantOrgID) == 0 {
+	if len(distributionRecordPrivateData.MerchantOrgID) == 0 {
 		return "", errors.New("商户机构ID不能为空")
 	}
-	if len(transientInput.AgencyOrgID) == 0 {
+	if len(distributionRecordPrivateData.AgencyOrgID) == 0 {
 		return "", errors.New("代理商机构ID不能为空")
 	}
-	if len(transientInput.IssueOrgID) == 0 {
+	if len(distributionRecordPrivateData.IssueOrgID) == 0 {
 		return "", errors.New("下发机构ID不能为空")
 	}
-	if len(transientInput.ManagedCardNo) == 0 {
+	if len(distributionRecordPrivateData.ManagedCardNo) == 0 {
 		return "", errors.New("公管账户金融机构账号不能为空")
 	}
-	if len(transientInput.ManagedCardCode) == 0 {
+	if len(distributionRecordPrivateData.ManagedCardCode) == 0 {
 		return "", errors.New("公管账户金融机构代码不能为空")
 	}
-	if len(transientInput.GeneralCardNo) == 0 {
+	if len(distributionRecordPrivateData.GeneralCardNo) == 0 {
 		return "", errors.New("一般账户金融机构账号不能为空")
 	}
-	if len(transientInput.GeneralCardCode) == 0 {
+	if len(distributionRecordPrivateData.GeneralCardCode) == 0 {
 		return "", errors.New("一般账户金融机构代码不能为空")
 	}
-	if transientInput.Amount == 0 {
+	if distributionRecordPrivateData.Amount == 0 {
 		return "", errors.New("派发金额不能为0")
 	}
-	if transientInput.Rate == 0 {
+	if distributionRecordPrivateData.Rate == 0 {
 		return "", errors.New("派发费率不能为0")
 	}
 
 	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionDistributionRecord", transientInput.ID)
+	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_DISTRIBUTION_RECORD, distributionRecordPrivateData.ID)
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + transientInput.ID + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get state for " + distributionRecordPrivateData.ID + "\"}"
 		return "", errors.New(jsonResp)
 	}
 
 	if Avalbytes != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + transientInput.ID + "\"}"
+		jsonResp := "{\"Error\":\"Nil amount for " + distributionRecordPrivateData.ID + "\"}"
 		return "", errors.New(jsonResp)
-	}
-
-	carAsBytes, _ := json.Marshal(transientInput)
-
-	err = ctx.GetStub().PutPrivateData("collectionDistributionRecord", transientInput.ID, carAsBytes)
-	if err != nil {
-		return "", errors.New("商户共管账户保存失败" + err.Error())
-	}
-
-	return transientInput.ID, nil
-}
-
-/**
-  派发
- */
-func (t *DistributionRecordChaincode) Trade(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("派发记录ID不能为空")
-	}
-
-	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionDistributionRecord", id)
-	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
-		return "", errors.New(jsonResp)
-	}
-
-	if Avalbytes != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + id + "\"}"
-		return "", errors.New(jsonResp)
-	}
-	var distributionRecordPrivateData DistributionRecordPrivateData
-	err = json.Unmarshal(Avalbytes, &distributionRecordPrivateData)
-	if err != nil {
-		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
 	// 共管账户向个人一般账户转账票据
 	_, err = TransferVoucherAsset(ctx, distributionRecordPrivateData.ManagedCardNo, distributionRecordPrivateData.GeneralCardNo, distributionRecordPrivateData.Amount)
@@ -197,12 +173,12 @@ func (t *DistributionRecordChaincode) Trade(ctx contractapi.TransactionContextIn
 	}
 	//修改下发记录状态
 	distributionRecordPrivateData.Status = 1
-
 	carAsBytes, _ := json.Marshal(distributionRecordPrivateData)
-	err = ctx.GetStub().PutPrivateData("collectionFinancialIssue", id, carAsBytes)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_DISTRIBUTION_RECORD, distributionRecordPrivateData.ID, carAsBytes)
 	if err != nil {
 		return "", errors.New("商户共管账户保存失败" + err.Error())
 	}
+
 	return distributionRecordPrivateData.ID, nil
 }
 
@@ -210,7 +186,7 @@ func (t *DistributionRecordChaincode) FindPrivateDataById(ctx contractapi.Transa
 	if len(id) == 0 {
 		return "", errors.New("共管账户id不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionDistributionRecord", id)
+	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_DISTRIBUTION_RECORD, id)
 	if err != nil {
 		return "", errors.New("共管账户查询失败！")
 	}

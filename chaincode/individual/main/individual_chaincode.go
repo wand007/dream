@@ -294,8 +294,7 @@ func (t *IndividualChainCode) QueryIndividualSimpleWithPagination(ctx contractap
 
 // getQueryResultForQueryStringWithPagination executes the passed in query string with
 // pagination info. Result set is built and returned as a byte array containing the JSON results.
-func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string,
-	pageSize int32, bookmark string) ([]*QueryResult, error) {
+func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string,pageSize int32, bookmark string) ([]*QueryResult, error) {
 
 	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
 	if err != nil {

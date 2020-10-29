@@ -143,23 +143,6 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 	return id, nil
 }
 
-func (t *IssueChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, Amount uint) (string, error) {
-	if len(managedCardNo) == 0 {
-		return "", errors.New("转入共管账户卡号不能为空")
-	}
-	if len(generalCardNo) == 0 {
-		return "", errors.New("转出一般账户卡号不能为空")
-	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionFinancial", managedCardNo)
-	if err != nil {
-		return "", errors.New("共管账户查询失败！")
-	}
-	if bytes == nil {
-		return "", fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", managedCardNo)
-	}
-	return string(bytes), nil
-}
-
 func (t *IssueChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("共管账户id不能为空")

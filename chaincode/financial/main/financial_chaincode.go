@@ -175,70 +175,12 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 	return string(Avalbytes), nil
 }
 
-//func (t *FinancialChainCode) Recharge(ctx contractapi.TransactionContextInterface) (string, error) {
-//	transMap, err := ctx.GetStub().GetTransient()
-//	if err != nil {
-//		return "", errors.New("Error getting transient: " + err.Error())
-//	}
-//
-//	individualPrivateDataJsonBytes, ok := transMap["transient"]
-//	if !ok {
-//		return "", errors.New("individual must be a key in the transient map")
-//	}
-//
-//	if len(individualPrivateDataJsonBytes) == 0 {
-//		return "", errors.New("individual value in the transient map must be a non-empty JSON string")
-//	}
-//	//私有数据
-//	var rechargeTransientInput RechargeTransientInput
-//	err = json.Unmarshal(individualPrivateDataJsonBytes, &rechargeTransientInput)
-//	if err != nil {
-//		return "", errors.New("Failed to decode JSON of: " + string(individualPrivateDataJsonBytes))
-//	}
-//	id := rechargeTransientInput.ID
-//	if len(id) == 0 {
-//		return "", errors.New("转入操作ID不能为空")
-//	}
-//	managedCardNo := rechargeTransientInput.ManagedCardNo
-//	if len(managedCardNo) == 0 {
-//		return "", errors.New("转入共管账户卡号不能为空")
-//	}
-//	generalCardNo := rechargeTransientInput.GeneralCardNo
-//	if len(generalCardNo) == 0 {
-//		return "", errors.New("转出一般账户卡号不能为空")
-//	}
-//	amount := rechargeTransientInput.Amount
-//
-//	generalAccountPrivateData, err := findGeneralAccountPrivateDataById(ctx, generalCardNo)
-//	if err != nil {
-//		return "", err
-//	}
-//	if generalAccountPrivateData == nil {
-//		return "", errors.New("一般账户卡号记录不存在")
-//	}
-//	//账户余额不能超过转账操作金额
-//	if generalAccountPrivateData.CurrentBalance < amount {
-//		return "", errors.New("转出账户余额不足")
-//	}
-//	managedAccountPrivateData, err := findManagedAccountPrivateDataById(ctx, managedCardNo)
-//	if err != nil {
-//		return "", err
-//	}
-//	if managedAccountPrivateData == nil {
-//		return "", errors.New("共管账户卡号记录不存在")
-//	}
-//	// 减少一般账户
-//
-//	//todo 增加共管账户
-//
-//	return id, nil
-//}
 /**
-  发布票据
+	发布票据
  */
 func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, id string, amount int) (int, error) {
 	if len(id) == 0 {
-		return 0, errors.New("转入操作ID不能为空")
+		return 0, errors.New("操作ID不能为空")
 	}
 
 	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL, id)
@@ -269,65 +211,6 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 	return financialOrgPrivateData.VoucherCurrentBalance, nil
 }
 
-//func (t *FinancialChainCode) managed(ctx contractapi.TransactionContextInterface) (string, error) {
-//	transMap, err := ctx.GetStub().GetTransient()
-//	if err != nil {
-//		return "", errors.New("Error getting transient: " + err.Error())
-//	}
-//
-//	individualPrivateDataJsonBytes, ok := transMap["transient"]
-//	if !ok {
-//		return "", errors.New("individual must be a key in the transient map")
-//	}
-//
-//	if len(individualPrivateDataJsonBytes) == 0 {
-//		return "", errors.New("individual value in the transient map must be a non-empty JSON string")
-//	}
-//	//私有数据
-//	var rechargeTransientInput RechargeTransientInput
-//	err = json.Unmarshal(individualPrivateDataJsonBytes, &rechargeTransientInput)
-//	if err != nil {
-//		return "", errors.New("Failed to decode JSON of: " + string(individualPrivateDataJsonBytes))
-//	}
-//	id := rechargeTransientInput.ID
-//	if len(id) == 0 {
-//		return "", errors.New("转入操作ID不能为空")
-//	}
-//	managedCardNo := rechargeTransientInput.ManagedCardNo
-//	if len(managedCardNo) == 0 {
-//		return "", errors.New("转入共管账户卡号不能为空")
-//	}
-//	generalCardNo := rechargeTransientInput.GeneralCardNo
-//	if len(generalCardNo) == 0 {
-//		return "", errors.New("转出一般账户卡号不能为空")
-//	}
-//	amount := rechargeTransientInput.Amount
-//
-//	generalAccountPrivateData, err := findGeneralAccountPrivateDataById(ctx, generalCardNo)
-//	if err != nil {
-//		return "", err
-//	}
-//	if generalAccountPrivateData == nil {
-//		return "", errors.New("一般账户卡号记录不存在")
-//	}
-//	//账户余额不能超过转账操作金额
-//	if generalAccountPrivateData.CurrentBalance < amount {
-//		return "", errors.New("转出账户余额不足")
-//	}
-//	managedAccountPrivateData, err := findManagedAccountPrivateDataById(ctx, managedCardNo)
-//	if err != nil {
-//		return "", err
-//	}
-//	if managedAccountPrivateData == nil {
-//		return "", errors.New("共管账户卡号记录不存在")
-//	}
-//	// 减少一般账户
-//
-//	//todo 增加共管账户
-//
-//	return id, nil
-//}
-
 /**
   一般账户向共管账户现金兑换票据
  */
@@ -350,10 +233,6 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 	if managedAccountPrivateData == nil {
 		return "", errors.New("共管账户卡号记录不存在")
 	}
-	//账户余额不能超过转账操作金额
-	if managedAccountPrivateData.CurrentBalance < amount {
-		return "", errors.New("共管账户余额不足")
-	}
 
 	//一般账户
 	generalAccountPrivateData, err := findGeneralAccountPrivateDataById(ctx, generalCardNo)
@@ -362,6 +241,10 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 	}
 	if generalAccountPrivateData == nil {
 		return "", errors.New("一般账户卡号记录不存在")
+	}
+	//账户余额不能超过转账操作金额
+	if generalAccountPrivateData.CurrentBalance < amount {
+		return "", errors.New("一般账户余额不足")
 	}
 	if managedAccountPrivateData.FinancialOrgID != generalAccountPrivateData.FinancialOrgID {
 		return "", errors.New("请选择相同的金融机构")
@@ -381,7 +264,23 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 	if err != nil {
 		return "", err
 	}
+	Avalbytes ,err :=t.FindPrivateDataById(ctx,managedAccountPrivateData.FinancialOrgID)
 
+	//私有数据
+	var financialOrgPrivateData FinancialOrgPrivateData
+	err = json.Unmarshal(Avalbytes, &financialOrgPrivateData)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+	financialOrgPrivateData.CurrentBalance = financialOrgPrivateData.CurrentBalance + amount
+	financialOrgPrivateData.VoucherCurrentBalance = financialOrgPrivateData.VoucherCurrentBalance + amount
+	carAsBytes, _ := json.Marshal(financialOrgPrivateData)
+
+	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL, id, carAsBytes)
+
+	if err != nil {
+		return 0, errors.New("商户共管账户保存失败" + err.Error())
+	}
 	return "", nil
 }
 
@@ -550,23 +449,7 @@ func (t *FinancialChainCode) FindById(ctx contractapi.TransactionContextInterfac
 	return string(bytes), nil
 }
 
-func (t *FinancialChainCode) FindMerchantPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	return t.FindPrivateDataById(ctx, id, "collectionFinancialMerchant")
-}
-
-func (t *FinancialChainCode) FindPlatformPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	return t.FindPrivateDataById(ctx, id, "collectionFinancialPlatform")
-}
-
-func (t *FinancialChainCode) FindAgencyPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	return t.FindPrivateDataById(ctx, id, "collectionFinancialAgency")
-}
-
-func (t *FinancialChainCode) FindIssuePrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	return t.FindPrivateDataById(ctx, id, "collectionFinancialIssue")
-}
-
-func (t *FinancialChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string, collectionName string) (string, error) {
+func (t *FinancialChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("金融机构id不能为空")
 	}

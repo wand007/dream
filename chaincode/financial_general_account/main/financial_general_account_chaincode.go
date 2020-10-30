@@ -134,8 +134,9 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 
 /**
   现金交易--充值用
+商户向商户一般账户充值现金余额
  */
-func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
+func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}
@@ -187,6 +188,39 @@ func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.
 		return errors.New("一般账户票据余额不足")
 	}
 	transientInput.VoucherCurrentBalance = newVoucherCurrentBalance
+	assetJSON, _ := json.Marshal(transientInput)
+	return ctx.GetStub().PutState(generalCardNo, assetJSON)
+}
+
+/**
+  现金和票据交易 （票据提现和票据充值）
+ */
+func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
+	if len(generalCardNo) == 0 {
+		return errors.New("一般账户卡号不能为空")
+	}
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
+	if err != nil {
+		return errors.New("一般账户查询失败！")
+	}
+	if financialPrivateDataJsonBytes == nil {
+		return fmt.Errorf("一般账户数据不存在，读到的%s对应的数据为空！", generalCardNo)
+	}
+	var transientInput FinancialOrgGeneralAccountPrivateData
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
+	if err != nil {
+		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
+	}
+	newVoucherCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
+	if newVoucherCurrentBalance < 0 {
+		return errors.New("一般账户票据余额不足")
+	}
+	newCurrentBalance := transientInput.CurrentBalance - voucherAmount
+	if newCurrentBalance < 0 {
+		return errors.New("一般账户余额不足")
+	}
+	transientInput.VoucherCurrentBalance = newVoucherCurrentBalance
+	transientInput.CurrentBalance = newCurrentBalance
 	assetJSON, _ := json.Marshal(transientInput)
 	return ctx.GetStub().PutState(generalCardNo, assetJSON)
 }

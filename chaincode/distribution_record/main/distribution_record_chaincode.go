@@ -111,6 +111,8 @@ type DistributionRecordTransientInput struct {
 
 /**
   新增派发记录属性数据
+商户发起下发请求（下发记录ID，下发使用共管账户卡号，个体ID，个体收款一般账户卡号，派发金额，派发费率）
+减少共管账户卡号的票据余额，增加个体一般账户的票据余额，增加下发机构的一般账户的佣金票据余额，增加代理商机构的一般账户的佣金票据余额，金融机构的现金余额和票据余额不变。
  */
 func (t *DistributionRecordChaincode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
 	transMap, err := ctx.GetStub().GetTransient()

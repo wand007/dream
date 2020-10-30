@@ -1,0 +1,16 @@
+
+NodeOUs:
+  Enable: true
+  ClientOUIdentifier:
+    #修改为 本组内的证书, 具体每个证书是什么,还不知道
+    Certificate: cacerts/0-0-0-0-7057.pem
+    OrganizationalUnitIdentifier: client
+  PeerOUIdentifier:
+    Certificate: cacerts/0-0-0-0-7057.pem
+    OrganizationalUnitIdentifier: peer
+  AdminOUIdentifier:
+    Certificate: cacerts/0-0-0-0-7057.pem
+    OrganizationalUnitIdentifier: admin
+  OrdererOUIdentifier:
+    Certificate: cacerts/0-0-0-0-7057.pem
+    OrganizationalUnitIdentifier: orderer

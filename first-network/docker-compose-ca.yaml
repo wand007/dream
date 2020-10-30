@@ -1,0 +1,180 @@
+version: '2'
+
+volumes:
+  ca-tls.ca.example.com:
+  ca-org0.ca.example.com:
+  ca-org1.ca.example.com:
+  ca-org2.ca.example.com:
+  ca-org3.ca.example.com:
+  ca-org4.ca.example.com:
+  ca-org5.ca.example.com:
+  ca-org6.ca.example.com:
+
+networks:
+  byfn:
+    external:
+      name: ${COMPOSE_PROJECT_NAME}
+
+services:
+  # tls-ca 服务端, 用于为整个fabric网络中注册,生成tls通信证书
+  ca-tls:
+    container_name: ca-tls
+    image: hyperledger/fabric-ca
+    # 默认端口是7054  tls-ca-admin:tls-ca-adminpw 管理员的账号:密码
+    # 可以使用mysql数据库,但是每个ca服务端都必须配置一个单独的db(尚未尝试)
+    command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/tls-ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-tls
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      # 容器启动后在宿主机目录下,生成 crypto文件夹,是tls-ca服务端证书
+      # 在/usr/local/home/fabric-ca-tls/crypto/路径下的ca-cert.pem文件
+      # 是TLS CA服务器的签名根证书，目的是用来对CA的TLS证书进行验证，
+      # 同时也需要持有这个证书才可以进行证书的颁发
+      - ./crypto-config/tls-ca:/usr/local/home/tls-ca
+    networks:
+      - byfn
+    ports:
+      - 7052:7054
+  # order所在组织的ca服务端,用于为order所在的组织内所有成员,注册生成msp证书包括admin证书,此处的admin和org0-admin不是一个概念
+  ca-org0:
+    container_name: ca-org0
+    image: hyperledger/fabric-ca
+    command: sh -c 'fabric-ca-server start -d -b org0-admin:org0-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/org0/ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-org0
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      # 容器启动后在宿主机/usr/local/home/org0/ca/crypto目录下,生成 crypto文件夹并获取order所在组织ca服务端的根证书
+      - ./crypto-config/org0/ca:/usr/local/home/org0/ca
+    networks:
+      - byfn
+    ports:
+      - 7053:7054
+
+  # org1组织的ca服务端,用于为org1的组织内所有成员,注册生成msp证书包括admin证书,此处的admin和org1-admin不是一个概念
+  ca-org1:
+    container_name: ca-org1
+    image: hyperledger/fabric-ca
+    command: sh -c 'fabric-ca-server start -d -b org1-admin:org1-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/org1/ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-org1
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      - ./crypto-config/org1/ca:/usr/local/home/org1/ca
+    networks:
+      - byfn
+    ports:
+      - 7054:7054
+
+    # org2组织的ca服务端,用于为org2的组织内所有成员,注册生成msp证书包括admin证书,此处的admin和org2-admin不是一个概念
+  ca-org2:
+    container_name: ca-org2
+    image: hyperledger/fabric-ca
+    command: sh -c 'fabric-ca-server start -d -b org2-admin:org2-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/org2/ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-org2
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      - ./crypto-config/org2/ca:/usr/local/home/org2/ca
+    networks:
+      - byfn
+    ports:
+      - 7055:7054
+
+
+    # org3组织的ca服务端,用于为org3的组织内所有成员,注册生成msp证书包括admin证书,此处的admin和org3-admin不是一个概念
+  ca-org3:
+    container_name: ca-org3
+    image: hyperledger/fabric-ca
+    command: sh -c 'fabric-ca-server start -d -b org3-admin:org3-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/org3/ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-org3
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      - ./crypto-config/org3/ca:/usr/local/home/org3/ca
+    networks:
+      - byfn
+    ports:
+      - 7056:7054
+
+
+    # org4组织的ca服务端,用于为org4的组织内所有成员,注册生成msp证书包括admin证书,此处的admin和org4-admin不是一个概念
+  ca-org4:
+    container_name: ca-org4
+    image: hyperledger/fabric-ca
+    command: sh -c 'fabric-ca-server start -d -b org4-admin:org4-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/org4/ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-org4
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      - ./crypto-config/org4/ca:/usr/local/home/org4/ca
+    networks:
+      - byfn
+    ports:
+      - 7057:7054
+
+
+    # org5组织的ca服务端,用于为org5的组织内所有成员,注册生成msp证书包括admin证书,此处的admin和org5-admin不是一个概念
+  ca-org5:
+    container_name: ca-org5
+    image: hyperledger/fabric-ca
+    command: sh -c 'fabric-ca-server start -d -b org5-admin:org5-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/org5/ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-org5
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      - ./crypto-config/org5/ca:/usr/local/home/org5/ca
+    networks:
+      - byfn
+    ports:
+      - 7058:7054
+
+
+    # org6组织的ca服务端,用于为org6的组织内所有成员,注册生成msp证书包括admin证书,此处的admin和org6-admin不是一个概念
+  ca-org6:
+    container_name: ca-org6
+    image: hyperledger/fabric-ca
+    command: sh -c 'fabric-ca-server start -d -b org6-admin:org6-adminpw'
+    environment:
+      - FABRIC_CA_SERVER_HOME=/usr/local/home/org6/ca/crypto
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=ca-org6
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    volumes:
+      - ./crypto-config/org6/ca:/usr/local/home/org6/ca
+    networks:
+      - byfn
+    ports:
+      - 7059:7054
+

@@ -169,6 +169,7 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 
 /**
 	票据交易
+商户向商户共管账户充值现金时增加票据余额
  */
 func (t *FinancialManagedAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmount int) error {
 	if len(managedCardNo) == 0 {

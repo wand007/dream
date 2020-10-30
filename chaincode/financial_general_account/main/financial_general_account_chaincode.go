@@ -144,7 +144,7 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 }
 
 /**
-  现金交易--充值用
+  现金交易
 商户向商户一般账户充值现金余额
  */
 func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
@@ -176,7 +176,8 @@ func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.Tra
 }
 
 /**
-  票据交易--下发用
+  票据交易
+派发时增加个体/商户/代理商的票据
  */
 func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {
@@ -205,6 +206,8 @@ func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.
 
 /**
   现金和票据交易 （票据提现和票据充值）
+提现时增加个体/商户/代理商的现金
+提现时减少个体/商户/代理商的票据
  */
 func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {

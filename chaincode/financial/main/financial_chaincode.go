@@ -7,7 +7,16 @@ import (
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
-
+/**
+初始化默认金融机构
+新建金融机构
+一般账户向共管账户现金兑换票据(充值)
+一般账户向共管账户票据兑换现金(提现)
+共管账户向一般账户发放票据(派发)
+ */
+/**
+金融机构链码
+ */
 type FinancialChainCode struct {
 	contractapi.Contract
 }
@@ -176,7 +185,7 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 }
 
 /**
-	发布票据
+	一般账户向共管账户现金兑换票据
  */
 func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, id string, amount int) (int, error) {
 	if len(id) == 0 {

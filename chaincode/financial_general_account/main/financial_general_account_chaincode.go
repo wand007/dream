@@ -7,6 +7,17 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
+/**
+初始化全部角色的一般账户记录
+新建一般账户记录
+一般账户现金交易
+一般账户票据交易
+一般账户票据兑换现金交易
+ */
+
+/**
+一般账户链码
+ */
 type FinancialGeneralAccountChaincode struct {
 	contractapi.Contract
 }

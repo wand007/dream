@@ -6,7 +6,15 @@ import (
 	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
+/**
+初始化共管账户记录
+新建共管账户记录
+一般账户票据交易
+ */
 
+/**
+共管账户链码
+ */
 type FinancialManagedAccountChaincode struct {
 	contractapi.Contract
 }
@@ -131,33 +139,33 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 	return string(Avalbytes), nil
 }
 
-/**
-	现金交易
- */
-func (t *FinancialManagedAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmount int) error {
-	if len(managedCardNo) == 0 {
-		return errors.New("共管账户卡号不能为空")
-	}
-	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_MANAGED_ACCOUNT, managedCardNo)
-	if err != nil {
-		return errors.New("共管账户查询失败！")
-	}
-	if financialPrivateDataJsonBytes == nil {
-		return fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", managedCardNo)
-	}
-	var transientInput FinancialOrgManagedAccountPrivateData
-	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
-	if err != nil {
-		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
-	}
-	newCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
-	if newCurrentBalance < 0 {
-		return errors.New("共管账户票据余额不足")
-	}
-	transientInput.VoucherCurrentBalance = newCurrentBalance
-	assetJSON, _ := json.Marshal(transientInput)
-	return ctx.GetStub().PutState(managedCardNo, assetJSON)
-}
+///**
+//	现金交易
+// */
+//func (t *FinancialManagedAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmount int) error {
+//	if len(managedCardNo) == 0 {
+//		return errors.New("共管账户卡号不能为空")
+//	}
+//	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_MANAGED_ACCOUNT, managedCardNo)
+//	if err != nil {
+//		return errors.New("共管账户查询失败！")
+//	}
+//	if financialPrivateDataJsonBytes == nil {
+//		return fmt.Errorf("共管账户数据不存在，读到的%s对应的数据为空！", managedCardNo)
+//	}
+//	var transientInput FinancialOrgManagedAccountPrivateData
+//	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
+//	if err != nil {
+//		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
+//	}
+//	newCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
+//	if newCurrentBalance < 0 {
+//		return errors.New("共管账户票据余额不足")
+//	}
+//	transientInput.VoucherCurrentBalance = newCurrentBalance
+//	assetJSON, _ := json.Marshal(transientInput)
+//	return ctx.GetStub().PutState(managedCardNo, assetJSON)
+//}
 
 /**
 	票据交易

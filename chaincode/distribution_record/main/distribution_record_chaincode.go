@@ -8,6 +8,13 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
+/**
+新建派发记录并派发
+ */
+
+/**
+派发记录链码
+ */
 type DistributionRecordChaincode struct {
 	contractapi.Contract
 }

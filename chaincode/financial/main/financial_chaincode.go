@@ -7,6 +7,7 @@ import (
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
+
 /**
 初始化默认金融机构
 新建金融机构
@@ -208,7 +209,7 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 	if err != nil {
 		return 0, errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
-	financialOrgPrivateData.CurrentBalance = financialOrgPrivateData.CurrentBalance + amount
+	financialOrgPrivateData.CurrentBalance = financialOrgPrivateData.CurrentBalance - amount
 	financialOrgPrivateData.VoucherCurrentBalance = financialOrgPrivateData.VoucherCurrentBalance + amount
 	carAsBytes, _ := json.Marshal(financialOrgPrivateData)
 
@@ -282,7 +283,6 @@ func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInter
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + financialOrgPrivateString)
 	}
-
 	financialOrgPrivateData.CurrentBalance = financialOrgPrivateData.CurrentBalance - voucherAmount
 	financialOrgPrivateData.VoucherCurrentBalance = financialOrgPrivateData.VoucherCurrentBalance - voucherAmount
 	carAsBytes, _ := json.Marshal(financialOrgPrivateData)
@@ -423,25 +423,6 @@ func (t *FinancialChainCode) TransferVoucherAsset(ctx contractapi.TransactionCon
 	}
 
 	return "", nil
-}
-
-func TransferGeneralCashAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("一般账户卡号不能为空")
-	}
-	trans := [][]byte{[]byte("TransferCashAsset"), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
-	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
-
-	if response.Status != shim.OK {
-		errStr := fmt.Sprintf("Failed to FindPrivateDataById chaincode. Got error: %s", string(response.Payload))
-		fmt.Printf(errStr)
-		return errors.New(errStr)
-	}
-	bytes := response.Payload
-	if bytes != nil {
-		return errors.New(string(bytes))
-	}
-	return nil
 }
 
 func TransferGeneralAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {

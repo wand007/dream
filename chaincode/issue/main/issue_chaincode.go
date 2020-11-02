@@ -11,6 +11,9 @@ type IssueChaincode struct {
 	contractapi.Contract
 }
 
+//私有数据集名称
+const COLLECTION_ISSUE string = "collectionIssue"
+
 /**
    下发机构属性
  */
@@ -52,7 +55,7 @@ func (t *IssueChaincode) InitLedger(ctx contractapi.TransactionContextInterface)
 			return err
 		}
 
-		err = ctx.GetStub().PutPrivateData("collectionIssue", asset.ID, assetJSON)
+		err = ctx.GetStub().PutPrivateData(COLLECTION_ISSUE, asset.ID, assetJSON)
 		if err != nil {
 			return fmt.Errorf("Failed to put to world state. %s", err.Error())
 		}
@@ -95,7 +98,7 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 	}
 	//防重复提交
 	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData("collectionIssue", id)
+	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_ISSUE, id)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
 		return "", errors.New(jsonResp)
@@ -135,7 +138,7 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 	merchantOrgPrivateData := IssueOrgPrivateData{ID: issueOrg.ID, RateBasic: transientInput.RateBasic}
 
 	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
-	err = ctx.GetStub().PutPrivateData("collectionIssue", merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_ISSUE, merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
 
 	if err != nil {
 		return "", fmt.Errorf("Failed to put to world state. %s", err.Error())
@@ -147,7 +150,7 @@ func (t *IssueChaincode) FindPrivateDataById(ctx contractapi.TransactionContextI
 	if len(id) == 0 {
 		return "", errors.New("共管账户id不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData("collectionFinancialIssue", id)
+	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_ISSUE, id)
 	if err != nil {
 		return "", errors.New("共管账户查询失败！")
 	}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"strconv"
 )
 
 /**
@@ -147,9 +148,13 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
   现金交易
 商户向商户一般账户充值现金余额
  */
-func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
+func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amountStr string) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
+	}
+	amount, err := strconv.Atoi(amountStr)
+	if err != nil {
+		return errors.New("3rd argument must be a numeric string")
 	}
 	if amount < 0 {
 		return errors.New("一般账户充值金额不能小于0")
@@ -179,9 +184,13 @@ func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.Tra
   票据交易
 派发时增加个体/商户/代理商的票据
  */
-func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
+func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
+	}
+	voucherAmount, err := strconv.Atoi(voucherAmountStr)
+	if err != nil {
+		return errors.New("3rd argument must be a numeric string")
 	}
 	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
 	if err != nil {
@@ -209,9 +218,13 @@ func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.
 提现时增加个体/商户/代理商的现金
 提现时减少个体/商户/代理商的票据
  */
-func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
+func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
+	}
+	voucherAmount, err := strconv.Atoi(voucherAmountStr)
+	if err != nil {
+		return errors.New("3rd argument must be a numeric string")
 	}
 	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
 	if err != nil {

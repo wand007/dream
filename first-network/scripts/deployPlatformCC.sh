@@ -77,7 +77,7 @@ docker exec -it cli-org6-peer0 bash
 docker exec -it cli-org1-peer1 bash
 
 # 安装链码
-peer lifecycle chaincode install /usr/local/chaincode-artifacts/marbles02_private.tar.gz
+peer lifecycle chaincode install /usr/local/chaincode-artifacts/platform.tar.gz
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -98,9 +98,9 @@ peer lifecycle chaincode commit -o orderer1.org0.example.com:7050 --channelID $C
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name platform
 
 # 链码执行
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n platform --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"function":"InitLedger","Args":[]}' --waitForEvent
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n platform --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"Args":[]}' --waitForEvent
 # 查询
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n platform --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"function":"FindById","Args":["P768877118787432448"]}'
+peer chaincode query -C $CHANNEL_NAME -n platform -c '{"function":"FindById","Args":["P768877118787432448"]}'
 
 exit
 

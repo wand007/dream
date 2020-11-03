@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"strconv"
 )
 
 /**
@@ -100,7 +101,7 @@ func (t *FinancialChainCode) InitLedger(ctx contractapi.TransactionContextInterf
 /**
    新增金融机构共管账户私有数据
  */
-func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, code string, status int) (string, error) {
+func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, code string, status string) (string, error) {
 	//公有数据入参参数
 	if len(id) == 0 {
 		return "", errors.New("金融机构ID不能为空")
@@ -110,6 +111,10 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 	}
 	if len(code) == 0 {
 		return "", errors.New("金融机构代码不能为空")
+	}
+	sta, err := strconv.Atoi(status)
+	if err != nil {
+		return "", errors.New("3rd argument must be a numeric string")
 	}
 	//防重复提交
 	// Get the state from the ledger
@@ -152,7 +157,7 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 		ID:     id,
 		Name:   name,
 		Code:   code,
-		Status: status,
+		Status: sta,
 	}
 	carAsBytes, _ := json.Marshal(financial)
 
@@ -188,11 +193,14 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 /**
 	一般账户向共管账户现金兑换票据
  */
-func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, id string, amount int) (int, error) {
+func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, id string, amountStr string) (int, error) {
 	if len(id) == 0 {
 		return 0, errors.New("操作ID不能为空")
 	}
-
+	amount, err := strconv.Atoi(amountStr)
+	if err != nil {
+		return 0, errors.New("3rd argument must be a numeric string")
+	}
 	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL, id)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
@@ -226,12 +234,16 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 个体/代理商/下发机构发起提现请求
 减少金融机构的现金余额和票据余额，增加个体/代理商/下发机构一般账户的现金余额，减少个体/代理商/下发机构一般账户的票据余额
  */
-func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmount int) (string, error) {
+func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmountStr string) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转出共管账户卡号不能为空")
 	}
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转入一般账户卡号不能为空")
+	}
+	voucherAmount, err := strconv.Atoi(voucherAmountStr)
+	if err != nil {
+		return "", errors.New("3rd argument must be a numeric string")
 	}
 	if voucherAmount < 0 {
 		return "", errors.New("兑换票据不能小于0")
@@ -299,12 +311,16 @@ func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInter
   一般账户向共管账户现金兑换票据 (现金充值)
 商户用一般账户的现金余额向上级代理的上级下发机构的金融机构的共管账户充值，获取金融机构颁发的票据，共管账户增加票据余额，商户减少一般账户的现金余额，增加金融机构的现金余额和票据余额。
  */
-func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
+func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amountStr string) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转入共管账户卡号不能为空")
 	}
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转出一般账户卡号不能为空")
+	}
+	amount, err := strconv.Atoi(amountStr)
+	if err != nil {
+		return "", errors.New("3rd argument must be a numeric string")
 	}
 	if amount < 0 {
 		return "", errors.New("转账金额不能小于0")
@@ -375,12 +391,16 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 /**
   共管账户向一般账户交易票据 (票据下发)
  */
-func (t *FinancialChainCode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmount int) (string, error) {
+func (t *FinancialChainCode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmountStr string) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转出共管账户卡号不能为空")
 	}
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转入一般账户卡号不能为空")
+	}
+	voucherAmount, err := strconv.Atoi(voucherAmountStr)
+	if err != nil {
+		return "", errors.New("3rd argument must be a numeric string")
 	}
 	if voucherAmount < 0 {
 		return "", errors.New("转账金额不能小于0")
@@ -429,6 +449,7 @@ func TransferGeneralAsset(ctx contractapi.TransactionContextInterface, generalCa
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}
+
 	trans := [][]byte{[]byte("TransferAsset"), []byte("generalCardNo"), []byte(generalCardNo), []byte("voucherAmount"), []byte(string(voucherAmount))}
 	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
 

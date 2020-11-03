@@ -47,9 +47,6 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/individual/co
 # 安装链码
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/individual.tar.gz
 
-# 将链码id设置变量,便于我们后面的使用
-#export CC_PACKAGE_ID=individual_1:605a49ad9b24810c60485bb9bd072f51d8b8e498e0802ce69f22581fa8a35ff3
-
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
 
@@ -105,7 +102,7 @@ peer lifecycle chaincode commit -o orderer1.org0.example.com:7050 --channelID $C
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name individual
 
 # 链码执行
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"function":"InitLedger","Args":[]}' --waitForEvent
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"Args":[]}' --waitForEvent
 
 ## 测试链码
 # 初始化默认数据

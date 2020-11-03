@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"strconv"
 )
+
 /**
 初始化共管账户记录
 新建共管账户记录
@@ -44,11 +46,11 @@ func (t *FinancialManagedAccountChaincode) InitLedger(ctx contractapi.Transactio
 	fmt.Println("FinancialManagedAccountChaincode Init")
 	//私有数据
 	managedAccountPrivateData := []FinancialOrgManagedAccountPrivateData{
-		{CardNo: "3036603953562710", AgencyOrgID: "A766005404604841984", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766005404604841984", IssueOrgID: "I766005404604841984", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229486603953201814",AgencyCardNo:"6229486603953188912" ,ManagedCardNo: "6229486603953188912", GeneralCardNo: "6229486603953174011", VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "3038603953562825", AgencyOrgID: "A766374712807800832", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766005404604841984", IssueOrgID: "I764441096829812736", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229488603953201820", AgencyCardNo:"6229488603953188928" ,ManagedCardNo: "6229488603953188928", GeneralCardNo: "6229488603953174027", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3036603953562710", AgencyOrgID: "A766005404604841984", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766005404604841984", IssueOrgID: "I766005404604841984", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229486603953201814", AgencyCardNo: "6229486603953188912", ManagedCardNo: "6229486603953188912", GeneralCardNo: "6229486603953174011", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3038603953562825", AgencyOrgID: "A766374712807800832", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766005404604841984", IssueOrgID: "I764441096829812736", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229488603953201820", AgencyCardNo: "6229488603953188928", ManagedCardNo: "6229488603953188928", GeneralCardNo: "6229488603953174027", VoucherCurrentBalance: 0, AccStatus: 1},
 
-		{CardNo: "3036603953578518", AgencyOrgID: "A766005404604841984", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766374712807800832", IssueOrgID: "I766005404604841984", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229486603953201814",AgencyCardNo:"6229486603953188912" , ManagedCardNo: "6229486603953188912", GeneralCardNo: "6229486603953174011", VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "3038603953578524", AgencyOrgID: "A766374712807800832", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766374712807800832", IssueOrgID: "I764441096829812736", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229488603953201820",AgencyCardNo:"6229488603953188928" , ManagedCardNo: "6229488603953188928", GeneralCardNo: "6229488603953174027", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3036603953578518", AgencyOrgID: "A766005404604841984", MerchantOrgID: "M766005404604841984", FinancialOrgID: "F766374712807800832", IssueOrgID: "I766005404604841984", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229486603953201814", AgencyCardNo: "6229486603953188912", ManagedCardNo: "6229486603953188912", GeneralCardNo: "6229486603953174011", VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "3038603953578524", AgencyOrgID: "A766374712807800832", MerchantOrgID: "M764441096829812736", FinancialOrgID: "F766374712807800832", IssueOrgID: "I764441096829812736", PlatformOrgID: "P768877118787432448", IssueCardNo: "6229488603953201820", AgencyCardNo: "6229488603953188928", ManagedCardNo: "6229488603953188928", GeneralCardNo: "6229488603953174027", VoucherCurrentBalance: 0, AccStatus: 1},
 	}
 	for _, asset := range managedAccountPrivateData {
 		assetJSON, err := json.Marshal(asset)
@@ -143,9 +145,13 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 	票据交易
 商户向商户共管账户充值现金时增加票据余额
  */
-func (t *FinancialManagedAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmount int) error {
+func (t *FinancialManagedAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmountStr string) error {
 	if len(managedCardNo) == 0 {
 		return errors.New("共管账户卡号不能为空")
+	}
+	voucherAmount, err := strconv.Atoi(voucherAmountStr)
+	if err != nil {
+		return errors.New("3rd argument must be a numeric string")
 	}
 	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_MANAGED_ACCOUNT, managedCardNo)
 	if err != nil {

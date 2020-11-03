@@ -78,6 +78,8 @@ docker exec -it cli-org5-peer0 bash
 docker exec -it cli-org6-peer0 bash
 # 重复pee0-org2安装链码
 
+
+
 # pee1-org1安装链码
 docker exec -it cli-org1-peer1 bash
 
@@ -211,9 +213,22 @@ peer lifecycle chaincode commit -o orderer1.org0.example.com:7050 --channelID $C
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name individual
 
 # 链码执行
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org4.example.com:13051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org5.example.com:15051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE   --peerAddresses peer0.org6.example.com:17051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"Args":["InitLedger"]}' --waitForEvent
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"Args":[]}' --waitForEvent
 
 ## 测试链码
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org4.example.com:13051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org5.example.com:15051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE   --peerAddresses peer0.org6.example.com:17051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"function":"InitLedger","Args":[]}' --waitForEvent
+# 初始化默认数据
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"InitLedger","Args":[]}' --waitForEvent
+# 查询默认公开数据
+peer chaincode query -C $CHANNEL_NAME -n individual   -c '{"function":"FindById","Args":["IN760934239574175744"]}'
+# 查询默认私有数据
+peer chaincode query -C $CHANNEL_NAME -n individual   -c '{"function":"FindPrivateDataById","Args":["IN760934239574175744"]}'
+
+# 新建个体
+export MARBLE=$(echo -n "{\"id\":\"IN756579272398741516\",\"name\":\"新建个体1\",\"platformOrgID\":\"P768877118787432448\",\"certificateNo\":\"666666666666666666\",\"certificateType\":1,\"status\":1}" | base64 | tr -d \\n)
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":[]}' --transient "{\"individual\":\"$MARBLE\"}" --waitForEvent
+
+# 修改个体
+export MARBLE=$(echo -n "{\"id\":\"IN756579272398741516\",\"name\":\"新建个体2\",\"platformOrgID\":\"P768877118787432448\",\"certificateNo\":\"666666666666666666\",\"certificateType\":1,\"status\":1}" | base64 | tr -d \\n)
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n individual --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE]  -c '{"function":"Update","Args":[]}' --transient "{\"individual\":\"$MARBLE\"}" --waitForEvent
 
 exit

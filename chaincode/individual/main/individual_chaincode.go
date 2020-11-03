@@ -115,7 +115,7 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(individualPrivateDataJsonBytes))
 	}
-	id := individualTransientInput.ID;
+	id := individualTransientInput.ID
 	if len(id) == 0 {
 		return "", errors.New("个体id不能为空")
 	}
@@ -135,7 +135,7 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 	if err != nil {
 		return "", errors.New("个体查询失败！")
 	}
-	if bytes != nil {
+	if bytes == nil {
 		fmt.Println("个体公开数据已存在，读到的" + id + "对应的数据不为空！")
 		// ==== Create marble object, marshal to JSON, and save to state ====
 		individual := &Individual{
@@ -156,7 +156,7 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}
-	if bytes != nil {
+	if bytes == nil {
 		fmt.Println("个体私有数据已存在，读到的" + id + "对应的私有数据不为空！")
 		individualPrivateData := &IndividualPrivateData{
 			ID:              individualTransientInput.ID,

@@ -1,5 +1,5 @@
 
-## platform链码安装,只启动一个节点
+## 平台（上帝/监管）机构 platform链码安装,只启动一个节点
 
 # pee0-org1安装链码
 docker exec -it cli-org1-peer0 bash

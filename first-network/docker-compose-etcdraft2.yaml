@@ -874,7 +874,7 @@ services:
       - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/usr/local/home/org0/orderer1.org0.example.com/tls-msp/keystore/key.pem
       - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/usr/local/home/org0/orderer1.org0.example.com/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
 
-      - ORDERER_DEBUG_BROADCASTTRACEDIR=/usr/local/data/logs
+#      - ORDERER_DEBUG_BROADCASTTRACEDIR=/usr/local/data/logs
     volumes:
       - ./crypto-config:/usr/local/home
       - ./channel-artifacts:/usr/local/channel-artifacts
@@ -910,7 +910,7 @@ services:
       - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/usr/local/home/org0/orderer2.org0.example.com/tls-msp/keystore/key.pem
       - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/usr/local/home/org0/orderer2.org0.example.com/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
 
-      - ORDERER_DEBUG_BROADCASTTRACEDIR=/usr/local/data/logs
+#      - ORDERER_DEBUG_BROADCASTTRACEDIR=/usr/local/data/logs
     volumes:
       - ./crypto-config:/usr/local/home
       - ./channel-artifacts:/usr/local/channel-artifacts
@@ -946,7 +946,7 @@ services:
       - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/usr/local/home/org0/orderer3.org0.example.com/tls-msp/keystore/key.pem
       - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/usr/local/home/org0/orderer3.org0.example.com/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
 
-      - ORDERER_DEBUG_BROADCASTTRACEDIR=/usr/local/data/logs
+#      - ORDERER_DEBUG_BROADCASTTRACEDIR=/usr/local/data/logs
     volumes:
       - ./crypto-config:/usr/local/home
       - ./channel-artifacts:/usr/local/channel-artifacts

@@ -48,7 +48,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/individual/co
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/individual.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=individual_1:521dfb811bc066a352126818252bb01f4571aed637eeb7575418bb3a0df630c5
+#export CC_PACKAGE_ID=individual_1:521dfb811bc066a352126818252bb01f4571aed637eeb7575418bb3a0df630c5
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled

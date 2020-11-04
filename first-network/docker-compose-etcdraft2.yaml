@@ -61,7 +61,7 @@ services:
 
   peer0.org1.example.com:
     container_name: peer0.org1.example.com
-    image: hyperledger/fabric-peer:amd64-2.1.0
+    image: hyperledger/fabric-peer:$IMAGE_TAG
     environment:
       # 日志级别
       - FABRIC_LOGGING_SPEC=debug
@@ -128,7 +128,7 @@ services:
 #
 #  peer1.org1.example.com:
 #    container_name: peer1.org1.example.com
-#    image: hyperledger/fabric-peer:amd64-2.1.0
+#    image: hyperledger/fabric-peer:$IMAGE_TAG
 #    environment:
 #      # 日志级别
 #      - FABRIC_LOGGING_SPEC=debug
@@ -194,7 +194,7 @@ services:
 
   peer0.org2.example.com:
     container_name: peer0.org2.example.com
-    image: hyperledger/fabric-peer:amd64-2.1.0
+    image: hyperledger/fabric-peer:$IMAGE_TAG
     environment:
       # 日志级别
       - FABRIC_LOGGING_SPEC=debug
@@ -261,7 +261,7 @@ services:
 #
 #  peer1.org2.example.com:
 #    container_name: peer1.org2.example.com
-#    image: hyperledger/fabric-peer:amd64-2.1.0
+#    image: hyperledger/fabric-peer:$IMAGE_TAG
 #    environment:
 #      # 日志级别
 #      - FABRIC_LOGGING_SPEC=debug
@@ -328,7 +328,7 @@ services:
 
   peer0.org3.example.com:
     container_name: peer0.org3.example.com
-    image: hyperledger/fabric-peer:amd64-2.1.0
+    image: hyperledger/fabric-peer:$IMAGE_TAG
     environment:
       # 日志级别
       - FABRIC_LOGGING_SPEC=debug
@@ -395,7 +395,7 @@ services:
 #
 #  peer1.org3.example.com:
 #    container_name: peer1.org3.example.com
-#    image: hyperledger/fabric-peer:amd64-2.1.0
+#    image: hyperledger/fabric-peer:$IMAGE_TAG
 #    environment:
 #      # 日志级别
 #      - FABRIC_LOGGING_SPEC=debug
@@ -463,7 +463,7 @@ services:
 
   peer0.org4.example.com:
     container_name: peer0.org4.example.com
-    image: hyperledger/fabric-peer:amd64-2.1.0
+    image: hyperledger/fabric-peer:$IMAGE_TAG
     environment:
       # 日志级别
       - FABRIC_LOGGING_SPEC=debug
@@ -530,7 +530,7 @@ services:
 #
 #  peer1.org4.example.com:
 #    container_name: peer1.org4.example.com
-#    image: hyperledger/fabric-peer:amd64-2.1.0
+#    image: hyperledger/fabric-peer:$IMAGE_TAG
 #    environment:
 #      # 日志级别
 #      - FABRIC_LOGGING_SPEC=debug
@@ -598,7 +598,7 @@ services:
 
   peer0.org5.example.com:
     container_name: peer0.org5.example.com
-    image: hyperledger/fabric-peer:amd64-2.1.0
+    image: hyperledger/fabric-peer:$IMAGE_TAG
     environment:
       # 日志级别
       - FABRIC_LOGGING_SPEC=debug
@@ -665,7 +665,7 @@ services:
 #
 #  peer1.org5.example.com:
 #    container_name: peer1.org5.example.com
-#    image: hyperledger/fabric-peer:amd64-2.1.0
+#    image: hyperledger/fabric-peer:$IMAGE_TAG
 #    environment:
 #      # 日志级别
 #      - FABRIC_LOGGING_SPEC=debug
@@ -733,7 +733,7 @@ services:
 
   peer0.org6.example.com:
     container_name: peer0.org6.example.com
-    image: hyperledger/fabric-peer:amd64-2.1.0
+    image: hyperledger/fabric-peer:$IMAGE_TAG
     environment:
       # 日志级别
       - FABRIC_LOGGING_SPEC=debug
@@ -800,7 +800,7 @@ services:
 #
 #  peer1.org6.example.com:
 #    container_name: peer1.org6.example.com
-#    image: hyperledger/fabric-peer:amd64-2.1.0
+#    image: hyperledger/fabric-peer:$IMAGE_TAG
 #    environment:
 #      # 日志级别
 #      - FABRIC_LOGGING_SPEC=debug

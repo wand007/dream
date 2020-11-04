@@ -29,7 +29,7 @@ services:
 
   cli-org1-peer0:
     container_name: cli-org1-peer0
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:$IMAGE_TAG
     tty: true
     stdin_open: true
     environment:
@@ -64,7 +64,7 @@ services:
 #
 #  cli-org1-peer1:
 #    container_name: cli-org1-peer1
-#    image: hyperledger/fabric-tools:latest
+#    image: hyperledger/fabric-tools:$IMAGE_TAG
 #    tty: true
 #    stdin_open: true
 #    environment:
@@ -98,7 +98,7 @@ services:
 
   cli-org2-peer0:
     container_name: cli-org2-peer0
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:$IMAGE_TAG
     tty: true
     stdin_open: true
     environment:
@@ -132,7 +132,7 @@ services:
 #
 #  cli-org2-peer1:
 #    container_name: cli-org2-peer1
-#    image: hyperledger/fabric-tools:latest
+#    image: hyperledger/fabric-tools:$IMAGE_TAG
 #    tty: true
 #    stdin_open: true
 #    environment:
@@ -167,7 +167,7 @@ services:
 
   cli-org3-peer0:
     container_name: cli-org3-peer0
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:$IMAGE_TAG
     tty: true
     stdin_open: true
     environment:
@@ -201,7 +201,7 @@ services:
 #
 #  cli-org3-peer1:
 #    container_name: cli-org3-peer1
-#    image: hyperledger/fabric-tools:latest
+#    image: hyperledger/fabric-tools:$IMAGE_TAG
 #    tty: true
 #    stdin_open: true
 #    environment:
@@ -235,7 +235,7 @@ services:
 
   cli-org4-peer0:
     container_name: cli-org4-peer0
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:$IMAGE_TAG
     tty: true
     stdin_open: true
     environment:
@@ -270,7 +270,7 @@ services:
 #
 #  cli-org4-peer1:
 #    container_name: cli-org4-peer1
-#    image: hyperledger/fabric-tools:latest
+#    image: hyperledger/fabric-tools:$IMAGE_TAG
 #    tty: true
 #    stdin_open: true
 #    environment:
@@ -304,7 +304,7 @@ services:
 
   cli-org5-peer0:
     container_name: cli-org5-peer0
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:$IMAGE_TAG
     tty: true
     stdin_open: true
     environment:
@@ -339,7 +339,7 @@ services:
 #
 #  cli-org5-peer1:
 #    container_name: cli-org5-peer1
-#    image: hyperledger/fabric-tools:latest
+#    image: hyperledger/fabric-tools:$IMAGE_TAG
 #    tty: true
 #    stdin_open: true
 #    environment:
@@ -373,7 +373,7 @@ services:
 
   cli-org6-peer0:
     container_name: cli-org6-peer0
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:$IMAGE_TAG
     tty: true
     stdin_open: true
     environment:
@@ -408,7 +408,7 @@ services:
 #
 #  cli-org6-peer1:
 #    container_name: cli-org6-peer1
-#    image: hyperledger/fabric-tools:latest
+#    image: hyperledger/fabric-tools:$IMAGE_TAG
 #    tty: true
 #    stdin_open: true
 #    environment:

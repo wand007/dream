@@ -163,10 +163,10 @@ func (t *IssueChaincode) FindPrivateDataById(ctx contractapi.TransactionContextI
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(IssueChaincode))
 	if err != nil {
-		fmt.Printf("Error create PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error create IssueChaincode chaincode: %s", err.Error())
 		return
 	}
 	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error starting IssueChaincode chaincode: %s", err.Error())
 	}
 }

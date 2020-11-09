@@ -456,10 +456,10 @@ func CalculationBrokerage(rateBasic float64, rate float64, amount int) (int, err
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(DistributionRecordChaincode))
 	if err != nil {
-		fmt.Printf("Error create PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error create DistributionRecordChaincode chaincode: %s", err.Error())
 		return
 	}
 	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error starting DistributionRecordChaincode chaincode: %s", err.Error())
 	}
 }

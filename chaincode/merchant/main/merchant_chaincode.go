@@ -35,7 +35,7 @@ type MerchantOrgPrivateData struct {
 
 func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 
-	fmt.Println("IssueChaincode Init")
+	fmt.Println("MerchantOrgChainCode Init")
 	//公开数据
 	issueOrgs := []MerchantOrg{
 		{ID: "M766005404604841984", Name: "默认商户机构1", UnifiedSocialCreditCode: "91370181MA3D7J9W3W", Status: 1},
@@ -203,10 +203,10 @@ func (t *MerchantOrgChainCode) FindPrivateDataById(ctx contractapi.TransactionCo
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(MerchantOrgChainCode))
 	if err != nil {
-		fmt.Printf("Error create PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error create MerchantOrgChainCode chaincode: %s", err.Error())
 		return
 	}
 	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error starting MerchantOrgChainCode chaincode: %s", err.Error())
 	}
 }

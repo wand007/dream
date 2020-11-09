@@ -294,7 +294,7 @@ func (t *IndividualChainCode) QueryIndividualSimpleWithPagination(ctx contractap
 
 // getQueryResultForQueryStringWithPagination executes the passed in query string with
 // pagination info. Result set is built and returned as a byte array containing the JSON results.
-func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string,pageSize int32, bookmark string) ([]*QueryResult, error) {
+func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) ([]*QueryResult, error) {
 
 	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
 	if err != nil {
@@ -332,10 +332,10 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(IndividualChainCode))
 	if err != nil {
-		fmt.Printf("Error create PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error create IndividualChainCode chaincode: %s", err.Error())
 		return
 	}
 	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting PlatformChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error starting IndividualChainCode chaincode: %s", err.Error())
 	}
 }

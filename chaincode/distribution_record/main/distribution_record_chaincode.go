@@ -191,7 +191,7 @@ func (t *DistributionRecordChaincode) Create(ctx contractapi.TransactionContextI
 	}
 
 	//个人一般账户
-	generalAccountPrivateData, err := findGeneralAccountPrivateDataById(ctx, transientInput.ManagedAccountCardNo)
+	generalAccountPrivateData, err := FindIndividualPrivateDataById(ctx, transientInput.ManagedAccountCardNo)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
@@ -234,31 +234,50 @@ func (t *DistributionRecordChaincode) Create(ctx contractapi.TransactionContextI
 	if !strings.Contains(issueOrgPrivateData.ID, managedAccountPrivateData.IssueOrgID) {
 		return "", errors.New("共管账户不属于当前下发机构" + managedAccountPrivateData.IssueOrgID)
 	}
+
 	//共管账户向个人一般账户转账票据
-	_, err = TransferVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, transientInput.IndividualCardNo, transientInput.Amount)
+	_, err = TransferVoucherAssetIndividual(ctx, managedAccountPrivateData.ManagedCardNo, transientInput.IndividualCardNo, transientInput.Amount)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
+	//共管账户减少票据
+	_, err = TransferManagedVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, -transientInput.Amount)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+
 	//下发机构佣金
 	issueBrokerage, err := CalculationBrokerage(issueOrgPrivateData.RateBasic, agencyOrgPrivateData.RateBasic, transientInput.Amount)
 	if err != nil {
 		return "", err
 	}
-	//共管账户向代理商一般账户转账佣金票据
-	_, err = TransferVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, managedAccountPrivateData.GeneralCardNo, issueBrokerage)
+	//共管账户向下发机构一般账户转账佣金票据
+	_, err = TransferVoucherAssetIssue(ctx, managedAccountPrivateData.ManagedCardNo, managedAccountPrivateData.GeneralCardNo, issueBrokerage)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
+	//共管账户减少票据
+	_, err = TransferManagedVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, -issueBrokerage)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+
 	//代理商佣金
 	merchantBrokerage, err := CalculationBrokerage(agencyOrgPrivateData.RateBasic, merchantOrgPrivateData.RateBasic, transientInput.Amount)
 	if err != nil {
 		return "", err
 	}
 	//共管账户向代理商一般账户转账佣金票据
-	_, err = TransferVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, managedAccountPrivateData.AgencyCardNo, merchantBrokerage)
+	_, err = TransferVoucherAssetAgency(ctx, managedAccountPrivateData.ManagedCardNo, managedAccountPrivateData.AgencyCardNo, merchantBrokerage)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
 	}
+	//共管账户减少票据
+	_, err = TransferManagedVoucherAsset(ctx, managedAccountPrivateData.ManagedCardNo, -merchantBrokerage)
+	if err != nil {
+		return "", errors.New("Failed to decode JSON of: " + string(Avalbytes))
+	}
+
 	//构造下发记录
 	distributionRecordPrivateDat := DistributionRecordPrivateData{
 		ID:                   transientInput.ID,
@@ -301,11 +320,11 @@ func (t *DistributionRecordChaincode) FindPrivateDataById(ctx contractapi.Transa
 	return string(bytes), nil
 }
 
-func findGeneralAccountPrivateDataById(ctx contractapi.TransactionContextInterface, cardNo string) (*FinancialOrgGeneralAccountPrivateData, error) {
+func FindIndividualPrivateDataById(ctx contractapi.TransactionContextInterface, cardNo string) (*FinancialOrgGeneralAccountPrivateData, error) {
 	if len(cardNo) == 0 {
 		return nil, errors.New("金融机构一般账户账号不能为空")
 	}
-	trans := [][]byte{[]byte("FindPrivateDataById"), []byte("id"), []byte(cardNo)}
+	trans := [][]byte{[]byte("FindIndividualPrivateDataById"), []byte("id"), []byte(cardNo)}
 	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_FINANCIAL_GENERAL_ACCOUNT, trans, CHANNEL_NAME)
 
 	if response.Status != shim.OK {
@@ -411,7 +430,11 @@ func findMerchantPrivateDataById(ctx contractapi.TransactionContextInterface, id
 	return merchantOrgPrivateData, nil
 }
 
-func TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
+/**
+  票据交易
+派发时增加下发机构的票据
+ */
+func TransferVoucherAssetIssue(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转入共管账户卡号不能为空")
 	}
@@ -421,8 +444,82 @@ func TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCa
 	if amount < 0 {
 		return "", errors.New("转账金额不能小于0")
 	}
-	trans := [][]byte{[]byte("TransferVoucherAsset"), []byte("managedCardNo"), []byte(managedCardNo), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
+	trans := [][]byte{[]byte("TransferVoucherAssetIssue"), []byte("managedCardNo"), []byte(managedCardNo), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
 	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_FINANCIAL_ORG, trans, CHANNEL_NAME)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to TransferAsset chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return "", fmt.Errorf(errStr)
+	}
+
+	fmt.Printf("FindIssueOrgById chaincode successful. Got response %s", string(response.Payload))
+	return string(response.Payload), nil
+}
+
+/**
+  票据交易
+派发时增加代理商的票据
+ */
+func TransferVoucherAssetAgency(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
+	if len(managedCardNo) == 0 {
+		return "", errors.New("转入共管账户卡号不能为空")
+	}
+	if len(generalCardNo) == 0 {
+		return "", errors.New("转出一般账户卡号不能为空")
+	}
+	if amount < 0 {
+		return "", errors.New("转账金额不能小于0")
+	}
+	trans := [][]byte{[]byte("TransferVoucherAssetAgency"), []byte("managedCardNo"), []byte(managedCardNo), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_FINANCIAL_ORG, trans, CHANNEL_NAME)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to TransferAsset chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return "", fmt.Errorf(errStr)
+	}
+
+	fmt.Printf("FindIssueOrgById chaincode successful. Got response %s", string(response.Payload))
+	return string(response.Payload), nil
+}
+
+/**
+  票据交易
+派发时增加个体的票据
+ */
+func TransferVoucherAssetIndividual(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
+	if len(managedCardNo) == 0 {
+		return "", errors.New("转入共管账户卡号不能为空")
+	}
+	if len(generalCardNo) == 0 {
+		return "", errors.New("转出一般账户卡号不能为空")
+	}
+	if amount < 0 {
+		return "", errors.New("转账金额不能小于0")
+	}
+	trans := [][]byte{[]byte("TransferVoucherAssetIndividual"), []byte("managedCardNo"), []byte(managedCardNo), []byte("generalCardNo"), []byte(generalCardNo), []byte("amount"), []byte(string(amount))}
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_FINANCIAL_ORG, trans, CHANNEL_NAME)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to TransferAsset chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return "", fmt.Errorf(errStr)
+	}
+
+	fmt.Printf("FindIssueOrgById chaincode successful. Got response %s", string(response.Payload))
+	return string(response.Payload), nil
+}
+
+/**
+  共管账户票据交易
+ */
+func TransferManagedVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmountStr int) (string, error) {
+	if len(managedCardNo) == 0 {
+		return "", errors.New("转入共管账户卡号不能为空")
+	}
+	trans := [][]byte{[]byte("TransferVoucherAsset"), []byte("managedCardNo"), []byte(managedCardNo), []byte("voucherAmountStr"), []byte(string(voucherAmountStr))}
+	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_FINANCIAL_MANAGED_ACCOUNT, trans, CHANNEL_NAME)
 
 	if response.Status != shim.OK {
 		errStr := fmt.Sprintf("Failed to TransferAsset chaincode. Got error: %s", string(response.Payload))

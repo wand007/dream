@@ -23,16 +23,16 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/financial.tar.gz
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:b007a16080f0e5d9b7ae54f05f932204b5ba884d3d577cf35d96e0f96730d6e5
+export CC_PACKAGE_ID=financial_1:59639aaab291ce5da1ce4f70099985249bbba360b4fd380f47e1c91a87c2b116
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
 
 # 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
-peer lifecycle chaincode approveformyorg -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --channelID $CHANNEL_NAME --name financial --version 1 --init-required --package-id $CC_PACKAGE_ID --sequence 2  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')" --waitForEvent
+peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name financial --version 1 --sequence 1 --init-required --package-id $CC_PACKAGE_ID -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')" --waitForEvent
 
 # 查看链码认证结果 此时只有Org1MSP审核通过了
-peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial --version 1 --sequence 2 --output json --init-required  --collections-config $CC_CC_PATH  --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')"
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH  --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')"
 
 exit
 
@@ -48,13 +48,13 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial/con
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:b007a16080f0e5d9b7ae54f05f932204b5ba884d3d577cf35d96e0f96730d6e5
+export CC_PACKAGE_ID=financial_1:59639aaab291ce5da1ce4f70099985249bbba360b4fd380f47e1c91a87c2b116
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
 
 # 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
-peer lifecycle chaincode approveformyorg -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --channelID $CHANNEL_NAME --name financial --version 1 --init-required --package-id $CC_PACKAGE_ID --sequence 1 --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')" --waitForEvent
+peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name financial --version 1 --sequence 1 --init-required --package-id $CC_PACKAGE_ID -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')" --waitForEvent
 
 # 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
 peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')"
@@ -75,10 +75,10 @@ peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 peer lifecycle chaincode queryinstalled
 
 # 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
-peer lifecycle chaincode approveformyorg -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --channelID $CHANNEL_NAME --name financial --version 1 --init-required --sequence 1 --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')" --waitForEvent
+peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name financial --version 1 --init-required --sequence 1 -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')" --waitForEvent
 
 # 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
-peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')"
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial --version 1 --sequence 1 --output json --init-required --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')"
 
 
 # pee0-org4安装链码

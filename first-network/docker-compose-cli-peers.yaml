@@ -325,7 +325,7 @@ services:
       - CORE_PEER_MSPCONFIGPATH=/usr/local/home/org5/admin.org5.example.com/msp
       # 自定义环境变量
       - CHANNEL_NAME=mychannel
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org4
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org5
     command: /bin/bash
     volumes:
       - ./crypto-config:/usr/local/home

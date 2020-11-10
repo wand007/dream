@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"strconv"
 )
 
 /**
@@ -147,13 +146,9 @@ func (t *FinancialManagedAccountChaincode) Create(ctx contractapi.TransactionCon
 	票据交易
 商户向商户共管账户充值现金时增加票据余额
  */
-func (t *FinancialManagedAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmountStr string) error {
+func (t *FinancialManagedAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, voucherAmount int) error {
 	if len(managedCardNo) == 0 {
 		return errors.New("共管账户卡号不能为空")
-	}
-	voucherAmount, err := strconv.Atoi(voucherAmountStr)
-	if err != nil {
-		return errors.New("3rd argument must be a numeric string")
 	}
 	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_MANAGED_ACCOUNT, managedCardNo)
 	if err != nil {

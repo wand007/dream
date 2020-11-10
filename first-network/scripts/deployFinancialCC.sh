@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/financial.tar.gz
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:59639aaab291ce5da1ce4f70099985249bbba360b4fd380f47e1c91a87c2b116
+export CC_PACKAGE_ID=financial_1:829a1210b0ce7c55f54a1ee1198369efbc1c43879f1faced39c5d03c91ac2a5b
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -48,7 +48,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial/con
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:59639aaab291ce5da1ce4f70099985249bbba360b4fd380f47e1c91a87c2b116
+export CC_PACKAGE_ID=financial_1:829a1210b0ce7c55f54a1ee1198369efbc1c43879f1faced39c5d03c91ac2a5b
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled

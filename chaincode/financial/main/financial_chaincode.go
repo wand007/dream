@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"strconv"
 )
 
 /**
@@ -120,37 +119,33 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 		jsonResp := "{\"Error\":\"Failed to get id for " + id + "\"}"
 		return "", errors.New(jsonResp)
 	}
-
 	if Avalbytes != nil {
-		jsonResp := "{\"Error\":\"Nil id for " + id + "\"}"
+		jsonResp := "{\"Error\":\"金融机构ID:" + id + "不能重复\"}"
 		return "", errors.New(jsonResp)
 	}
+	//银行名称防重复提交
 	financialByName, err := t.queryFinancialByName(ctx, name)
-	//queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, name)
-	//resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-	//
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get name for " + name + "\"}"
 		return "", errors.New(jsonResp)
 	}
-	fmt.Printf("- financialByName queryResult:%#v	\n", financialByName)
-
+	fmt.Printf("- financialByName queryResult:%#v", financialByName)
 	if len(financialByName) != 0 {
-		jsonResp := "{\"Error\":\"Nil name for " + name + "\"}"
+		jsonResp := "{\"Error\":\"金融机构名称:" + name + "不能重复\"}"
 		return "", errors.New(jsonResp)
 	}
-	//queryString = fmt.Sprintf(`{"selector":{"code":"%s"}}`, code)
-	//resultsIterator, err = ctx.GetStub().GetQueryResult(queryString)
-	//
-	//if err != nil {
-	//	jsonResp := "{\"Error\":\"Failed to get code for " + code + "\"}"
-	//	return "", errors.New(jsonResp)
-	//}
-	//
-	//if resultsIterator != nil {
-	//	jsonResp := "{\"Error\":\"Nil code for " + code + "\"}"
-	//	return "", errors.New(jsonResp)
-	//}
+	//银行代码防重复提交
+	financialByCode, err := t.queryFinancialByCode(ctx, code)
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get code for " + code + "\"}"
+		return "", errors.New(jsonResp)
+	}
+	fmt.Printf("- financialByCode queryResult:%#v", financialByCode)
+
+	if len(financialByCode) != 0 {
+		jsonResp := "{\"Error\":\"金融机构代码:" + code + "不能重复\"}"
+		return "", errors.New(jsonResp)
+	}
 	//公开数据
 	financial := &FinancialOrg{
 		ID:     id,
@@ -189,58 +184,6 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 	return string(Avalbytes), nil
 }
 
-func (t *FinancialChainCode) queryFinancialByName(ctx contractapi.TransactionContextInterface, name string) ([]*FinancialOrg, error) {
-
-	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, name)
-
-	queryResults, err := t.getQueryResultForQueryString(ctx, queryString)
-	if err != nil {
-		return nil, errors.New("金融机构名称查询失败" + err.Error())
-	}
-
-	return queryResults, nil
-}
-func (t *FinancialChainCode) getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*FinancialOrg, error) {
-	fmt.Printf("- getQueryResultForQueryString queryString:\n%s\n", queryString)
-
-	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	financialOrgs, err := constructQueryResponseFromIterator(resultsIterator)
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Printf("- getQueryResultForQueryString queryResult:%#v	\n", financialOrgs)
-
-	return financialOrgs, nil
-}
-
-func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*FinancialOrg, error) {
-
-	resp := []*FinancialOrg{}
-
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-
-		newRecord := new(FinancialOrg)
-		err = json.Unmarshal(queryResponse.Value, newRecord)
-		if err != nil {
-			return nil, err
-		}
-
-		resp = append(resp, newRecord)
-	}
-
-	return resp, nil
-}
-
 /**
 	一般账户向共管账户现金兑换票据
  */
@@ -248,10 +191,6 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 	if len(id) == 0 {
 		return 0, errors.New("操作ID不能为空")
 	}
-	//amount, err := strconv.Atoi(amountStr)
-	//if err != nil {
-	//	return 0, errors.New("3rd argument must be a numeric string")
-	//}
 	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL, id)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
@@ -285,16 +224,12 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 个体/代理商/下发机构发起提现请求
 减少金融机构的现金余额和票据余额，增加个体/代理商/下发机构一般账户的现金余额，减少个体/代理商/下发机构一般账户的票据余额
  */
-func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmountStr string) (string, error) {
+func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmount int) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转出共管账户卡号不能为空")
 	}
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转入一般账户卡号不能为空")
-	}
-	voucherAmount, err := strconv.Atoi(voucherAmountStr)
-	if err != nil {
-		return "", errors.New("3rd argument must be a numeric string")
 	}
 	if voucherAmount < 0 {
 		return "", errors.New("兑换票据不能小于0")
@@ -369,10 +304,6 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转出一般账户卡号不能为空")
 	}
-	//amount, err := strconv.Atoi(amountStr)
-	//if err != nil {
-	//	return "", errors.New("3rd argument must be a numeric string")
-	//}
 	if amount < 0 {
 		return "", errors.New("转账金额不能小于0")
 	}
@@ -442,16 +373,12 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 /**
   共管账户向一般账户交易票据 (票据下发)
  */
-func (t *FinancialChainCode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmountStr string) (string, error) {
+func (t *FinancialChainCode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmount int) (string, error) {
 	if len(managedCardNo) == 0 {
 		return "", errors.New("转出共管账户卡号不能为空")
 	}
 	if len(generalCardNo) == 0 {
 		return "", errors.New("转入一般账户卡号不能为空")
-	}
-	voucherAmount, err := strconv.Atoi(voucherAmountStr)
-	if err != nil {
-		return "", errors.New("3rd argument must be a numeric string")
 	}
 	if voucherAmount < 0 {
 		return "", errors.New("转账金额不能小于0")
@@ -622,6 +549,77 @@ func (t *FinancialChainCode) FindPrivateDataById(ctx contractapi.TransactionCont
 	}
 	return string(bytes), nil
 }
+
+/**
+  根据金融机构名称查询
+ */
+func (t *FinancialChainCode) queryFinancialByName(ctx contractapi.TransactionContextInterface, name string) ([]*FinancialOrg, error) {
+
+	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, name)
+
+	queryResults, err := t.getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, errors.New("金融机构名称查询失败" + err.Error())
+	}
+
+	return queryResults, nil
+}
+
+/**
+  根据金融机构代码查询
+ */
+func (t *FinancialChainCode) queryFinancialByCode(ctx contractapi.TransactionContextInterface, code string) ([]*FinancialOrg, error) {
+
+	queryString := fmt.Sprintf(`{"selector":{"code":"%s"}}`, code)
+
+	queryResults, err := t.getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, errors.New("金融机构代码查询失败" + err.Error())
+	}
+
+	return queryResults, nil
+}
+func (t *FinancialChainCode) getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*FinancialOrg, error) {
+	fmt.Printf("- getQueryResultForQueryString queryString:\n%s\n", queryString)
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	financialOrgs, err := constructQueryResponseFromIterator(resultsIterator)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("- getQueryResultForQueryString queryResult:%#v", financialOrgs)
+
+	return financialOrgs, nil
+}
+
+func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*FinancialOrg, error) {
+
+	resp := []*FinancialOrg{}
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		newRecord := new(FinancialOrg)
+		err = json.Unmarshal(queryResponse.Value, newRecord)
+		if err != nil {
+			return nil, err
+		}
+
+		resp = append(resp, newRecord)
+	}
+
+	return resp, nil
+}
+
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(FinancialChainCode))
 	if err != nil {

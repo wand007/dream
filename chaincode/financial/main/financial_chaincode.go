@@ -337,7 +337,7 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 	if err != nil {
 		return "", err
 	}
-
+	//一般账户向共管账户现金兑换票据
 	voucher, err := t.Grant(ctx, managedAccountPrivateData.FinancialOrgID, amount)
 	if err != nil {
 		return "", err

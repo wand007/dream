@@ -133,8 +133,7 @@ peer chaincode query -C $CHANNEL_NAME -n financial   -c '{"function":"FindPrivat
 # 新建金融机构
 peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":["736182013215645696","新增金融机构1","3","1"]}' --waitForEvent
 
-# 修改金融机构
-export MARBLE=$(echo -n "{\"id\":\"IN756579272398741516\",\"name\":\"新建个体2\",\"platformOrgID\":\"P768877118787432448\",\"certificateNo\":\"666666666666666666\",\"certificateType\":1,\"status\":1}" | base64 | tr -d \\n)
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Update","Args":[]}' --transient "{\"financial\":\"$MARBLE\"}" --waitForEvent
+# 一般账户向共管账户现金兑换票据
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Grant","Args":["F766374712807800832","3"]}' --waitForEvent
 
 exit

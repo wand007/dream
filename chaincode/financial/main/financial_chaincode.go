@@ -197,7 +197,7 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 		return 0, errors.New(jsonResp)
 	}
 
-	if Avalbytes != nil {
+	if Avalbytes == nil {
 		jsonResp := "{\"Error\":\"Nil amount for " + id + "\"}"
 		return 0, errors.New(jsonResp)
 	}

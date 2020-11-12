@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"strings"
 	"time"
 )
 
@@ -54,9 +55,9 @@ type FinancialOrgGeneralAccountPrivateData struct {
 	CertificateType       int    `json:"certificateType"`       //持卡者证件类型 (身份证/港澳台证/护照/军官证/统一社会信用代码)
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
 	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
+	OwnerOrg              string `json:"ownerOrg"`              //所有权
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
-
 
 // QueryResult structure used for handling result of query
 type QueryResult struct {
@@ -67,13 +68,20 @@ type QueryResult struct {
 	Bookmark            string    `json:"bookmark"`
 }
 
+func (t *FinancialGeneralAccountChaincode) InitIndividualsLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("InitIndividualsLedger Init")
 
-func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	fmt.Println("FinancialGeneralAccountChaincode Init")
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+
 	//个体
 	individuals := []FinancialOrgGeneralAccountPrivateData{
-		{CardNo: "6229486603953152819", FinancialOrgID: "F766005404604841984", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "6229488603953152825", FinancialOrgID: "F766374712807800832", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229486603953152819", FinancialOrgID: "F766005404604841984", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
+		{CardNo: "6229488603953152825", FinancialOrgID: "F766374712807800832", CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
 	}
 	//私有数据
 	for _, asset := range individuals {
@@ -88,10 +96,23 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 		}
 	}
 
+	return nil
+}
+
+func (t *FinancialGeneralAccountChaincode) InitRetailersLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("InitRetailersLedger Init")
+
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+
 	//零售商机构
 	retailers := []FinancialOrgGeneralAccountPrivateData{
-		{CardNo: "6229486603953174011", FinancialOrgID: "F766005404604841984", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "6229488603953174027", FinancialOrgID: "F766374712807800832", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229486603953174011", FinancialOrgID: "F766005404604841984", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
+		{CardNo: "6229488603953174027", FinancialOrgID: "F766374712807800832", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
 	}
 	//私有数据
 	for _, asset := range retailers {
@@ -106,10 +127,23 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 		}
 	}
 
+	return nil
+}
+
+func (t *FinancialGeneralAccountChaincode) InitAgencysLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("InitAgencysLedger Init")
+
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+
 	//分销商机构
 	agencys := []FinancialOrgGeneralAccountPrivateData{
-		{CardNo: "6229486603953188912", FinancialOrgID: "F766005404604841984", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "6229488603953188928", FinancialOrgID: "F766374712807800832", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229486603953188912", FinancialOrgID: "F766005404604841984", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
+		{CardNo: "6229488603953188928", FinancialOrgID: "F766374712807800832", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
 	}
 	//私有数据
 	for _, asset := range agencys {
@@ -124,10 +158,23 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 		}
 	}
 
+	return nil
+}
+
+func (t *FinancialGeneralAccountChaincode) InitIssuesLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("InitIssuesLedger Init")
+
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+
 	//下发机构
 	issues := []FinancialOrgGeneralAccountPrivateData{
-		{CardNo: "6229486603953201814", FinancialOrgID: "F766005404604841984", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
-		{CardNo: "6229488603953201820", FinancialOrgID: "F766374712807800832", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
+		{CardNo: "6229486603953201814", FinancialOrgID: "F766005404604841984", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
+		{CardNo: "6229488603953201820", FinancialOrgID: "F766374712807800832", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},
 	}
 	//私有数据
 	for _, asset := range issues {
@@ -191,6 +238,14 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 		jsonResp := "{\"Error\":\"一般账户账号:" + transientInput.CardNo + "不能重复\"}"
 		return "", errors.New(jsonResp)
 	}
+
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return "", fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+	transientInput.OwnerOrg = clientOrgID
 	carAsBytes, _ := json.Marshal(transientInput)
 
 	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, transientInput.CardNo, carAsBytes)
@@ -223,6 +278,16 @@ func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.Tra
 	if err != nil {
 		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+	if strings.EqualFold(transientInput.OwnerOrg, clientOrgID) {
+		return fmt.Errorf("当前节点无权操作 generalCardNo: %s", generalCardNo)
+	}
+
 	newCurrentBalance := transientInput.CurrentBalance + amount
 	if newCurrentBalance < 0 {
 		return errors.New("一般账户现金余额不足")
@@ -251,6 +316,15 @@ func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.
 	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
 	if err != nil {
 		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
+	}
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+	if strings.EqualFold(transientInput.OwnerOrg, clientOrgID) {
+		return fmt.Errorf("当前节点无权操作 generalCardNo: %s", generalCardNo)
 	}
 	newVoucherCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
 	if newVoucherCurrentBalance < 0 {
@@ -281,6 +355,15 @@ func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.Transac
 	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)
 	if err != nil {
 		return errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
+	}
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+	if strings.EqualFold(transientInput.OwnerOrg, clientOrgID) {
+		return fmt.Errorf("当前节点无权操作 generalCardNo: %s", generalCardNo)
 	}
 	newVoucherCurrentBalance := transientInput.VoucherCurrentBalance + voucherAmount
 	if newVoucherCurrentBalance < 0 {
@@ -313,23 +396,34 @@ func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.T
 	return string(bytes), nil
 }
 
-
-
-
-func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralWithPagination(ctx contractapi.TransactionContextInterface, financialOrgID, certificateNo string, bookmark string, pageSize int) ([]*QueryResult, error) {
+/**
+根据所属组织机构查询
+ */
+func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralByOwnerOrgWithPagination(ctx contractapi.TransactionContextInterface, financialOrgID, certificateNo string, bookmark string, pageSize int) ([]*QueryResult, error) {
 	if len(certificateNo) == 0 {
 		return nil, errors.New("证件号查询条件不能为空")
 	}
-	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, certificateNo)
+	// Get client org id and verify it matches peer org id.
+	// In this scenario, client is only authorized to read/write private data from its own peer.
+	clientOrgID, err := getClientOrgID(ctx, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get verified OrgID: %s", err.Error())
+	}
+
+	queryString := fmt.Sprintf(`{"selector":{"ownerOrg":"%s"}}`, clientOrgID)
 
 	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
 }
 
-
-func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralSimpleWithPagination(ctx contractapi.TransactionContextInterface, queryString, bookmark string, pageSize int) ([]*QueryResult, error) {
-	if len(queryString) == 0 {
-		return nil, errors.New("查询条件不能为空")
+/**
+查询全部
+ */
+func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralWithPagination(ctx contractapi.TransactionContextInterface, financialOrgID, certificateNo string, bookmark string, pageSize int) ([]*QueryResult, error) {
+	if len(certificateNo) == 0 {
+		return nil, errors.New("证件号查询条件不能为空")
 	}
+
+	queryString := fmt.Sprintf(`{"selector":{"financialOrgID":"%s"}}`, financialOrgID)
 
 	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
 }
@@ -371,7 +465,52 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 	return resp, nil
 }
 
+// getClientOrgID gets the client org ID.
+// The client org ID can optionally be verified against the peer org ID, to ensure that a client from another org doesn't attempt to read or write private data from this peer.
+// The only exception in this scenario is for TransferAsset, since the current owner needs to get an endorsement from the buyer's peer.
+func getClientOrgID(ctx contractapi.TransactionContextInterface, verifyOrg bool) (string, error) {
 
+	clientOrgID, err := ctx.GetClientIdentity().GetMSPID()
+	if err != nil {
+		return "", fmt.Errorf("failed getting client's orgID: %s", err.Error())
+	}
+
+	if verifyOrg {
+		err = verifyClientOrgMatchesPeerOrg(clientOrgID)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return clientOrgID, nil
+}
+
+// verify client org id and matches peer org id.
+func verifyClientOrgMatchesPeerOrg(clientOrgID string) error {
+	peerOrgID, err := shim.GetMSPID()
+	if err != nil {
+		return fmt.Errorf("failed getting peer's orgID: %s", err.Error())
+	}
+	fmt.Println("client from org %s authorized to read or write private data from an org %s peer", clientOrgID, peerOrgID)
+	if clientOrgID != peerOrgID {
+		return fmt.Errorf("client from org %s is not authorized to read or write private data from an org %s peer", clientOrgID, peerOrgID)
+	}
+
+	return nil
+}
+
+// GetAllAssets returns all assets found in world state
+func (t *FinancialGeneralAccountChaincode) GetAllFinancialGenerals(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*QueryResult, error) {
+	// range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
+	resultsIterator, err := ctx.GetStub().GetPrivateDataByRange(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, startKey, endKey)
+
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(FinancialGeneralAccountChaincode))
 	if err != nil {

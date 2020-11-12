@@ -7,39 +7,39 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-type MerchantOrgChainCode struct {
+type RetailerOrgChainCode struct {
 	contractapi.Contract
 }
 
 //私有数据集名称
-const COLLECTION_MERCHANT string = "collectionMerchant"
+const COLLECTION_RETAILER string = "collectionRetailer"
 
 /**
- 商户机构私有数据属性
+ 零售商机构私有数据属性
  */
-type MerchantOrg struct {
-	ID                      string `json:"id"`                      //商户机构ID
-	Name                    string `json:"name"`                    //商户机构名称
+type RetailerOrg struct {
+	ID                      string `json:"id"`                      //零售商机构ID
+	Name                    string `json:"name"`                    //零售商机构名称
 	UnifiedSocialCreditCode string `json:"unifiedSocialCreditCode"` //统一社会信用代码
 	Status                  int    `json:"status"`                  //金融机构状态(启用/禁用)
 }
 
 /**
- 商户机构属性
+ 零售商机构属性
  */
-type MerchantOrgPrivateData struct {
-	ID          string  `json:"id"`          //商户机构ID
-	AgencyOrgID string  `json:"agencyOrgID"` //代理商机构ID AgencyOrg.ID
+type RetailerOrgPrivateData struct {
+	ID          string  `json:"id"`          //零售商机构ID
+	AgencyOrgID string  `json:"agencyOrgID"` //分销商机构ID AgencyOrg.ID
 	RateBasic   float64 `json:"rateBasic"`   //下发机构基础费率
 }
 
-func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
+func (t *RetailerOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 
-	fmt.Println("MerchantOrgChainCode Init")
+	fmt.Println("RetailerOrgChainCode Init")
 	//公开数据
-	issueOrgs := []MerchantOrg{
-		{ID: "M766005404604841984", Name: "默认商户机构1", UnifiedSocialCreditCode: "91370181MA3D7J9W3W", Status: 1},
-		{ID: "M764441096829812736", Name: "默认商户机构2", UnifiedSocialCreditCode: "91370100MA3MP74K7A", Status: 1},
+	issueOrgs := []RetailerOrg{
+		{ID: "M766005404604841984", Name: "默认零售商机构1", UnifiedSocialCreditCode: "91370181MA3D7J9W3W", Status: 1},
+		{ID: "M764441096829812736", Name: "默认零售商机构2", UnifiedSocialCreditCode: "91370100MA3MP74K7A", Status: 1},
 	}
 	for _, asset := range issueOrgs {
 		assetJSON, err := json.Marshal(asset)
@@ -52,7 +52,7 @@ func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInte
 			return fmt.Errorf("Failed to put to world state. %s", err.Error())
 		}
 		//私有数据
-		agencyOrgPrivateDatas := []MerchantOrgPrivateData{
+		agencyOrgPrivateDatas := []RetailerOrgPrivateData{
 			{ID: asset.ID, AgencyOrgID: "A766005404604841984", RateBasic: 0.62},
 			{ID: asset.ID, AgencyOrgID: "A766374712807800832", RateBasic: 0.62},
 		}
@@ -62,7 +62,7 @@ func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInte
 				return err
 			}
 
-			err = ctx.GetStub().PutPrivateData(COLLECTION_MERCHANT, asset.ID, privateDataJSON)
+			err = ctx.GetStub().PutPrivateData(COLLECTION_RETAILER, asset.ID, privateDataJSON)
 			if err != nil {
 				return fmt.Errorf("Failed to put to world state. %s", err.Error())
 			}
@@ -73,18 +73,18 @@ func (t *MerchantOrgChainCode) InitLedger(ctx contractapi.TransactionContextInte
 }
 
 /**
-   新建商户机构
+   新建零售商机构
  */
-func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, unifiedSocialCreditCode string, agencyOrgID string) (string, error) {
+func (t *RetailerOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, unifiedSocialCreditCode string, agencyOrgID string) (string, error) {
 	//公有数据入参参数
 	if len(id) == 0 {
-		return "", errors.New("商户机构ID不能为空")
+		return "", errors.New("零售商机构ID不能为空")
 	}
 	if len(name) == 0 {
-		return "", errors.New("商户机构名称不能为空")
+		return "", errors.New("零售商机构名称不能为空")
 	}
 	if len(agencyOrgID) == 0 {
-		return "", errors.New("代理商机构ID不能为空")
+		return "", errors.New("分销商机构ID不能为空")
 	}
 	if len(unifiedSocialCreditCode) == 0 {
 		return "", errors.New("统一社会信用代码不能为空")
@@ -105,7 +105,7 @@ func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterfac
 	if err != nil {
 		return "", errors.New("Error getting transient: " + err.Error())
 	}
-	financialPrivateDataJsonBytes, ok := transMap["merchant"]
+	financialPrivateDataJsonBytes, ok := transMap["retailer"]
 	if !ok {
 		return "", errors.New("financial must be a key in the transient map")
 	}
@@ -113,20 +113,20 @@ func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterfac
 	if len(financialPrivateDataJsonBytes) == 0 {
 		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
 	}
-	var merchantOrgPrivateData MerchantOrgPrivateData
-	err = json.Unmarshal(financialPrivateDataJsonBytes, &merchantOrgPrivateData)
+	var retailerOrgPrivateData RetailerOrgPrivateData
+	err = json.Unmarshal(financialPrivateDataJsonBytes, &retailerOrgPrivateData)
 	if err != nil {
 		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
-	if len(merchantOrgPrivateData.AgencyOrgID) == 0 {
-		return "", errors.New("代理商机构ID不能为空")
+	if len(retailerOrgPrivateData.AgencyOrgID) == 0 {
+		return "", errors.New("分销商机构ID不能为空")
 	}
-	if merchantOrgPrivateData.RateBasic == 0 {
+	if retailerOrgPrivateData.RateBasic == 0 {
 		return "", errors.New("下发机构基础费率不能为0")
 	}
 	//防重复提交
 	// Get the state from the ledger
-	Avalbytes, err = ctx.GetStub().GetPrivateData(COLLECTION_MERCHANT, id)
+	Avalbytes, err = ctx.GetStub().GetPrivateData(COLLECTION_RETAILER, id)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
 		return "", errors.New(jsonResp)
@@ -152,27 +152,27 @@ func (t *MerchantOrgChainCode) Create(ctx contractapi.TransactionContextInterfac
 	}
 
 	//公开数据
-	merchantOrg := MerchantOrg{ID: id, Name: name, UnifiedSocialCreditCode: unifiedSocialCreditCode, Status: 1}
+	retailerOrg := RetailerOrg{ID: id, Name: name, UnifiedSocialCreditCode: unifiedSocialCreditCode, Status: 1}
 
-	carAsBytes, _ := json.Marshal(merchantOrg)
-	err = ctx.GetStub().PutState(merchantOrg.ID, carAsBytes)
+	carAsBytes, _ := json.Marshal(retailerOrg)
+	err = ctx.GetStub().PutState(retailerOrg.ID, carAsBytes)
 
 	if err != nil {
 		return "", err
 	}
 
 	//私有数据
-	merchantOrgPrivateData.ID = id
-	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
-	err = ctx.GetStub().PutPrivateData(COLLECTION_MERCHANT, merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
+	retailerOrgPrivateData.ID = id
+	retailerOrgPrivateDataAsBytes, _ := json.Marshal(retailerOrgPrivateData)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_RETAILER, retailerOrgPrivateData.ID, retailerOrgPrivateDataAsBytes)
 
 	if err != nil {
 		return "", err
 	}
-	return merchantOrg.ID, nil
+	return retailerOrg.ID, nil
 }
 
-func (t *MerchantOrgChainCode) FindById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+func (t *RetailerOrgChainCode) FindById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("金融机构id不能为空")
 	}
@@ -186,11 +186,11 @@ func (t *MerchantOrgChainCode) FindById(ctx contractapi.TransactionContextInterf
 	return string(bytes), nil
 }
 
-func (t *MerchantOrgChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string, collectionName string) (string, error) {
+func (t *RetailerOrgChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string, collectionName string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("金融机构id不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_MERCHANT, id)
+	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_RETAILER, id)
 	if err != nil {
 		return "", errors.New("金融机构私有数据查询失败！")
 	}
@@ -201,12 +201,12 @@ func (t *MerchantOrgChainCode) FindPrivateDataById(ctx contractapi.TransactionCo
 }
 
 func main() {
-	chaincode, err := contractapi.NewChaincode(new(MerchantOrgChainCode))
+	chaincode, err := contractapi.NewChaincode(new(RetailerOrgChainCode))
 	if err != nil {
-		fmt.Printf("Error create MerchantOrgChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error create RetailerOrgChainCode chaincode: %s", err.Error())
 		return
 	}
 	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting MerchantOrgChainCode chaincode: %s", err.Error())
+		fmt.Printf("Error starting RetailerOrgChainCode chaincode: %s", err.Error())
 	}
 }

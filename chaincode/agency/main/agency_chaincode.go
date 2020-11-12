@@ -15,30 +15,30 @@ type AgencyOrgChainCode struct {
 const COLLECTION_AGENCY string = "collectionAgency"
 
 /**
- 代理商机构属性
+ 分销商机构属性
  */
 type AgencyOrg struct {
-	ID                      string `json:"id"`                      //代理商机构ID
-	Name                    string `json:"name"`                    //代理商机构名称
+	ID                      string `json:"id"`                      //分销商机构ID
+	Name                    string `json:"name"`                    //分销商机构名称
 	UnifiedSocialCreditCode string `json:"unifiedSocialCreditCode"` //统一社会信用代码
-	Status                  int    `json:"status"`                  //代理商机构状态(启用/禁用)
+	Status                  int    `json:"status"`                  //分销商机构状态(启用/禁用)
 }
 
 /**
- 代理商机构私有数据属性
+ 分销商机构私有数据属性
  */
 type AgencyOrgPrivateData struct {
-	ID         string  `json:"id"`         //代理商机构ID
+	ID         string  `json:"id"`         //分销商机构ID
 	IssueOrgID string  `json:"issueOrgID"` //下发机构ID IssueOrg.ID
-	RateBasic  float64 `json:"rateBasic"`  //代理商机构基础费率
+	RateBasic  float64 `json:"rateBasic"`  //分销商机构基础费率
 }
 
 func (t *AgencyOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("AgencyOrgChainCode Init")
 	//公开数据
 	financialOrgs := []AgencyOrg{
-		{ID: "A766005404604841984", Name: "代理商机构1", UnifiedSocialCreditCode: "92370112MA3F23MB5N", Status: 1},
-		{ID: "A766374712807800832", Name: "代理商机构2", UnifiedSocialCreditCode: "92370104MA3DR08A4D", Status: 1},
+		{ID: "A766005404604841984", Name: "分销商机构1", UnifiedSocialCreditCode: "92370112MA3F23MB5N", Status: 1},
+		{ID: "A766374712807800832", Name: "分销商机构2", UnifiedSocialCreditCode: "92370104MA3DR08A4D", Status: 1},
 	}
 	for _, asset := range financialOrgs {
 		assetJSON, err := json.Marshal(asset)
@@ -78,10 +78,10 @@ func (t *AgencyOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterf
 func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, unifiedSocialCreditCode string) (string, error) {
 	//公有数据入参参数
 	if len(id) == 0 {
-		return "", errors.New("代理商机构ID不能为空")
+		return "", errors.New("分销商机构ID不能为空")
 	}
 	if len(name) == 0 {
-		return "", errors.New("代理商机构名称不能为空")
+		return "", errors.New("分销商机构名称不能为空")
 	}
 	if len(unifiedSocialCreditCode) == 0 {
 		return "", errors.New("统一社会信用代码不能为空")
@@ -108,7 +108,7 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 		return "", errors.New("下发机构ID不能为空")
 	}
 	if transientInput.RateBasic == 0 {
-		return "", errors.New("代理商机构基础费率不能为0")
+		return "", errors.New("分销商机构基础费率不能为0")
 	}
 	//防重复提交
 	// Get the state from the ledger
@@ -153,8 +153,8 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 
 	//私有数据
 	transientInput.ID = id
-	merchantOrgPrivateDataAsBytes, _ := json.Marshal(transientInput)
-	err = ctx.GetStub().PutPrivateData(COLLECTION_AGENCY, transientInput.ID, merchantOrgPrivateDataAsBytes)
+	retailerOrgPrivateDataAsBytes, _ := json.Marshal(transientInput)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_AGENCY, transientInput.ID, retailerOrgPrivateDataAsBytes)
 
 	if err != nil {
 		return "", fmt.Errorf("Failed to put to world state. %s", err.Error())

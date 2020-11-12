@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"time"
 )
 
 /**
@@ -24,17 +26,8 @@ type FinancialGeneralAccountChaincode struct {
 	contractapi.Contract
 }
 
-//下发机构一般账户私有数据集名称
-const COLLECTION_FINANCIAL_ISSUE_GENERAL_ACCOUNT string = "collectionFinancialIssueGeneralAccount"
-
-//代理商机构一般账户私有数据集名称
-const COLLECTION_FINANCIAL_AGENCY_GENERAL_ACCOUNT string = "collectionFinancialAgencyGeneralAccount"
-
-//商户机构一般账户私有数据集名称
-const COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT string = "collectionFinancialMerchantGeneralAccount"
-
-//个体一般账户私有数据集名称
-const COLLECTION_FINANCIAL_INDIVIDUAL_GENERAL_ACCOUNT string = "collectionFinancialIndividualGeneralAccount"
+//一般账户私有数据集名称
+const COLLECTION_FINANCIAL_GENERAL_ACCOUNT string = "collectionFinancialGeneralAccount"
 
 const (
 	//默认
@@ -60,9 +53,20 @@ type FinancialOrgGeneralAccountPrivateData struct {
 	CertificateNo         string `json:"certificateNo"`         //持卡者证件号
 	CertificateType       int    `json:"certificateType"`       //持卡者证件类型 (身份证/港澳台证/护照/军官证/统一社会信用代码)
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
+
+
+// QueryResult structure used for handling result of query
+type QueryResult struct {
+	Record              *FinancialOrgGeneralAccountPrivateData
+	TxId                string    `json:"txId"`
+	Timestamp           time.Time `json:"timestamp"`
+	FetchedRecordsCount int       `json:"fetchedRecordsCount"`
+	Bookmark            string    `json:"bookmark"`
+}
+
 
 func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("FinancialGeneralAccountChaincode Init")
@@ -78,31 +82,31 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 			return err
 		}
 
-		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_INDIVIDUAL_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
+		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
 		if err != nil {
 			return fmt.Errorf("Failed to put to world state. %s", err.Error())
 		}
 	}
 
-	//商户机构
-	merchants := []FinancialOrgGeneralAccountPrivateData{
+	//零售商机构
+	retailers := []FinancialOrgGeneralAccountPrivateData{
 		{CardNo: "6229486603953174011", FinancialOrgID: "F766005404604841984", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 		{CardNo: "6229488603953174027", FinancialOrgID: "F766374712807800832", CertificateNo: "92370104MA3DR08A4D", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 	}
 	//私有数据
-	for _, asset := range merchants {
+	for _, asset := range retailers {
 		assetJSON, err := json.Marshal(asset)
 		if err != nil {
 			return err
 		}
 
-		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
+		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
 		if err != nil {
 			return fmt.Errorf("Failed to put to world state. %s", err.Error())
 		}
 	}
 
-	//代理商机构
+	//分销商机构
 	agencys := []FinancialOrgGeneralAccountPrivateData{
 		{CardNo: "6229486603953188912", FinancialOrgID: "F766005404604841984", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
 		{CardNo: "6229488603953188928", FinancialOrgID: "F766374712807800832", CertificateNo: "92370112MA3F23MB5N", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, AccStatus: 1},
@@ -114,7 +118,7 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 			return err
 		}
 
-		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_AGENCY_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
+		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
 		if err != nil {
 			return fmt.Errorf("Failed to put to world state. %s", err.Error())
 		}
@@ -132,7 +136,7 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 			return err
 		}
 
-		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_ISSUE_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
+		err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, asset.CardNo, assetJSON)
 		if err != nil {
 			return fmt.Errorf("Failed to put to world state. %s", err.Error())
 		}
@@ -142,37 +146,9 @@ func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.Transactio
 }
 
 /**
- 新增下发机构金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) CreateIssue(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_ISSUE_GENERAL_ACCOUNT)
-}
-
-/**
- 新增代理商机构金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) CreateAgency(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_AGENCY_GENERAL_ACCOUNT)
-}
-
-/**
- 新增商户机构金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) CreateMerchant(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT)
-}
-
-/**
- 新增个体金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) CreateIndividual(ctx contractapi.TransactionContextInterface) (string, error) {
-	return t.Create(ctx, COLLECTION_FINANCIAL_INDIVIDUAL_GENERAL_ACCOUNT)
-}
-
-/**
  新增金融机构一般账户私有数据
  */
-func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionContextInterface, collectionName string) (string, error) {
+func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
 
 	transMap, err := ctx.GetStub().GetTransient()
 	if err != nil {
@@ -193,7 +169,7 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 		return "", errors.New("Failed to decode JSON of: " + string(financialPrivateDataJsonBytes))
 	}
 	if len(transientInput.CardNo) == 0 {
-		return "", errors.New("金融机构共管账户账号不能为空")
+		return "", errors.New("金融机构一般账户账号不能为空")
 	}
 	if len(transientInput.FinancialOrgID) == 0 {
 		return "", errors.New("金融机构ID不能为空")
@@ -205,28 +181,28 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 		return "", errors.New("持卡者证件类型不能为空")
 	}
 	// Get the state from the ledger
-	Avalbytes, err := ctx.GetStub().GetPrivateData(collectionName, transientInput.CardNo)
+	Avalbytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, transientInput.CardNo)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + transientInput.CardNo + "\"}"
 		return "", errors.New(jsonResp)
 	}
 
 	if Avalbytes != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + transientInput.CardNo + "\"}"
+		jsonResp := "{\"Error\":\"一般账户账号:" + transientInput.CardNo + "不能重复\"}"
 		return "", errors.New(jsonResp)
 	}
 	carAsBytes, _ := json.Marshal(transientInput)
 
-	err = ctx.GetStub().PutPrivateData(collectionName, transientInput.CardNo, carAsBytes)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, transientInput.CardNo, carAsBytes)
 	if err != nil {
-		return "", errors.New("商户共管账户保存失败" + err.Error())
+		return "", errors.New("零售商共管账户保存失败" + err.Error())
 	}
 	return "", nil
 }
 
 /**
   现金交易
-商户向商户一般账户充值现金余额
+零售商向零售商一般账户充值现金余额
  */
 func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
 	if len(generalCardNo) == 0 {
@@ -235,7 +211,7 @@ func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.Tra
 	if amount < 0 {
 		return errors.New("一般账户充值金额不能小于0")
 	}
-	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT, generalCardNo)
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
 	if err != nil {
 		return errors.New("一般账户查询失败！")
 	}
@@ -253,62 +229,18 @@ func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.Tra
 	}
 	transientInput.CurrentBalance = newCurrentBalance
 	assetJSON, _ := json.Marshal(transientInput)
-	return ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT, generalCardNo, assetJSON)
+	return ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo, assetJSON)
 }
 
 /**
   票据交易
-派发时增加下发机构的票据
+增加个体/零售商/分销商的票据
  */
-func (t *FinancialGeneralAccountChaincode) TransferVoucherAssetIssue(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("下发机构一般账户卡号不能为空")
-	}
-	return t.TransferVoucherAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_ISSUE_GENERAL_ACCOUNT);
-}
-
-/**
-  票据交易
-派发时增加代理商的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferVoucherAssetAgency(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("代理商一般账户卡号不能为空")
-	}
-	return t.TransferVoucherAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_AGENCY_GENERAL_ACCOUNT);
-}
-
-/**
-  票据交易
-派发时增加商户的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferVoucherAssetMerchant(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("商户一般账户卡号不能为空")
-	}
-	return t.TransferVoucherAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT);
-}
-
-/**
-  票据交易
-派发时增加个体的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferVoucherAssetIndividual(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("个体一般账户卡号不能为空")
-	}
-	return t.TransferVoucherAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_INDIVIDUAL_GENERAL_ACCOUNT);
-}
-
-/**
-  票据交易
-派发时增加个体/商户/代理商的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int, collectionName string) error {
+func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}
-	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(collectionName, generalCardNo)
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
 	if err != nil {
 		return errors.New("一般账户查询失败！")
 	}
@@ -326,67 +258,19 @@ func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.
 	}
 	transientInput.VoucherCurrentBalance = newVoucherCurrentBalance
 	assetJSON, _ := json.Marshal(transientInput)
-	return ctx.GetStub().PutPrivateData(collectionName, generalCardNo, assetJSON)
+	return ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo, assetJSON)
 }
 
 /**
-  现金和票据交易 （票据提现和票据充值）
-提现时增加下发机构的现金
-提现时减少下发机构的票据
+  现金和票据交易 （票据提现）
+提现时增加个体/零售商/分销商的现金
+提现时减少个体/零售商/分销商的票据
  */
-func (t *FinancialGeneralAccountChaincode) TransferAssetIssue(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("下发机构一般账户卡号不能为空")
-	}
-	return t.TransferAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_ISSUE_GENERAL_ACCOUNT)
-}
-
-/**
-  现金和票据交易 （票据提现和票据充值）
-提现时增加代理商的现金
-提现时减少代理商的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferAssetAgency(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("代理商一般账户卡号不能为空")
-	}
-	return t.TransferAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_AGENCY_GENERAL_ACCOUNT)
-}
-
-/**
-  现金和票据交易 （票据提现和票据充值）
-提现时增加商户的现金
-提现时减少商户的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferAssetMerchant(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("商户一般账户卡号不能为空")
-	}
-	return t.TransferAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT)
-}
-
-/**
-  现金和票据交易 （票据提现和票据充值）
-提现时增加个体的现金
-提现时减少个体的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferAssetIndividual(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmountStr string) error {
-	if len(generalCardNo) == 0 {
-		return errors.New("个体一般账户卡号不能为空")
-	}
-	return t.TransferAsset(ctx, generalCardNo, voucherAmountStr, COLLECTION_FINANCIAL_INDIVIDUAL_GENERAL_ACCOUNT)
-}
-
-/**
-  现金和票据交易 （票据提现和票据充值）
-提现时增加个体/商户/代理商的现金
-提现时减少个体/商户/代理商的票据
- */
-func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int, collectionName string) error {
+func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
 	}
-	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(collectionName, generalCardNo)
+	financialPrivateDataJsonBytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo)
 	if err != nil {
 		return errors.New("一般账户查询失败！")
 	}
@@ -409,57 +293,17 @@ func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.Transac
 	transientInput.VoucherCurrentBalance = newVoucherCurrentBalance
 	transientInput.CurrentBalance = newCurrentBalance
 	assetJSON, _ := json.Marshal(transientInput)
-	return ctx.GetStub().PutPrivateData(collectionName, generalCardNo, assetJSON)
-}
-
-/**
- 查询下发机构金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) FindIssuePrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("下发机构一般账户id不能为空")
-	}
-	return t.FindPrivateDataById(ctx, id, COLLECTION_FINANCIAL_ISSUE_GENERAL_ACCOUNT)
-}
-
-/**
- 查询代理商机构金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) FindAgencyPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("代理商机构一般账户id不能为空")
-	}
-	return t.FindPrivateDataById(ctx, id, COLLECTION_FINANCIAL_AGENCY_GENERAL_ACCOUNT)
-}
-
-/**
- 查询商户机构金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) FindMerchantPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("商户机构一般账户id不能为空")
-	}
-	return t.FindPrivateDataById(ctx, id, COLLECTION_FINANCIAL_MERCHANT_GENERAL_ACCOUNT)
-}
-
-/**
- 查询个体金融机构一般账户私有数据
- */
-func (t *FinancialGeneralAccountChaincode) FindIndividualPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-	if len(id) == 0 {
-		return "", errors.New("个体一般账户id不能为空")
-	}
-	return t.FindPrivateDataById(ctx, id, COLLECTION_FINANCIAL_INDIVIDUAL_GENERAL_ACCOUNT)
+	return ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, generalCardNo, assetJSON)
 }
 
 /**
  查询金融机构一般账户私有数据
  */
-func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string, collectionName string) (string, error) {
+func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("一般账户id不能为空")
 	}
-	bytes, err := ctx.GetStub().GetPrivateData(collectionName, id)
+	bytes, err := ctx.GetStub().GetPrivateData(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, id)
 	if err != nil {
 		return "", errors.New("一般账户查询失败！")
 	}
@@ -468,6 +312,65 @@ func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.T
 	}
 	return string(bytes), nil
 }
+
+
+
+
+func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralWithPagination(ctx contractapi.TransactionContextInterface, financialOrgID, certificateNo string, bookmark string, pageSize int) ([]*QueryResult, error) {
+	if len(certificateNo) == 0 {
+		return nil, errors.New("证件号查询条件不能为空")
+	}
+	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, certificateNo)
+
+	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
+}
+
+
+func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralSimpleWithPagination(ctx contractapi.TransactionContextInterface, queryString, bookmark string, pageSize int) ([]*QueryResult, error) {
+	if len(queryString) == 0 {
+		return nil, errors.New("查询条件不能为空")
+	}
+
+	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
+}
+
+// getQueryResultForQueryStringWithPagination executes the passed in query string with
+// pagination info. Result set is built and returned as a byte array containing the JSON results.
+func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) ([]*QueryResult, error) {
+
+	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
+// constructQueryResponseFromIterator constructs a JSON array containing query results from
+// a given result iterator
+func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*QueryResult, error) {
+
+	resp := []*QueryResult{}
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		newRecord := new(QueryResult)
+		err = json.Unmarshal(queryResponse.Value, newRecord)
+		if err != nil {
+			return nil, err
+		}
+
+		resp = append(resp, newRecord)
+	}
+
+	return resp, nil
+}
+
 
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(FinancialGeneralAccountChaincode))

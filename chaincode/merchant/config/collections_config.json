@@ -1,6 +1,6 @@
 [
   {
-    "name": "collectionMerchant",
+    "name": "collectionRetailer",
     "policy": "OR('Org1MSP.member', 'Org5MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 3,

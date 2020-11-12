@@ -1,30 +1,6 @@
 [
   {
-    "name": "collectionFinancialIssueGeneralAccount",
-    "policy": "OR('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')",
-    "requiredPeerCount": 0,
-    "maxPeerCount": 3,
-    "blockToLive": 0,
-    "memberOnlyRead": true
-  },
-  {
-    "name": "collectionFinancialAgencyGeneralAccount",
-    "policy": "OR('Org1MSP.member','Org2MSP.member', 'Org4MSP.member')",
-    "requiredPeerCount": 0,
-    "maxPeerCount": 3,
-    "blockToLive": 0,
-    "memberOnlyRead": true
-  },
-  {
-    "name": "collectionFinancialMerchantGeneralAccount",
-    "policy": "OR('Org1MSP.member','Org2MSP.member', 'Org5MSP.member')",
-    "requiredPeerCount": 0,
-    "maxPeerCount": 3,
-    "blockToLive": 0,
-    "memberOnlyRead": true
-  },
-  {
-    "name": "collectionFinancialIndividualGeneralAccount",
+    "name": "collectionFinancialGeneralAccount",
     "policy": "OR('Org1MSP.member','Org2MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 3,

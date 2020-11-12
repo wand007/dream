@@ -71,19 +71,19 @@ type QueryResult struct {
 func (t *IndividualChainCode) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("IndividualChainCode Init")
 	//公开数据
-	merchantOrg := Individual{ID: "IN760934239574175744", Name: "默认个体", PlatformOrgID: "P768877118787432448", Status: 1}
+	retailerOrg := Individual{ID: "IN760934239574175744", Name: "默认个体", PlatformOrgID: "P768877118787432448", Status: 1}
 
-	carAsBytes, _ := json.Marshal(merchantOrg)
-	err := ctx.GetStub().PutState(merchantOrg.ID, carAsBytes)
+	carAsBytes, _ := json.Marshal(retailerOrg)
+	err := ctx.GetStub().PutState(retailerOrg.ID, carAsBytes)
 
 	if err != nil {
 		return fmt.Errorf("Failed to put to world state. %s", err.Error())
 	}
 	//私有数据
-	merchantOrgPrivateData := IndividualPrivateData{ID: merchantOrg.ID, CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1}
+	retailerOrgPrivateData := IndividualPrivateData{ID: retailerOrg.ID, CertificateNo: "888888888888888888", CertificateType: CERTIFICATE_TYPE_1}
 
-	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
-	err = ctx.GetStub().PutPrivateData(COLLECTION_INDIVIDUAL, merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
+	retailerOrgPrivateDataAsBytes, _ := json.Marshal(retailerOrgPrivateData)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_INDIVIDUAL, retailerOrgPrivateData.ID, retailerOrgPrivateDataAsBytes)
 
 	if err != nil {
 		return fmt.Errorf("Failed to put to world state. %s", err.Error())

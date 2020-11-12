@@ -47,7 +47,7 @@ type FinancialOrg struct {
 type FinancialOrgPrivateData struct {
 	ID                    string `json:"id"`                    //金融机构ID FinancialOrg.ID
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
 }
 
 /**
@@ -58,9 +58,9 @@ type FinancialOrgManagedAccountPrivateData struct {
 	CardNo                string `json:"cardNo"`                //金融机构共管账户账号
 	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
 	PlatformOrgID         string `json:"platformOrgID"`         //平台机构ID PlatformOrg.ID
-	MerchantOrgID         string `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
+	RetailerOrgID         string `json:"retailerOrgID"`         //零售商机构ID RetailerOrg.ID
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
@@ -214,15 +214,15 @@ func (t *FinancialChainCode) Grant(ctx contractapi.TransactionContextInterface, 
 	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL, id, carAsBytes)
 
 	if err != nil {
-		return 0, errors.New("商户共管账户保存失败" + err.Error())
+		return 0, errors.New("零售商共管账户保存失败" + err.Error())
 	}
 	return financialOrgPrivateData.VoucherCurrentBalance, nil
 }
 
 /**
   一般账户向共管账户票据兑换现金 (票据变现)
-个体/代理商/下发机构发起提现请求
-减少金融机构的现金余额和票据余额，增加个体/代理商/下发机构一般账户的现金余额，减少个体/代理商/下发机构一般账户的票据余额
+个体/分销商/下发机构发起提现请求
+减少金融机构的现金余额和票据余额，增加个体/分销商/下发机构一般账户的现金余额，减少个体/分销商/下发机构一般账户的票据余额
  */
 func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, voucherAmount int) (string, error) {
 	if len(managedCardNo) == 0 {
@@ -288,14 +288,14 @@ func (t *FinancialChainCode) Realization(ctx contractapi.TransactionContextInter
 	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL, financialOrgPrivateData.ID, carAsBytes)
 
 	if err != nil {
-		return "", errors.New("商户共管账户保存失败" + err.Error())
+		return "", errors.New("零售商共管账户保存失败" + err.Error())
 	}
 	return "", nil
 }
 
 /**
   一般账户向共管账户现金兑换票据 (现金充值)
-商户用一般账户的现金余额向上级代理的上级下发机构的金融机构的共管账户充值，获取金融机构颁发的票据，共管账户增加票据余额，商户减少一般账户的现金余额，增加金融机构的现金余额和票据余额。
+零售商用一般账户的现金余额向上级代理的上级下发机构的金融机构的共管账户充值，获取金融机构颁发的票据，共管账户增加票据余额，零售商减少一般账户的现金余额，增加金融机构的现金余额和票据余额。
  */
 func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInterface, managedCardNo string, generalCardNo string, amount int) (string, error) {
 	if len(managedCardNo) == 0 {
@@ -337,7 +337,7 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 	if err != nil {
 		return "", err
 	}
-	//一般账户向共管账户现金兑换票据
+	//一般账户向经融机构现金兑换票据
 	voucher, err := t.Grant(ctx, managedAccountPrivateData.FinancialOrgID, amount)
 	if err != nil {
 		return "", err
@@ -346,26 +346,6 @@ func (t *FinancialChainCode) TransferAsset(ctx contractapi.TransactionContextInt
 	err = TransferManagedVoucherAsset(ctx, managedCardNo, voucher)
 	if err != nil {
 		return "", err
-	}
-	//增加金融机构账户现金和票据余额
-	financialOrgPrivateString, err := t.FindPrivateDataById(ctx, managedAccountPrivateData.FinancialOrgID)
-	if err != nil {
-		return "", errors.New("Failed to decode JSON of: " + financialOrgPrivateString)
-	}
-	var financialOrgPrivateData FinancialOrgPrivateData
-	err = json.Unmarshal([]byte(financialOrgPrivateString), &financialOrgPrivateData)
-	if err != nil {
-		return "", errors.New("Failed to decode JSON of: " + financialOrgPrivateString)
-	}
-
-	financialOrgPrivateData.CurrentBalance = financialOrgPrivateData.CurrentBalance + amount
-	financialOrgPrivateData.VoucherCurrentBalance = financialOrgPrivateData.VoucherCurrentBalance + amount
-	carAsBytes, _ := json.Marshal(financialOrgPrivateData)
-
-	err = ctx.GetStub().PutPrivateData(COLLECTION_FINANCIAL, financialOrgPrivateData.ID, carAsBytes)
-
-	if err != nil {
-		return "", errors.New("商户共管账户保存失败" + err.Error())
 	}
 	return "", nil
 }
@@ -428,7 +408,7 @@ func TransferGeneralAsset(ctx contractapi.TransactionContextInterface, generalCa
 		return errors.New("一般账户卡号不能为空")
 	}
 
-	trans := [][]byte{[]byte("TransferAsset"), []byte("generalCardNo"), []byte(generalCardNo), []byte("voucherAmount"), []byte(string(voucherAmount))}
+	trans := [][]byte{[]byte("TransferAssetRetailer"), []byte("generalCardNo"), []byte(generalCardNo), []byte("voucherAmount"), []byte(string(voucherAmount))}
 	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
 
 	if response.Status != shim.OK {

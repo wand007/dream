@@ -41,13 +41,13 @@ type DistributionRecordPrivateData struct {
 	PlatformOrgID        string  `json:"platformOrgID"`        //平台机构ID PlatformOrg.ID
 	FinancialOrgID       string  `json:"financialOrgID"`       //金融机构ID FinancialOrg.ID
 	IndividualID         string  `json:"individualID"`         //个体ID Individual.ID
-	MerchantOrgID        string  `json:"merchantOrgID"`        //商户机构ID MerchantOrg.ID
-	AgencyOrgID          string  `json:"merchantOrgID"`        //代理商机构ID AgencyOrg.ID
+	RetailerOrgID        string  `json:"retailerOrgID"`        //零售商机构ID RetailerOrg.ID
+	AgencyOrgID          string  `json:"agencyOrgID"`          //分销商机构ID AgencyOrg.ID
 	IssueOrgID           string  `json:"issueOrgID"`           //下发机构ID IssueOrg.ID
 	ManagedAccountCardNo string  `json:"managedAccountCardNo"` //共管账户账号 FinancialOrgManagedAccountPrivateData.CardNo
 	IssueCardNo          string  `json:"issueCardNo"`          //下发机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	IndividualCardNo     string  `json:"individualCardNo"`     //个体一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
-	AgencyCardNo         string  `json:"managedCardNo"`        //代理商机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	AgencyCardNo         string  `json:"managedCardNo"`        //分销商机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	ManagedCardNo        string  `json:"managedCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	GeneralCardNo        string  `json:"generalCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	Amount               int     `json:"amount"`               //派发金额
@@ -80,7 +80,7 @@ type FinancialOrg struct {
 type FinancialOrgPrivateData struct {
 	ID                    string `json:"id"`                    //金融机构ID FinancialOrg.ID
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
 }
 
 /**
@@ -90,8 +90,8 @@ type FinancialOrgManagedAccountPrivateData struct {
 	CardNo                string `json:"cardNo"`                //金融机构公管账户账号(唯一不重复)
 	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
 	IssueOrgID            string `json:"issueOrgID"`            //下发机构ID IssueOrg.ID
-	MerchantOrgID         string `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	RetailerOrgID         string `json:"retailerOrgID"`         //零售商机构ID RetailerOrg.ID
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
@@ -104,7 +104,7 @@ type FinancialOrgGeneralAccountPrivateData struct {
 	CertificateNo         string `json:"certificateNo"`         //持卡者证件号
 	CertificateType       int    `json:"certificateType"`       //持卡者证件类型 (身份证/港澳台证/护照/军官证)
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
 }
 
@@ -138,63 +138,63 @@ type IssueOrgFinancialAccountPrivateData struct {
 }
 
 /**
- 代理商机构属性
+ 分销商机构属性
  */
 type AgencyOrg struct {
-	ID     string `json:"id"`     //代理商机构ID
-	Name   string `json:"name"`   //代理商机构名称
-	Status int    `json:"status"` //代理商机构状态(启用/禁用)
+	ID     string `json:"id"`     //分销商机构ID
+	Name   string `json:"name"`   //分销商机构名称
+	Status int    `json:"status"` //分销商机构状态(启用/禁用)
 }
 
 /**
- 代理商机构私有数据属性
+ 分销商机构私有数据属性
  */
 type AgencyOrgPrivateData struct {
-	ID        string  `json:"id"`        //代理商机构ID
-	RateBasic float64 `json:"rateBasic"` //代理商机构基础费率
+	ID        string  `json:"id"`        //分销商机构ID
+	RateBasic float64 `json:"rateBasic"` //分销商机构基础费率
 }
 
 /**
-   代理商机构金融账户私有数据属性
+   分销商机构金融账户私有数据属性
  */
 type AgencyOrgFinancialAccountPrivateData struct {
-	ID                    string `json:"id"`                    //商户机构账户ID
-	AgencyOrgID           string `json:"merchantOrgID"`         //代理商机构ID AgencyOrg.ID
+	ID                    string `json:"id"`                    //零售商机构账户ID
+	AgencyOrgID           string `json:"agencyOrgID"`           //分销商机构ID AgencyOrg.ID
 	FinancialCode         string `json:"financialCode"`         //金融机构代码
-	FinancialCardNo       string `json:"financialCardNo"`       //金融机构代理商机构账号
+	FinancialCardNo       string `json:"financialCardNo"`       //金融机构分销商机构账号
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构代理商机构账户凭证(token)余额
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构分销商机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //系统账户状态(正常/冻结/禁用)
 }
 
 /**
- 商户机构私有数据属性
+ 零售商机构私有数据属性
  */
-type MerchantOrg struct {
-	ID          string `json:"id"`            //商户机构ID
-	Name        string `json:"name"`          //商户机构名称
-	AgencyOrgID string `json:"merchantOrgID"` //代理商机构ID AgencyOrg.ID
-	Status      int    `json:"status"`        //金融机构状态(启用/禁用)
+type RetailerOrg struct {
+	ID          string `json:"id"`          //零售商机构ID
+	Name        string `json:"name"`        //零售商机构名称
+	AgencyOrgID string `json:"agencyOrgID"` //分销商机构ID AgencyOrg.ID
+	Status      int    `json:"status"`      //金融机构状态(启用/禁用)
 }
 
 /**
- 商户机构属性
+ 零售商机构属性
  */
-type MerchantOrgPrivateData struct {
-	ID        string  `json:"id"`        //商户机构ID
+type RetailerOrgPrivateData struct {
+	ID        string  `json:"id"`        //零售商机构ID
 	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
 }
 
 /**
-   商户机构金融账户私有数据属性
+   零售商机构金融账户私有数据属性
  */
-type MerchantOrgFinancialAccountPrivateData struct {
-	ID                    string `json:"id"`                    //商户机构账户ID
-	MerchantOrgID         string `json:"merchantOrgID"`         //商户机构ID MerchantOrg.ID
+type RetailerOrgFinancialAccountPrivateData struct {
+	ID                    string `json:"id"`                    //零售商机构账户ID
+	RetailerOrgOrgID      string `json:"retailerOrgID"`         //零售商机构ID RetailerOrg.ID
 	FinancialCode         string `json:"financialCode"`         //金融机构代码
-	FinancialCardNo       string `json:"financialCardNo"`       //金融机构商户机构账号
+	FinancialCardNo       string `json:"financialCardNo"`       //金融机构零售商机构账号
 	CurrentBalance        int    `json:"currentBalance"`        //金融机构共管账户余额(现金)
-	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构商户机构账户凭证(token)余额
+	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额
 	AccStatus             int    `json:"accStatus"`             //系统账户状态(正常/冻结/禁用)
 }
 

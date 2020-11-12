@@ -1,4 +1,4 @@
-module merchant_chaincode
+module retailer_chaincode
 
 go 1.15
 

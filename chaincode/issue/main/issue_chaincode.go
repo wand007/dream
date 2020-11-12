@@ -135,10 +135,10 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 
 	//私有数据
 	transientInput.ID = id
-	merchantOrgPrivateData := IssueOrgPrivateData{ID: issueOrg.ID, RateBasic: transientInput.RateBasic}
+	retailerOrgPrivateData := IssueOrgPrivateData{ID: issueOrg.ID, RateBasic: transientInput.RateBasic}
 
-	merchantOrgPrivateDataAsBytes, _ := json.Marshal(merchantOrgPrivateData)
-	err = ctx.GetStub().PutPrivateData(COLLECTION_ISSUE, merchantOrgPrivateData.ID, merchantOrgPrivateDataAsBytes)
+	retailerOrgPrivateDataAsBytes, _ := json.Marshal(retailerOrgPrivateData)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_ISSUE, retailerOrgPrivateData.ID, retailerOrgPrivateDataAsBytes)
 
 	if err != nil {
 		return "", fmt.Errorf("Failed to put to world state. %s", err.Error())

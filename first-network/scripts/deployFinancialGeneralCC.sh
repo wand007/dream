@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/financial_genera
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial_general_account.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_general_account_1:829a1210b0ce7c55f54a1ee1198369efbc1c43879f1faced39c5d03c91ac2a5b
+export CC_PACKAGE_ID=financial_general_account_1:1821cb30b13939e4bfbcdc4dbd7c8c1c0cc1b80bebb37f6ba7e3c0a7625f658f
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -48,7 +48,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial_gen
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial_general_account.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_general_account_1:829a1210b0ce7c55f54a1ee1198369efbc1c43879f1faced39c5d03c91ac2a5b
+export CC_PACKAGE_ID=financial_general_account_1:1821cb30b13939e4bfbcdc4dbd7c8c1c0cc1b80bebb37f6ba7e3c0a7625f658f
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -61,21 +61,39 @@ peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name f
 
 exit
 
+
 # pee0-org3安装链码
 docker exec -it cli-org3-peer0 bash
-# 重复pee0-org2安装链码
+
+# 链码路径
+export CC_SRC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial_general_account/main/
+# 私有数据规则配置文件路径
+export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial_general_account/config/collections_config.json
+# 安装链码
+peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial_general_account.tar.gz
+
+# 查看peer0.org3.example.com链码安装结果
+peer lifecycle chaincode queryinstalled
+
+# 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
+peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name financial_general_account --version 1 --sequence 1 --init-required -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --waitForEvent
+
+# 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial_general_account --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH
+
+exit
 
 # pee0-org4安装链码
 docker exec -it cli-org4-peer0 bash
-# 重复pee0-org2安装链码
+# 重复pee0-org3安装链码
 
 # pee0-org5安装链码
 docker exec -it cli-org5-peer0 bash
-# 重复pee0-org2安装链码
+# 重复pee0-org3安装链码
 
 # pee0-org6安装链码
 docker exec -it cli-org6-peer0 bash
-# 重复pee0-org2安装链码
+# 重复pee0-org3安装链码
 
 
 

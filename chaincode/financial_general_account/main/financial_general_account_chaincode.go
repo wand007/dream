@@ -499,7 +499,9 @@ func verifyClientOrgMatchesPeerOrg(clientOrgID string) error {
 	return nil
 }
 
-// GetAllAssets returns all assets found in world state
+/**
+富查询 必须是CouchDB才行
+ */
 func (t *FinancialGeneralAccountChaincode) GetAllFinancialGenerals(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*QueryResult, error) {
 	// range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
 	resultsIterator, err := ctx.GetStub().GetPrivateDataByRange(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, startKey, endKey)
@@ -511,6 +513,43 @@ func (t *FinancialGeneralAccountChaincode) GetAllFinancialGenerals(ctx contracta
 
 	return constructQueryResponseFromIterator(resultsIterator)
 }
+
+/**
+查询历史数据
+ */
+func (t *FinancialGeneralAccountChaincode) getHistoryForMarble(ctx contractapi.TransactionContextInterface, cardNo string) ([]QueryResult, error) {
+
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(cardNo)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	records := []QueryResult{}
+
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		asset := new(FinancialOrgGeneralAccountPrivateData)
+		err = json.Unmarshal(response.Value, asset)
+		if err != nil {
+			return nil, err
+		}
+
+		record := QueryResult{
+			TxId:      response.TxId,
+			Timestamp: time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)),
+			Record:    asset,
+		}
+		records = append(records, record)
+	}
+
+	return records, nil
+}
+
 func main() {
 	chaincode, err := contractapi.NewChaincode(new(FinancialGeneralAccountChaincode))
 	if err != nil {

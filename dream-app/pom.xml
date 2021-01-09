@@ -125,30 +125,30 @@
     <build>
         <finalName>dream-app</finalName>
 
-        <!--<resources>-->
-            <!--<resource>-->
-                <!--<targetPath>${project.build.directory}/classes</targetPath>-->
-                <!--<directory>src/main/resources/${package.environment}</directory>-->
-                <!--<filtering>true</filtering>-->
-                <!--<includes>-->
-                    <!--<include>**/*.xml</include>-->
-                    <!--<include>**/*.properties</include>-->
-                    <!--<include>**/*.yml</include>-->
-                    <!--<include>**/*.yaml</include>-->
-                <!--</includes>-->
-            <!--</resource>-->
-            <!--<resource>-->
-                <!--<targetPath>${project.build.directory}/classes</targetPath>-->
-                <!--<directory>src/main/resources</directory>-->
-                <!--<filtering>true</filtering>-->
-                <!--<includes>-->
-                    <!--<include>*.xml</include>-->
-                    <!--<include>*.properties</include>-->
-                    <!--<include>*.yml</include>-->
-                    <!--<include>*.yaml</include>-->
-                <!--</includes>-->
-            <!--</resource>-->
-        <!--</resources>-->
+        <resources>
+            <resource>
+                <targetPath>${project.build.directory}/classes</targetPath>
+                <directory>src/main/resources/${package.environment}</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.yml</include>
+                    <include>**/*.yaml</include>
+                </includes>
+            </resource>
+            <resource>
+                <targetPath>${project.build.directory}/classes</targetPath>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.xml</include>
+                    <include>*.properties</include>
+                    <include>*.yml</include>
+                    <include>*.yaml</include>
+                </includes>
+            </resource>
+        </resources>
 
         <plugins>
             <plugin>
@@ -166,44 +166,44 @@
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>copy-resources</id>-->
-                        <!--<phase>validate</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>copy-resources</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDirectory>${basedir}/target/classes</outputDirectory>-->
-                            <!--<resources>-->
-                                <!--<resource>-->
-                                    <!--<targetPath>${project.build.directory}/classes</targetPath>-->
-                                    <!--<directory>src/main/resources/${package.environment}</directory>-->
-                                    <!--<filtering>true</filtering>-->
-                                    <!--<includes>-->
-                                        <!--<include>**/*.xml</include>-->
-                                        <!--<include>**/*.properties</include>-->
-                                        <!--<include>**/*.yml</include>-->
-                                        <!--<include>**/*.yaml</include>-->
-                                    <!--</includes>-->
-                                <!--</resource>-->
-                                <!--<resource>-->
-                                    <!--<targetPath>${project.build.directory}/classes</targetPath>-->
-                                    <!--<directory>src/main/resources</directory>-->
-                                    <!--<filtering>true</filtering>-->
-                                    <!--<includes>-->
-                                        <!--<include>*.xml</include>-->
-                                        <!--<include>*.properties</include>-->
-                                        <!--<include>*.yml</include>-->
-                                        <!--<include>*.yaml</include>-->
-                                        <!--<include>**/templates/</include>-->
-                                        <!--<include>**/static/</include>-->
-                                    <!--</includes>-->
-                                <!--</resource>-->
-                            <!--</resources>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <targetPath>${project.build.directory}/classes</targetPath>
+                                    <directory>src/main/resources/${package.environment}</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/*.xml</include>
+                                        <include>**/*.properties</include>
+                                        <include>**/*.yml</include>
+                                        <include>**/*.yaml</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <targetPath>${project.build.directory}/classes</targetPath>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>*.xml</include>
+                                        <include>*.properties</include>
+                                        <include>*.yml</include>
+                                        <include>*.yaml</include>
+                                        <include>**/templates/</include>
+                                        <include>**/static/</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

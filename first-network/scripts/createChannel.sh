@@ -14,10 +14,6 @@ configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts
 ## 启动节点服务
 docker-compose -f docker-compose-etcdraft2.yaml up -d 2>&1
 
-## curl -X PUT http://localhost:5984/_users
-## curl -X PUT http://localhost:5984/_replicator
-## curl -X PUT http://localhost:5984/fabric__internal
-
 
 ## 启动cli服务
 docker-compose -f docker-compose-cli-peers.yaml up  -d 2>&1

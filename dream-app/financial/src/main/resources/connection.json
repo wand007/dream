@@ -115,7 +115,7 @@
         "verify": true
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/org1/ca/ca.org1.example.com-cert.pem"
+        "path": "src/main/resources/crypto-config/org1/ca/crypto/ca-cert.pem"
       },
       "registrar": [
         {
@@ -130,7 +130,7 @@
         "verify": true
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/org2/ca/ca.org2.example.com-cert.pem"
+        "path": "src/main/resources/crypto-config/org2/ca/crypto/ca-cert.pem"
       },
       "registrar": [
         {

@@ -135,6 +135,7 @@
                     <include>**/*.properties</include>
                     <include>**/*.yml</include>
                     <include>**/*.yaml</include>
+                    <include>**/crypto-config/**</include>
                 </includes>
             </resource>
             <resource>
@@ -146,6 +147,7 @@
                     <include>*.properties</include>
                     <include>*.yml</include>
                     <include>*.yaml</include>
+                    <include>**/crypto-config/**</include>
                 </includes>
             </resource>
         </resources>
@@ -185,6 +187,7 @@
                                         <include>**/*.properties</include>
                                         <include>**/*.yml</include>
                                         <include>**/*.yaml</include>
+                                        <include>**/crypto-config/**</include>
                                     </includes>
                                 </resource>
                                 <resource>
@@ -198,6 +201,7 @@
                                         <include>*.yaml</include>
                                         <include>**/templates/</include>
                                         <include>**/static/</include>
+                                        <include>**/crypto-config/</include>
                                     </includes>
                                 </resource>
                             </resources>

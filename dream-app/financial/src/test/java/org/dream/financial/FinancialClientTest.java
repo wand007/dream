@@ -1,4 +1,4 @@
-package com.example.fabric;
+package org.dream.financial;
 
 import org.hyperledger.fabric.gateway.*;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
@@ -17,11 +17,11 @@ import java.security.cert.X509Certificate;
 import java.util.EnumSet;
 
 /**
- * @author ; lidongdong
- * @Description
- * @Date 2021-01-09
+ * @author 咚咚锵
+ * @date 2021/1/16 21:11
+ * @description 金融机构链码客户端测试类
  */
-public class FinancialClientApp {
+public class FinancialClientTest {
 
 
     public static void main(String[] args) {
@@ -76,11 +76,11 @@ public class FinancialClientApp {
             // a转50给b
             byte[] invokeResult = contract.createTransaction("Create")
                     .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
-                    .submit("736182013215645695","新增金融机构5","5","1");
+                    .submit("T736182013215645671","新增金融机构11","11","1");
             System.out.println(new String(invokeResult, StandardCharsets.UTF_8));
 
             //查询交易结果
-            byte[] queryAResultAfter = contract.evaluateTransaction("FindById", "736182013215645695");
+            byte[] queryAResultAfter = contract.evaluateTransaction("FindById", "T736182013215645671");
             System.out.println("交易后：" + new String(queryAResultAfter, StandardCharsets.UTF_8));
 
         } catch (Exception e) {

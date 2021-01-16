@@ -43,10 +43,10 @@
         "ca-org1"
       ],
       "adminPrivateKeyPEM": {
-        "path": "src/main/resources/crypto-config/org1/admin.org1.example.com/msp/keystore/key.pem"
+        "path": "first-network/crypto-config/org1/admin.org1.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "src/main/resources/crypto-config/org1/admin.org1.example.com/msp/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org1/admin.org1.example.com/msp/signcerts/cert.pem"
       }
     }
   },

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>org.dream</groupId>
     <artifactId>dream-app</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -14,8 +14,8 @@
         <module>issue</module>
         <module>agency</module>
         <module>retailer</module>
+        <module>commons-core</module>
     </modules>
-
 
 
     <properties>
@@ -34,6 +34,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
+
     <repositories>
         <repository>
             <id>snapshots-repo</id>
@@ -47,54 +48,106 @@
         </repository>
     </repositories>
 
-
     <dependencies>
+
         <!-- https://mvnrepository.com/artifact/org.yperledger.fabric/fabric-gateway-java -->
         <dependency>
             <groupId>org.hyperledger.fabric</groupId>
             <artifactId>fabric-gateway-java</artifactId>
             <version>2.2.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>${spring-cloud.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>2.1.10.RELEASE</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-consul-config</artifactId>-->
+<!--            <version>2.0.1.RELEASE</version>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-consul-discovery &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-consul-discovery</artifactId>-->
+<!--            <version>2.0.1.RELEASE</version>-->
+<!--        </dependency>-->
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>2.1.10.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <!-- 排除默认的logback日志，使用log4j-->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+
+                <!-- 排除默认的logback日志，使用log4j-->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+        <!-- 支持log4j2的模块，注意把spring-boot-starter和spring-boot-starter-web包中的logging去掉 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+
+        <!-- validator -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.13.Final</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.16</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.75</version>
+        </dependency>
 
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-consul-config</artifactId>
-                <version>2.0.1.RELEASE</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-consul-discovery -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-consul-discovery</artifactId>
-                <version>2.0.1.RELEASE</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-actuator</artifactId>
-                <version>2.1.10.RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-configuration-processor</artifactId>
-                <version>2.1.10.RELEASE</version>
-            </dependency>
-
-        </dependencies>
-
-    </dependencyManagement>
 
 
     <profiles>
@@ -135,7 +188,7 @@
                     <include>**/*.properties</include>
                     <include>**/*.yml</include>
                     <include>**/*.yaml</include>
-                    <include>**/crypto-config/**</include>
+                    <include>*/*.json</include>
                 </includes>
             </resource>
             <resource>
@@ -147,7 +200,7 @@
                     <include>*.properties</include>
                     <include>*.yml</include>
                     <include>*.yaml</include>
-                    <include>**/crypto-config/**</include>
+                    <include>*/*.json</include>
                 </includes>
             </resource>
         </resources>
@@ -187,7 +240,7 @@
                                         <include>**/*.properties</include>
                                         <include>**/*.yml</include>
                                         <include>**/*.yaml</include>
-                                        <include>**/crypto-config/**</include>
+                                        <include>*/*.json</include>
                                     </includes>
                                 </resource>
                                 <resource>
@@ -199,9 +252,9 @@
                                         <include>*.properties</include>
                                         <include>*.yml</include>
                                         <include>*.yaml</include>
+                                        <include>*/*.json</include>
                                         <include>**/templates/</include>
                                         <include>**/static/</include>
-                                        <include>**/crypto-config/</include>
                                     </includes>
                                 </resource>
                             </resources>

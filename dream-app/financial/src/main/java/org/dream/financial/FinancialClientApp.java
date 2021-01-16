@@ -1,10 +1,9 @@
-package org.dream.financial;
+package com.example.fabric;
 
 import org.hyperledger.fabric.gateway.*;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.hyperledger.fabric.sdk.Peer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -42,9 +41,9 @@ public class FinancialClientApp {
 
 
     public static void caConfig2() {
-
-        Path NETWORK_CONFIG_PATH = Paths.get("src/main/resources/connection.json");
-        Path credentialPath = Paths.get("/src/main/resources/crypto-config/org1/admin.org1.example.com/msp");
+        System.out.println(System.getProperty("user.dir"));
+        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/financial/src/main/resources/connection.json");
+        Path credentialPath = Paths.get("first-network/crypto-config/org1/admin.org1.example.com/msp");
 
 
         try {

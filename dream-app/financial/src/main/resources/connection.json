@@ -58,64 +58,64 @@
         "ca-org2"
       ],
       "adminPrivateKeyPEM": {
-        "path": "src/main/resources/crypto-config/org2/admin.org2.example.com/msp/keystore/key.pem"
+        "path": "first-network/crypto-config/org2/admin.org2.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "src/main/resources/crypto-config/org2/admin.org2.example.com/msp/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org2/admin.org2.example.com/msp/signcerts/cert.pem"
       }
     }
   },
   "orderers": {
     "orderer1.org0.example.com": {
-      "url": "grpcs://127.0.0.1:7050",
+      "url": "grpcs://192.168.0.11:7050",
       "mspid": "Org0MSP",
       "grpcOptions": {
         "ssl-target-name-override": "orderer1.org0.example.com",
         "hostnameOverride": "orderer1.org0.example.com"
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/org0/orderer1.org0.example.com/tls/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/orderer1.org0.example.com/tls-msp/signcerts/cert.pem"
       },
       "adminPrivateKeyPEM": {
-        "path": "src/main/resources/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "src/main/resources/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
       }
     }
   },
   "peers": {
     "peer0.org1.example.com": {
-      "url": "grpcs://127.0.0.1:7051",
+      "url": "grpcs://192.168.0.11:7051",
       "grpcOptions": {
         "ssl-target-name-override": "peer0.org1.example.com",
         "hostnameOverride": "peer0.org1.example.com",
         "request-timeout": 120001
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/org1/peer0.org1.example.com/tls/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org1/peer0.org1.example.com/tls-msp/signcerts/cert.pem"
       }
     },
     "peer0.org2.example.com": {
-      "url": "grpcs://127.0.0.1:9051",
+      "url": "grpcs://192.168.0.11:9051",
       "grpcOptions": {
         "ssl-target-name-override": "peer0.org2.example.com",
         "hostnameOverride": "peer0.org2.example.com",
         "request-timeout": 120001
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/org2/peer0.org2.example.com/tls/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org2/peer0.org2.example.com/tls-msp/signcerts/cert.pem"
       }
     }
   },
   "certificateAuthorities": {
     "ca-org1": {
-      "url": "https://127.0.0.1:7054",
+      "url": "https://192.168.0.11:7054",
       "grpcOptions": {
         "verify": true
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/org1/ca/crypto/ca-cert.pem"
+        "path": "first-network/crypto-config/org1/ca/crypto/ca-cert.pem"
       },
       "registrar": [
         {
@@ -125,12 +125,12 @@
       ]
     },
     "ca-org2": {
-      "url": "https://127.0.0.1:8054",
+      "url": "https://192.168.0.11:8054",
       "grpcOptions": {
         "verify": true
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/org2/ca/crypto/ca-cert.pem"
+        "path": "first-network/crypto-config/org2/ca/crypto/ca-cert.pem"
       },
       "registrar": [
         {

@@ -48,21 +48,6 @@
       "signedCertPEM": {
         "path": "src/main/resources/crypto-config/org1/admin.org1.example.com/msp/signcerts/cert.pem"
       }
-    },
-    "Org2": {
-      "mspid": "Org2MSP",
-      "peers": [
-        "peer0.org2.example.com"
-      ],
-      "certificateAuthorities": [
-        "ca-org2"
-      ],
-      "adminPrivateKeyPEM": {
-        "path": "first-network/crypto-config/org2/admin.org2.example.com/msp/keystore/key.pem"
-      },
-      "signedCertPEM": {
-        "path": "first-network/crypto-config/org2/admin.org2.example.com/msp/signcerts/cert.pem"
-      }
     }
   },
   "orderers": {
@@ -119,8 +104,8 @@
       },
       "registrar": [
         {
-          "enrollId": "admin",
-          "enrollSecret": "adminpw"
+          "enrollId": "org1-admin",
+          "enrollSecret": "org1-adminpw"
         }
       ]
     },
@@ -134,8 +119,8 @@
       },
       "registrar": [
         {
-          "enrollId": "admin",
-          "enrollSecret": "adminpw"
+          "enrollId": "org2-admin",
+          "enrollSecret": "org2-adminpw"
         }
       ]
     }

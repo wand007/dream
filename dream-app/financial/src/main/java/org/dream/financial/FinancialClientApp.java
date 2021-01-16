@@ -76,11 +76,11 @@ public class FinancialClientApp {
             // a转50给b
             byte[] invokeResult = contract.createTransaction("Create")
                     .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
-                    .submit("736182013215645696","新增金融机构1","3","1");
+                    .submit("736182013215645695","新增金融机构5","5","1");
             System.out.println(new String(invokeResult, StandardCharsets.UTF_8));
 
             //查询交易结果
-            byte[] queryAResultAfter = contract.evaluateTransaction("FindById", "736182013215645696");
+            byte[] queryAResultAfter = contract.evaluateTransaction("FindById", "736182013215645695");
             System.out.println("交易后：" + new String(queryAResultAfter, StandardCharsets.UTF_8));
 
         } catch (Exception e) {

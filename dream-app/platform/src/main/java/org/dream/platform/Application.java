@@ -107,6 +107,20 @@ public class Application {
         return contract;
     }
 
+    /**
+     * 金融机构合约对象
+     *
+     * @param network
+     * @return
+     */
+    @Bean("financial-contract")
+    @DependsOn("network")
+    public Contract financialContract(Network network) {
+        //获取合约对象
+        Contract contract = network.getContract("financial");
+        return contract;
+    }
+
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {
         try (Reader certificateReader = Files.newBufferedReader(certificatePath, StandardCharsets.UTF_8)) {
             return Identities.readX509Certificate(certificateReader);

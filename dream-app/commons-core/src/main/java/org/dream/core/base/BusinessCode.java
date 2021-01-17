@@ -27,6 +27,10 @@ public enum BusinessCode {
      * 基础失败状态码标志
      */
     ERROR(50000, "操作已受理,请稍后再试"),
+
+    /**
+     * 其他异常
+     */
     ERROR_SYS_PARAMS(51000, "参数异常"),
     /**
      * Fabric区块链账本系统异常

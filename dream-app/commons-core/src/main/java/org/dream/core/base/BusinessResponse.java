@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.HashMap;
 
 /**
  * @author 咚咚锵
@@ -13,53 +12,58 @@ import java.util.HashMap;
  */
 @Getter
 @ToString
-public class BusinessResponse implements Serializable {
+public class BusinessResponse<T> implements Serializable {
 
     private int statusCode;
     private String statusText;
-    private Object data = new HashMap<>();
+    private T data;
     private Long currentTimeMillis;
 
-
-    public BusinessResponse() {
-        this.statusCode = BusinessCode.SUCCESS.getCode();
-        this.statusText = "success";
-        this.currentTimeMillis = System.currentTimeMillis();
-    }
-
-    public BusinessResponse(int statusCode, String statusText, Object data, Long currentTimeMillis) {
+    public BusinessResponse(int statusCode, String statusText, T data, Long currentTimeMillis) {
         this.statusCode = statusCode;
         this.statusText = statusText;
         this.data = data;
         this.currentTimeMillis = currentTimeMillis;
     }
 
+
+    //###############################  Success & Error  ################################################################
+
+
+    public static <T> BusinessResponse<T> success() {
+        return new BusinessResponse<>(BusinessCode.SUCCESS.getCode(), BusinessCode.SUCCESS.getDesc(), null, System.currentTimeMillis());
+    }
+
+    public static <T> BusinessResponse<T> success(T data) {
+        return new BusinessResponse<>(BusinessCode.SUCCESS.getCode(), BusinessCode.SUCCESS.getDesc(), data, System.currentTimeMillis());
+    }
+
+    public static <T> BusinessResponse<T> error() {
+        return new BusinessResponse<>(BusinessCode.ALERT_MESSAGE.getCode(), BusinessCode.ALERT_MESSAGE.getDesc(), null, System.currentTimeMillis());
+    }
+
+    public static <T> BusinessResponse<T> error(String errMsg) {
+        return new BusinessResponse<>(BusinessCode.ALERT_MESSAGE.getCode(), errMsg, null, System.currentTimeMillis());
+    }
+
     public static BusinessResponse fromBusinessCode(int statusCode, String statusText) {
-        return new BusinessResponse(statusCode, statusText, "{}", System.currentTimeMillis());
+        return new BusinessResponse(statusCode, statusText, null, System.currentTimeMillis());
     }
 
     public static BusinessResponse fromBusinessCode(BusinessCode businessCode) {
-        return new BusinessResponse(businessCode.getCode(), businessCode.getDesc(), "{}", System.currentTimeMillis());
+        return new BusinessResponse(businessCode.getCode(), businessCode.getDesc(), null, System.currentTimeMillis());
     }
 
     public static BusinessResponse fromBusinessCode(BusinessCode businessCode, String statusText) {
-        return new BusinessResponse(businessCode.getCode(), statusText, "{}", System.currentTimeMillis());
+        return new BusinessResponse(businessCode.getCode(), statusText, null, System.currentTimeMillis());
     }
 
-    public static BusinessResponse success(Object data) {
-        return new BusinessResponse(BusinessCode.SUCCESS.getCode(), "success", data, System.currentTimeMillis());
-    }
 
-    public static BusinessResponse success() {
-        return new BusinessResponse(BusinessCode.SUCCESS.getCode(), "success", "{}", System.currentTimeMillis());
-    }
+    //###############################  判断  ############################################################################
 
-    public static BusinessResponse error() {
-        return new BusinessResponse(BusinessCode.ERROR.getCode(), BusinessCode.ERROR.getDesc(), "{}", System.currentTimeMillis());
-    }
 
-    public static BusinessResponse error(String statusText) {
-        return new BusinessResponse(BusinessCode.ERROR.getCode(), statusText, "{}", System.currentTimeMillis());
+    public boolean successful() {
+        return this.statusCode == BusinessCode.SUCCESS.getCode();
     }
 
 

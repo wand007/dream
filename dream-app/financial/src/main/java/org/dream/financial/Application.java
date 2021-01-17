@@ -1,7 +1,6 @@
 package org.dream.financial;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.dream.core.base.BusinessException;
 import org.hyperledger.fabric.gateway.*;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
@@ -22,6 +21,8 @@ import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+
+import static org.dream.core.config.HFConfig.CHANNEL_NAME;
 
 /**
  * @author 咚咚锵
@@ -61,7 +62,7 @@ public class Application {
             //连接网关
             Gateway gateway = builder.connect();
             //获取mychannel通道
-            Network network = gateway.getNetwork("mychannel");
+            Network network = gateway.getNetwork(CHANNEL_NAME);
 
             return network;
 

@@ -2,8 +2,11 @@
 ## 工作目录,除非特殊说明，一般命令的执行都是在工作目录进行。
 ## http://localhost:5984/_utils/
 
-## 首次运行清除docker影响
+#docker中 启动所有的容器命令
+#docker start $(docker ps -a | awk '{ print $1}' | tail -n +2)
 
+
+## 首次运行清除docker影响
 docker-compose -f docker-compose-ca.yaml  down --volumes --remove-orphans
 
 ## docker ps -a|awk '{print $1}'|xargs -i docker stop {}

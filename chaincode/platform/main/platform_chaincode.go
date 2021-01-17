@@ -225,11 +225,11 @@ func (t *PlatformChainCode) FindById(ctx contractapi.TransactionContextInterface
 	return string(bytes), nil
 }
 
-func (t *PlatformChainCode) FindIndividualById(ctx contractapi.TransactionContextInterface, issueOrgId string) (string, error) {
-	if len(issueOrgId) == 0 {
-		return "", errors.New("平台id不能为空")
+func (t *PlatformChainCode) FindIndividualById(ctx contractapi.TransactionContextInterface, individualOrgId string) (string, error) {
+	if len(individualOrgId) == 0 {
+		return "", errors.New("个体id不能为空")
 	}
-	trans := [][]byte{[]byte("findById"), []byte("id"), []byte(issueOrgId)}
+	trans := [][]byte{[]byte("findById"), []byte("id"), []byte(individualOrgId)}
 	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)
 
 	if response.Status != shim.OK {
@@ -245,7 +245,7 @@ func (t *PlatformChainCode) FindIndividualById(ctx contractapi.TransactionContex
 
 func (t *PlatformChainCode) FindIssueOrgById(ctx contractapi.TransactionContextInterface, issueOrgId string) (string, error) {
 	if len(issueOrgId) == 0 {
-		return "", errors.New("平台id不能为空")
+		return "", errors.New("下发机构id不能为空")
 	}
 	trans := [][]byte{[]byte("FindById"), []byte("id"), []byte(issueOrgId)}
 	response := ctx.GetStub().InvokeChaincode(CHAINCODE_NAME_ISSUE_ORG, trans, CHANNEL_NAME)

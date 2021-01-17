@@ -41,7 +41,7 @@ public class Application {
     @Bean("network")
     public Network network() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/financial/src/main/resources/connection.json");
-        Path credentialPath = Paths.get("first-network/crypto-config/org1/admin.org1.example.com/msp");
+        Path credentialPath = Paths.get("first-network/crypto-config/org2/admin.org2.example.com/msp");
         try {
             //使用org1中的user1初始化一个网关wallet账户用于连接网络
             Wallet wallet = Wallets.newInMemoryWallet();
@@ -53,7 +53,7 @@ public class Application {
 
             PrivateKey privateKey = getPrivateKey(privateKeyPath);
 
-            wallet.put("user", Identities.newX509Identity("Org1MSP", certificate, privateKey));
+            wallet.put("user", Identities.newX509Identity("Org2MSP", certificate, privateKey));
 
             //根据connection.json 获取Fabric网络连接对象
             GatewayImpl.Builder builder = (GatewayImpl.Builder) Gateway.createBuilder();

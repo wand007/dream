@@ -1,4 +1,4 @@
- {
+{
   "name": "basic-network",
   "version": "1.0.0",
   "client": {
@@ -15,7 +15,9 @@
   "channels": {
     "mychannel": {
       "orderers": [
-        "orderer1.example.com"
+        "orderer1.org0.example.com",
+        "orderer2.org0.example.com",
+        "orderer3.org0.example.com"
       ],
       "peers": {
         "peer0.org1.example.com": {
@@ -25,6 +27,24 @@
           "eventSource": true
         },
         "peer0.org2.example.com": {
+          "endorsingPeer": true,
+          "chaincodeQuery": true,
+          "ledgerQuery": true,
+          "eventSource": true
+        },
+        "peer0.org3.example.com": {
+          "endorsingPeer": true,
+          "chaincodeQuery": true,
+          "ledgerQuery": true,
+          "eventSource": true
+        },
+        "peer0.org4.example.com": {
+          "endorsingPeer": true,
+          "chaincodeQuery": true,
+          "ledgerQuery": true,
+          "eventSource": true
+        },
+        "peer0.org5.example.com": {
           "endorsingPeer": true,
           "chaincodeQuery": true,
           "ledgerQuery": true,
@@ -43,10 +63,10 @@
         "ca-org1"
       ],
       "adminPrivateKeyPEM": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/key.pem"
+        "path": "first-network/crypto-config/org1/admin.org1.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org1/admin.org1.example.com/msp/signcerts/cert.pem"
       }
     },
     "Org2": {
@@ -58,84 +78,241 @@
         "ca-org2"
       ],
       "adminPrivateKeyPEM": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/keystore/key.pem"
+        "path": "first-network/crypto-config/org2/admin.org2.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org2/admin.org2.example.com/msp/signcerts/cert.pem"
+      }
+    },
+    "Org3": {
+      "mspid": "Org3MSP",
+      "peers": [
+        "peer0.org3.example.com"
+      ],
+      "certificateAuthorities": [
+        "ca-org3"
+      ],
+      "adminPrivateKeyPEM": {
+        "path": "first-network/crypto-config/org3/admin.org3.example.com/msp/keystore/key.pem"
+      },
+      "signedCertPEM": {
+        "path": "first-network/crypto-config/org3/admin.org3.example.com/msp/signcerts/cert.pem"
+      }
+    },
+    "Org4": {
+      "mspid": "Org4MSP",
+      "peers": [
+        "peer0.org4.example.com"
+      ],
+      "certificateAuthorities": [
+        "ca-org4"
+      ],
+      "adminPrivateKeyPEM": {
+        "path": "first-network/crypto-config/org4/admin.org4.example.com/msp/keystore/key.pem"
+      },
+      "signedCertPEM": {
+        "path": "first-network/crypto-config/org4/admin.org4.example.com/msp/signcerts/cert.pem"
+      }
+    },
+    "Org5": {
+      "mspid": "Org5MSP",
+      "peers": [
+        "peer0.org5.example.com"
+      ],
+      "certificateAuthorities": [
+        "ca-org5"
+      ],
+      "adminPrivateKeyPEM": {
+        "path": "first-network/crypto-config/org5/admin.org5.example.com/msp/keystore/key.pem"
+      },
+      "signedCertPEM": {
+        "path": "first-network/crypto-config/org5/admin.org5.example.com/msp/signcerts/cert.pem"
       }
     }
   },
   "orderers": {
-    "orderer1.example.com": {
-      "url": "grpcs://192.168.171.xxx:7050",
-      "mspid": "OrdererMSP",
+    "orderer1.org0.example.com": {
+      "url": "grpcs://192.168.0.11:7050",
+      "mspid": "Org0MSP",
       "grpcOptions": {
-        "ssl-target-name-override": "orderer.example.com",
-        "hostnameOverride": "orderer.example.com"
+        "ssl-target-name-override": "orderer1.org0.example.com",
+        "hostnameOverride": "orderer1.org0.example.com"
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/orderer1.org0.example.com/tls-msp/signcerts/cert.pem"
       },
       "adminPrivateKeyPEM": {
-        "path": "src/main/resources/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp/keystore/key.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "src/main/resources/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
+      }
+    },
+    "orderer2.org0.example.com": {
+      "url": "grpcs://192.168.0.11:7050",
+      "mspid": "Org0MSP",
+      "grpcOptions": {
+        "ssl-target-name-override": "orderer2.org0.example.com",
+        "hostnameOverride": "orderer2.org0.example.com"
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org0/orderer2.org0.example.com/tls-msp/signcerts/cert.pem"
+      },
+      "adminPrivateKeyPEM": {
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
+      },
+      "signedCertPEM": {
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
+      }
+    },
+    "orderer3.org0.example.com": {
+      "url": "grpcs://192.168.0.11:7050",
+      "mspid": "Org0MSP",
+      "grpcOptions": {
+        "ssl-target-name-override": "orderer3.org0.example.com",
+        "hostnameOverride": "orderer3.org0.example.com"
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org0/orderer3.org0.example.com/tls-msp/signcerts/cert.pem"
+      },
+      "adminPrivateKeyPEM": {
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
+      },
+      "signedCertPEM": {
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
       }
     }
   },
   "peers": {
     "peer0.org1.example.com": {
-      "url": "grpcs://192.168.171.xxx:7051",
+      "url": "grpcs://192.168.0.11:7051",
       "grpcOptions": {
         "ssl-target-name-override": "peer0.org1.example.com",
         "hostnameOverride": "peer0.org1.example.com",
         "request-timeout": 120001
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org1/peer0.org1.example.com/tls-msp/signcerts/cert.pem"
       }
     },
     "peer0.org2.example.com": {
-      "url": "grpcs://192.168.171.xxx:9051",
+      "url": "grpcs://192.168.0.11:9051",
       "grpcOptions": {
         "ssl-target-name-override": "peer0.org2.example.com",
         "hostnameOverride": "peer0.org2.example.com",
         "request-timeout": 120001
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org2/peer0.org2.example.com/tls-msp/signcerts/cert.pem"
+      }
+    },
+    "peer0.org3.example.com": {
+      "url": "grpcs://192.168.0.11:9051",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.org3.example.com",
+        "hostnameOverride": "peer0.org3.example.com",
+        "request-timeout": 120001
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org3/peer0.org3.example.com/tls-msp/signcerts/cert.pem"
+      }
+    },
+    "peer0.org4.example.com": {
+      "url": "grpcs://192.168.0.11:11051",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.org4.example.com",
+        "hostnameOverride": "peer0.org4.example.com",
+        "request-timeout": 120001
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org4/peer0.org4.example.com/tls-msp/signcerts/cert.pem"
+      }
+    },
+    "peer0.org5.example.com": {
+      "url": "grpcs://192.168.0.11:13051",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.org5.example.com",
+        "hostnameOverride": "peer0.org5.example.com",
+        "request-timeout": 120001
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org5/peer0.org5.example.com/tls-msp/signcerts/cert.pem"
       }
     }
   },
   "certificateAuthorities": {
     "ca-org1": {
-      "url": "https://192.168.171.xxx:7054",
+      "url": "https://192.168.0.11:7054",
       "grpcOptions": {
         "verify": true
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem"
+        "path": "first-network/crypto-config/org1/ca/crypto/ca-cert.pem"
       },
       "registrar": [
         {
-          "enrollId": "admin",
-          "enrollSecret": "adminpw"
+          "enrollId": "org1-admin",
+          "enrollSecret": "org1-adminpw"
         }
       ]
     },
     "ca-org2": {
-      "url": "https://192.168.171.xxx:8054",
+      "url": "https://192.168.0.11:7055",
       "grpcOptions": {
         "verify": true
       },
       "tlsCACerts": {
-        "path": "src/main/resources/crypto-config/peerOrganizations/org2.example.com/ca/ca.org2.example.com-cert.pem"
+        "path": "first-network/crypto-config/org2/ca/crypto/ca-cert.pem"
       },
       "registrar": [
         {
-          "enrollId": "admin",
-          "enrollSecret": "adminpw"
+          "enrollId": "org2-admin",
+          "enrollSecret": "org2-adminpw"
+        }
+      ]
+    },
+    "ca-org3": {
+      "url": "https://192.168.0.11:7056",
+      "grpcOptions": {
+        "verify": true
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org3/ca/crypto/ca-cert.pem"
+      },
+      "registrar": [
+        {
+          "enrollId": "org3-admin",
+          "enrollSecret": "org3-adminpw"
+        }
+      ]
+    },
+    "ca-org4": {
+      "url": "https://192.168.0.11:7057",
+      "grpcOptions": {
+        "verify": true
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org4/ca/crypto/ca-cert.pem"
+      },
+      "registrar": [
+        {
+          "enrollId": "org4-admin",
+          "enrollSecret": "org4-adminpw"
+        }
+      ]
+    },
+    "ca-org5": {
+      "url": "https://192.168.0.11:7058",
+      "grpcOptions": {
+        "verify": true
+      },
+      "tlsCACerts": {
+        "path": "first-network/crypto-config/org5/ca/crypto/ca-cert.pem"
+      },
+      "registrar": [
+        {
+          "enrollId": "org5-admin",
+          "enrollSecret": "org5-adminpw"
         }
       ]
     }

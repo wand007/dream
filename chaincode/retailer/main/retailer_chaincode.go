@@ -21,7 +21,7 @@ type RetailerOrg struct {
 	ID                      string `json:"id"`                      //零售商机构ID
 	Name                    string `json:"name"`                    //零售商机构名称
 	UnifiedSocialCreditCode string `json:"unifiedSocialCreditCode"` //统一社会信用代码
-	Status                  int    `json:"status"`                  //金融机构状态(启用/禁用)
+	Status                  int    `json:"status"`                  //零售商机构状态(启用/禁用)
 }
 
 /**

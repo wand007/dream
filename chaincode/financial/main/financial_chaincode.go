@@ -181,6 +181,8 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return "", errors.New("金融机构保存失败" + err.Error())
 	}
+	//发送事件通知
+	ctx.GetStub().SetEvent("FinancialOrg",financialPrivateDataAsBytes)
 	return string(Avalbytes), nil
 }
 

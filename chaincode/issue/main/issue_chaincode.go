@@ -145,6 +145,19 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 	}
 	return id, nil
 }
+func (t *IssueChaincode) FindById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	if len(id) == 0 {
+		return "", errors.New("下发机构id不能为空")
+	}
+	bytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return "", errors.New("下发机构查询失败！")
+	}
+	if bytes == nil {
+		return "", fmt.Errorf("下发机构数据不存在，读到的%s对应的数据为空！", id)
+	}
+	return string(bytes), nil
+}
 
 func (t *IssueChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {

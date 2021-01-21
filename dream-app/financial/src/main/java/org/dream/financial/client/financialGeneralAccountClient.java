@@ -80,7 +80,7 @@ public class financialGeneralAccountClient extends GlobalExceptionHandler {
                 put("currentBalance", param.getCurrentBalance().toPlainString().getBytes());
                 put("voucherCurrentBalance", param.getVoucherCurrentBalance().toPlainString().getBytes());
                 put("cardNo", param.getCardNo().getBytes());
-                put("accStatus", param.getAccStatus().getBytes());
+                put("accStatus", String.valueOf(param.getAccStatus()).getBytes());
                 put("certificateNo", param.getCertificateNo().getBytes());
                 put("financialOrgID", param.getFinancialOrgID().getBytes());
                 put("ownerOrg", param.getOwnerOrg().getBytes());

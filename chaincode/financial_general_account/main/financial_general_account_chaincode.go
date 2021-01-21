@@ -517,7 +517,7 @@ func (t *FinancialGeneralAccountChaincode) GetAllFinancialGenerals(ctx contracta
 /**
 查询历史数据
  */
-func (t *FinancialGeneralAccountChaincode) getHistoryForMarble(ctx contractapi.TransactionContextInterface, cardNo string) ([]QueryResult, error) {
+func (t *FinancialGeneralAccountChaincode) GetHistoryForMarble(ctx contractapi.TransactionContextInterface, cardNo string) ([]QueryResult, error) {
 
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(cardNo)
 	if err != nil {

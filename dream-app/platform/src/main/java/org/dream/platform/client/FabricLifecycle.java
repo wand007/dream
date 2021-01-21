@@ -65,312 +65,312 @@ public class FabricLifecycle {
         System.out.flush();
 
     }
-
-    @GetMapping({"runFabricLifecycle"})
-    public void runFabricLifecycle() throws IOException, InvalidArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException, CryptoException, ClassNotFoundException, ChaincodeEndorsementPolicyParseException, ProposalException {
-        HFClient org1Client = retailerGateway.getClient();
-        Channel org1Channel = network.getChannel();
-
-        Collection<Peer> org1MyPeers = org1Channel.getPeers();
-
-
-        //Create instance of client.
-
-
-        org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-
-        ////////////////////////////
-        //Construct and run the channels
-
-
-        // Now lets be the other organization which really should be running in another application.
-
-        verifyNoInstalledChaincodes(org1Client, org1MyPeers);
-
-        // verifyNotInstalledChaincode(org1Client, org1MyPeers, CHAIN_CODE_NAME, CHAIN_CODE_VERSION);
-
-
-
-
-
-        ////////////////////////////
-        //Construct channel object for org2
-        HFClient org2Client = retailerGateway.getClient();
-        org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-        Channel org2Channel = network.getChannel();
-        Collection<Peer> org2MyPeers = org2Channel.getPeers();
-
-        verifyNoInstalledChaincodes(org2Client, org2MyPeers);
-        //    verifyNotInstalledChaincode(org2Client, org2MyPeers, CHAIN_CODE_NAME, CHAIN_CODE_VERSION);
-
-        final Map<String, Object> expectedMap = new HashMap<String, Object>() {{
-            put("sequence", 1L);
-            put("queryBvalue", "310");
-        }};
-
-        //////////////
-        ////  DO Go with our own endorsement policy
-
-        LifecycleChaincodePackage lifecycleChaincodePackage = createLifecycleChaincodePackage(
-                "lc_example_cc_go_1", // some label
-                TransactionRequest.Type.GO_LANG,
-                IntegrationSuite.getGoChaincodePath("sample1").toString(),
-                CHAIN_CODE_PATH,
-                "src/test/fixture/meta-infs/end2endit");
-
-        //Org1 also creates the endorsement policy for the chaincode. // also known as validationParameter !
-        LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy = LifecycleChaincodeEndorsementPolicy.fromSignaturePolicyYamlFile(Paths.get(TEST_FIXTURES_PATH +
-                "/sdkintegration/chaincodeendorsementpolicy.yaml"));
-
-        final String goChaincodeName = "lc_example_cc_go";
-        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
-                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
-                lifecycleChaincodePackage, goChaincodeName,
-                "1", //Version - bump up next time.
-                chaincodeEndorsementPolicy,
-                null, // ChaincodeCollectionConfiguration
-                true,  // initRequired
-                expectedMap);
-
-        //// Do Go update. Use same chaincode name, new version and chaincode package. This chaincode doubles move result so we know it changed.
-
-
-        LifecycleChaincodePackage lifecycleChaincodePackageUpdate = createLifecycleChaincodePackage(
-                "lc_example_cc_go_11", // some label
-                TransactionRequest.Type.GO_LANG,
-                IntegrationSuite.getGoChaincodePath("sample_11").toString(),
-                CHAIN_CODE_PATH,
-                null); // no metadata this time.
-
-        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
-                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
-                lifecycleChaincodePackageUpdate, goChaincodeName,
-                "2", //version is 2 it's an update.
-                chaincodeEndorsementPolicy,
-                ChaincodeCollectionConfiguration.fromYamlFile(new File("src/test/fixture/collectionProperties/PrivateDataIT.yaml")),
-                true,  // initRequired
-                new HashMap<String, Object>() {{
-                    put("sequence", 2L);  // this is an update sequence should be 2
-                    put("queryBvalue", "320");  // init is run which set back to 300.  new chaincoode doubles the move of 10 to 20 so expect 320
-                }});
-
-        //////////////
-        ////  DO Java
-
-        LifecycleChaincodePackage lifecycleChaincodePackageJava = createLifecycleChaincodePackage(
-                "JavaLABEL", // some label
-                TransactionRequest.Type.JAVA, IntegrationSuite.getJavaChaincodePath("sample1").toString(),
-                "", // no path in Java.
-                null); // no metaInf data
-
-        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
-                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
-                lifecycleChaincodePackageJava, "example_cc_java", // chaincode name
-                CHAIN_CODE_VERSION,
-                null, // use default endorsement policy
-                null, //ChaincodeCollectionConfiguration
-                true,  // initRequired
-                expectedMap);
-
-        //////////////
-        ////  DO Node
-
-        LifecycleChaincodePackage lifecycleChaincodePackageNode = createLifecycleChaincodePackage(
-                "ImNodeSeeMeRun", // some label
-                TransactionRequest.Type.NODE,
-                IntegrationSuite.getNodeChaincodePath("sample1").toString(),
-                "", // no path in node.
-                null); // no metaInf data
-
-        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
-                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
-                lifecycleChaincodePackageNode, "example_cc_node", // chaincode name
-                CHAIN_CODE_VERSION,
-                null, // use default endorsement policy
-                null, //ChaincodeCollectionConfiguration
-                true,  // initRequired
-                expectedMap);
-
-        //////////////
-        ////  DO Go without any standard init required.
-
-        LifecycleChaincodePackage lifecycleChaincodePackageNoInit = createLifecycleChaincodePackage(
-                "lc_example_cc_go_1", // some label
-                TransactionRequest.Type.GO_LANG,
-                IntegrationSuite.getGoChaincodePath("sample1NoInit").toString(),
-                CHAIN_CODE_PATH,
-                null);
-
-        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
-                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
-                lifecycleChaincodePackageNoInit,
-                "lc_example_cc_goNOIT", // chaincode name
-                CHAIN_CODE_VERSION,
-                null, // use default endorsement policy
-                null, // ChaincodeCollectionConfiguration
-                false,  // initRequired is now false
-                expectedMap);
-
-
-        org1Channel.shutdown(true); // Force foo channel to shutdown clean up resources.
-
-    }
-    //CHECKSTYLE.OFF: ParameterNumber
-    void runChannel(HFClient org1Client, Channel org1Channel, SampleOrg org1, Collection<Peer> org1MyPeers, Collection<Peer> org1OtherPeers,
-                    HFClient org2Client, Channel org2Channel, SampleOrg org2, Collection<Peer> org2MyPeers, Collection<Peer> org2OtherPeers,
-                    LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName,
-                    String chaincodeVersion, LifecycleChaincodeEndorsementPolicy lifecycleChaincodeEndorsementPolicy,
-                    ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired,
-                    Map<String, Object> expected) {
-
-        try {
-            //Should be no chaincode installed at this time.
-
-            org1Client.setUserContext(org1.getPeerAdmin());
-
-            final String chaincodeLabel = lifecycleChaincodePackage.getLabel();
-            final TransactionRequest.Type chaincodeType = lifecycleChaincodePackage.getType();
-
-            //Org1 installs the chaincode on its peers.
-            out("Org1 installs the chaincode on its peers.");
-            String org1ChaincodePackageID = lifecycleInstallChaincode(org1Client, org1MyPeers, lifecycleChaincodePackage);
-
-
-            //Sanity check to see if chaincode really is on it's peers and has the hash as expected by querying all chaincodes.
-            out("Org1 check installed chaincode on peers.");
-
-            verifyByQueryInstalledChaincodes(org1Client, org1MyPeers, chaincodeLabel, org1ChaincodePackageID);
-            // another query test if it works
-            verifyByQueryInstalledChaincode(org1Client, org1MyPeers, org1ChaincodePackageID, chaincodeLabel);
-
-            // Sequence  number increase with each change and is used to make sure you are referring to the same change.
-            long sequence = -1L;
-            final QueryLifecycleQueryChaincodeDefinitionRequest queryLifecycleQueryChaincodeDefinitionRequest = org1Client.newQueryLifecycleQueryChaincodeDefinitionRequest();
-            queryLifecycleQueryChaincodeDefinitionRequest.setChaincodeName(chaincodeName);
-
-            Collection<LifecycleQueryChaincodeDefinitionProposalResponse> firstQueryDefininitions = org1Channel.lifecycleQueryChaincodeDefinition(queryLifecycleQueryChaincodeDefinitionRequest, org1MyPeers);
-
-            for (LifecycleQueryChaincodeDefinitionProposalResponse firstDefinition : firstQueryDefininitions) {
-                if (firstDefinition.getStatus() == ProposalResponse.Status.SUCCESS) {
-                    sequence = firstDefinition.getSequence() + 1L; //Need to bump it up to the next.
-                    break;
-                } else { //Failed but why?
-                    if (404 == firstDefinition.getChaincodeActionResponseStatus()) {
-                        // not found .. done set sequence to 1;
-                        sequence = 1;
-                        break;
-                    }
-                }
-            }
-
-
-
-            //     ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = collectionConfiguration == null ? null : ChaincodeCollectionConfiguration.fromYamlFile(new File(collectionConfiguration));
-//            // ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = ChaincodeCollectionConfiguration.fromYamlFile(new File("src/test/fixture/collectionProperties/PrivateDataIT.yaml"));
-//            chaincodeCollectionConfiguration = null;
-            final Peer anOrg1Peer = org1MyPeers.iterator().next();
-            out("Org1 approving chaincode definition for my org.");
-            BlockEvent.TransactionEvent transactionEvent = lifecycleApproveChaincodeDefinitionForMyOrg(org1Client, org1Channel,
-                    Collections.singleton(anOrg1Peer),  //support approve on multiple peers but really today only need one. Go with minimum.
-                    sequence, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1ChaincodePackageID)
-                    .get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
-
-
-            verifyByCheckCommitReadinessStatus(org1Client, org1Channel, sequence, chaincodeName, chaincodeVersion,
-                    lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1MyPeers,
-                    new HashSet<>(Arrays.asList(ORG_1_MSP)), // Approved
-                    new HashSet<>(Arrays.asList(ORG_2_MSP))); // Un approved.
-
-            //Serialize these to bytes to give to other organizations.
-            byte[] chaincodePackageBtyes = lifecycleChaincodePackage.getAsBytes();
-            final byte[] chaincodeEndorsementPolicyAsBytes = lifecycleChaincodeEndorsementPolicy == null ? null : lifecycleChaincodeEndorsementPolicy.getSerializedPolicyBytes();
-
-            ///////////////////////////////////
-            //org1 communicates to org2 out of bounds (email, floppy, etc) : CHAIN_CODE_NAME, CHAIN_CODE_VERSION, chaincodeHash, definitionSequence, chaincodePackageBtyes and chaincodeEndorsementPolicyAsBytes.
-            ////  Now as org2
-            LifecycleChaincodePackage org2LifecycleChaincodePackage = LifecycleChaincodePackage.fromBytes(chaincodePackageBtyes);
-            LifecycleChaincodeEndorsementPolicy org2ChaincodeEndorsementPolicy = chaincodeEndorsementPolicyAsBytes == null ? null :
-                    LifecycleChaincodeEndorsementPolicy.fromBytes(chaincodeEndorsementPolicyAsBytes);
-
-            org2Client.setUserContext(org2.getPeerAdmin());
-
-            //Org2 installs the chaincode on its peers
-            out("Org2 installs the chaincode on its peers.");
-            String org2ChaincodePackageID = lifecycleInstallChaincode(org2Client, org2MyPeers, org2LifecycleChaincodePackage);
-
-            //Sanity check to see if chaincode really is on it's peers and has the hash as expected.
-            out("Org2 check installed chaincode on peers.");
-            verifyByQueryInstalledChaincodes(org2Client, org2MyPeers, chaincodeLabel, org2ChaincodePackageID);
-            // check by querying for specific chaincode
-            verifyByQueryInstalledChaincode(org2Client, org2MyPeers, org2ChaincodePackageID, chaincodeLabel);
-
-            //Approve the chaincode for the peer's in org2
-            out("Org2 approving chaincode definition for my org.");
-            BlockEvent.TransactionEvent org2TransactionEvent = lifecycleApproveChaincodeDefinitionForMyOrg(org2Client, org2Channel,
-                    Collections.singleton(org2MyPeers.iterator().next()),  //support approve on multiple peers but really today only need one. Go with minimum.
-                    sequence, chaincodeName, chaincodeVersion, org2ChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2ChaincodePackageID)
-                    .get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
-
-
-            out("Checking on org2's network for approvals");
-            verifyByCheckCommitReadinessStatus(org2Client, org2Channel, sequence, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2MyPeers,
-                    new HashSet<>(Arrays.asList(ORG_1_MSP, ORG_2_MSP)), // Approved
-                    Collections.emptySet()); // Un approved.
-
-            out("Checking on org1's network for approvals");
-            verifyByCheckCommitReadinessStatus(org1Client, org1Channel, sequence, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1MyPeers,
-                    new HashSet<>(Arrays.asList(ORG_1_MSP, ORG_2_MSP)), // Approved
-                    Collections.emptySet()); // unapproved.
-
-            // Org2 knows org1 has approved already so it does the chaincode definition commit, but this could be done by org1 too.
-
-
-            // Get collection of one of org2 orgs peers and one from the other.
-
-            Collection<Peer> org2EndorsingPeers = Arrays.asList(org2MyPeers.iterator().next(), org2OtherPeers.iterator().next());
-            transactionEvent = commitChaincodeDefinitionRequest(org2Client, org2Channel, sequence, chaincodeName, chaincodeVersion, org2ChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2EndorsingPeers)
-                    .get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
-
-
-            verifyByQueryChaincodeDefinition(org2Client, org2Channel, chaincodeName, org2MyPeers, sequence, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
-            verifyByQueryChaincodeDefinition(org1Client, org1Channel, chaincodeName, org1MyPeers, sequence, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
-
-            verifyByQueryChaincodeDefinitions(org2Client, org2Channel, org2MyPeers, chaincodeName);
-            verifyByQueryChaincodeDefinitions(org1Client, org1Channel, org1MyPeers, chaincodeName);
-
-            //Now org2 could also do the init for the chaincode but it just informs org2 admin of the commit so it does it.
-
-            transactionEvent = executeChaincode(org1Client, org1.getPeerAdmin(), org1Channel, "init",
-                    initRequired ? true : null, // doInit don't even specify it has it should default to false
-                    chaincodeName, chaincodeType, "a,", "100", "b", "300").get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
-
-
-            transactionEvent = executeChaincode(org2Client, org2.getPeerAdmin(), org2Channel, "move",
-                    false, // doInit
-                    chaincodeName, chaincodeType, "a,", "b", "10").get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
-
-
-            if (null != expected) {
-                executeVerifyByQuery(org1Client, org1Channel, chaincodeName, (String) expected.get("queryBvalue"));
-                executeVerifyByQuery(org2Client, org2Channel, chaincodeName, (String) expected.get("queryBvalue"));
-            }
-
-            /// Upgrading chaincode is really the same processes as the initial install. Any change requires a new sequence.
-            /// Upgrading the actual code will need same chaincode name,  new chaincode package and version.
-            /// Cases where running init is never needed include updating the endorsement policy, or adding collections.
-            // For that no chaincode install is needed. As always a new sequence is needed and the same chaincode name, version and hash would be used
-            // in the ApproveChaincodeDefinitionForMyOrg and commitChaincodeDefinition operations.
-            // If chaincode has been committed by other organizations, to run own your own organization peers besides installing it
-            //  also the ApproveChaincodeDefinitionForMyOrg operation is needed which in this case would use the same sequence number since there is
-            // no actual change to the definition.
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
-    }
-
+//
+//    @GetMapping({"runFabricLifecycle"})
+//    public void runFabricLifecycle() throws IOException, InvalidArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException, CryptoException, ClassNotFoundException, ChaincodeEndorsementPolicyParseException, ProposalException {
+//        HFClient org1Client = retailerGateway.getClient();
+//        Channel org1Channel = network.getChannel();
+//
+//        Collection<Peer> org1MyPeers = org1Channel.getPeers();
+//
+//
+//        //Create instance of client.
+//
+//
+//        org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+//
+//        ////////////////////////////
+//        //Construct and run the channels
+//
+//
+//        // Now lets be the other organization which really should be running in another application.
+//
+//        verifyNoInstalledChaincodes(org1Client, org1MyPeers);
+//
+//        // verifyNotInstalledChaincode(org1Client, org1MyPeers, CHAIN_CODE_NAME, CHAIN_CODE_VERSION);
+//
+//
+//
+//
+//
+//        ////////////////////////////
+//        //Construct channel object for org2
+//        HFClient org2Client = retailerGateway.getClient();
+//        org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+//        Channel org2Channel = network.getChannel();
+//        Collection<Peer> org2MyPeers = org2Channel.getPeers();
+//
+//        verifyNoInstalledChaincodes(org2Client, org2MyPeers);
+//        //    verifyNotInstalledChaincode(org2Client, org2MyPeers, CHAIN_CODE_NAME, CHAIN_CODE_VERSION);
+//
+//        final Map<String, Object> expectedMap = new HashMap<String, Object>() {{
+//            put("sequence", 1L);
+//            put("queryBvalue", "310");
+//        }};
+//
+//        //////////////
+//        ////  DO Go with our own endorsement policy
+//
+//        LifecycleChaincodePackage lifecycleChaincodePackage = createLifecycleChaincodePackage(
+//                "lc_example_cc_go_1", // some label
+//                TransactionRequest.Type.GO_LANG,
+//                IntegrationSuite.getGoChaincodePath("sample1").toString(),
+//                CHAIN_CODE_PATH,
+//                "src/test/fixture/meta-infs/end2endit");
+//
+//        //Org1 also creates the endorsement policy for the chaincode. // also known as validationParameter !
+//        LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy = LifecycleChaincodeEndorsementPolicy.fromSignaturePolicyYamlFile(Paths.get(TEST_FIXTURES_PATH +
+//                "/sdkintegration/chaincodeendorsementpolicy.yaml"));
+//
+//        final String goChaincodeName = "lc_example_cc_go";
+//        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
+//                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
+//                lifecycleChaincodePackage, goChaincodeName,
+//                "1", //Version - bump up next time.
+//                chaincodeEndorsementPolicy,
+//                null, // ChaincodeCollectionConfiguration
+//                true,  // initRequired
+//                expectedMap);
+//
+//        //// Do Go update. Use same chaincode name, new version and chaincode package. This chaincode doubles move result so we know it changed.
+//
+//
+//        LifecycleChaincodePackage lifecycleChaincodePackageUpdate = createLifecycleChaincodePackage(
+//                "lc_example_cc_go_11", // some label
+//                TransactionRequest.Type.GO_LANG,
+//                IntegrationSuite.getGoChaincodePath("sample_11").toString(),
+//                CHAIN_CODE_PATH,
+//                null); // no metadata this time.
+//
+//        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
+//                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
+//                lifecycleChaincodePackageUpdate, goChaincodeName,
+//                "2", //version is 2 it's an update.
+//                chaincodeEndorsementPolicy,
+//                ChaincodeCollectionConfiguration.fromYamlFile(new File("src/test/fixture/collectionProperties/PrivateDataIT.yaml")),
+//                true,  // initRequired
+//                new HashMap<String, Object>() {{
+//                    put("sequence", 2L);  // this is an update sequence should be 2
+//                    put("queryBvalue", "320");  // init is run which set back to 300.  new chaincoode doubles the move of 10 to 20 so expect 320
+//                }});
+//
+//        //////////////
+//        ////  DO Java
+//
+//        LifecycleChaincodePackage lifecycleChaincodePackageJava = createLifecycleChaincodePackage(
+//                "JavaLABEL", // some label
+//                TransactionRequest.Type.JAVA, IntegrationSuite.getJavaChaincodePath("sample1").toString(),
+//                "", // no path in Java.
+//                null); // no metaInf data
+//
+//        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
+//                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
+//                lifecycleChaincodePackageJava, "example_cc_java", // chaincode name
+//                CHAIN_CODE_VERSION,
+//                null, // use default endorsement policy
+//                null, //ChaincodeCollectionConfiguration
+//                true,  // initRequired
+//                expectedMap);
+//
+//        //////////////
+//        ////  DO Node
+//
+//        LifecycleChaincodePackage lifecycleChaincodePackageNode = createLifecycleChaincodePackage(
+//                "ImNodeSeeMeRun", // some label
+//                TransactionRequest.Type.NODE,
+//                IntegrationSuite.getNodeChaincodePath("sample1").toString(),
+//                "", // no path in node.
+//                null); // no metaInf data
+//
+//        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
+//                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
+//                lifecycleChaincodePackageNode, "example_cc_node", // chaincode name
+//                CHAIN_CODE_VERSION,
+//                null, // use default endorsement policy
+//                null, //ChaincodeCollectionConfiguration
+//                true,  // initRequired
+//                expectedMap);
+//
+//        //////////////
+//        ////  DO Go without any standard init required.
+//
+//        LifecycleChaincodePackage lifecycleChaincodePackageNoInit = createLifecycleChaincodePackage(
+//                "lc_example_cc_go_1", // some label
+//                TransactionRequest.Type.GO_LANG,
+//                IntegrationSuite.getGoChaincodePath("sample1NoInit").toString(),
+//                CHAIN_CODE_PATH,
+//                null);
+//
+//        runChannel(org1Client, org1Channel, org1, org1MyPeers, org1OtherPeers,
+//                org2Client, org2Channel, org2, org2MyPeers, org2OtherPeers,
+//                lifecycleChaincodePackageNoInit,
+//                "lc_example_cc_goNOIT", // chaincode name
+//                CHAIN_CODE_VERSION,
+//                null, // use default endorsement policy
+//                null, // ChaincodeCollectionConfiguration
+//                false,  // initRequired is now false
+//                expectedMap);
+//
+//
+//        org1Channel.shutdown(true); // Force foo channel to shutdown clean up resources.
+//
+//    }
+//    //CHECKSTYLE.OFF: ParameterNumber
+//    void runChannel(HFClient org1Client, Channel org1Channel, SampleOrg org1, Collection<Peer> org1MyPeers, Collection<Peer> org1OtherPeers,
+//                    HFClient org2Client, Channel org2Channel, SampleOrg org2, Collection<Peer> org2MyPeers, Collection<Peer> org2OtherPeers,
+//                    LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName,
+//                    String chaincodeVersion, LifecycleChaincodeEndorsementPolicy lifecycleChaincodeEndorsementPolicy,
+//                    ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired,
+//                    Map<String, Object> expected) {
+//
+//        try {
+//            //Should be no chaincode installed at this time.
+//
+//            org1Client.setUserContext(org1.getPeerAdmin());
+//
+//            final String chaincodeLabel = lifecycleChaincodePackage.getLabel();
+//            final TransactionRequest.Type chaincodeType = lifecycleChaincodePackage.getType();
+//
+//            //Org1 installs the chaincode on its peers.
+//            out("Org1 installs the chaincode on its peers.");
+//            String org1ChaincodePackageID = lifecycleInstallChaincode(org1Client, org1MyPeers, lifecycleChaincodePackage);
+//
+//
+//            //Sanity check to see if chaincode really is on it's peers and has the hash as expected by querying all chaincodes.
+//            out("Org1 check installed chaincode on peers.");
+//
+//            verifyByQueryInstalledChaincodes(org1Client, org1MyPeers, chaincodeLabel, org1ChaincodePackageID);
+//            // another query test if it works
+//            verifyByQueryInstalledChaincode(org1Client, org1MyPeers, org1ChaincodePackageID, chaincodeLabel);
+//
+//            // Sequence  number increase with each change and is used to make sure you are referring to the same change.
+//            long sequence = -1L;
+//            final QueryLifecycleQueryChaincodeDefinitionRequest queryLifecycleQueryChaincodeDefinitionRequest = org1Client.newQueryLifecycleQueryChaincodeDefinitionRequest();
+//            queryLifecycleQueryChaincodeDefinitionRequest.setChaincodeName(chaincodeName);
+//
+//            Collection<LifecycleQueryChaincodeDefinitionProposalResponse> firstQueryDefininitions = org1Channel.lifecycleQueryChaincodeDefinition(queryLifecycleQueryChaincodeDefinitionRequest, org1MyPeers);
+//
+//            for (LifecycleQueryChaincodeDefinitionProposalResponse firstDefinition : firstQueryDefininitions) {
+//                if (firstDefinition.getStatus() == ProposalResponse.Status.SUCCESS) {
+//                    sequence = firstDefinition.getSequence() + 1L; //Need to bump it up to the next.
+//                    break;
+//                } else { //Failed but why?
+//                    if (404 == firstDefinition.getChaincodeActionResponseStatus()) {
+//                        // not found .. done set sequence to 1;
+//                        sequence = 1;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//
+//
+//            //     ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = collectionConfiguration == null ? null : ChaincodeCollectionConfiguration.fromYamlFile(new File(collectionConfiguration));
+////            // ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = ChaincodeCollectionConfiguration.fromYamlFile(new File("src/test/fixture/collectionProperties/PrivateDataIT.yaml"));
+////            chaincodeCollectionConfiguration = null;
+//            final Peer anOrg1Peer = org1MyPeers.iterator().next();
+//            out("Org1 approving chaincode definition for my org.");
+//            BlockEvent.TransactionEvent transactionEvent = lifecycleApproveChaincodeDefinitionForMyOrg(org1Client, org1Channel,
+//                    Collections.singleton(anOrg1Peer),  //support approve on multiple peers but really today only need one. Go with minimum.
+//                    sequence, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1ChaincodePackageID)
+//                    .get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
+//
+//
+//            verifyByCheckCommitReadinessStatus(org1Client, org1Channel, sequence, chaincodeName, chaincodeVersion,
+//                    lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1MyPeers,
+//                    new HashSet<>(Arrays.asList(ORG_1_MSP)), // Approved
+//                    new HashSet<>(Arrays.asList(ORG_2_MSP))); // Un approved.
+//
+//            //Serialize these to bytes to give to other organizations.
+//            byte[] chaincodePackageBtyes = lifecycleChaincodePackage.getAsBytes();
+//            final byte[] chaincodeEndorsementPolicyAsBytes = lifecycleChaincodeEndorsementPolicy == null ? null : lifecycleChaincodeEndorsementPolicy.getSerializedPolicyBytes();
+//
+//            ///////////////////////////////////
+//            //org1 communicates to org2 out of bounds (email, floppy, etc) : CHAIN_CODE_NAME, CHAIN_CODE_VERSION, chaincodeHash, definitionSequence, chaincodePackageBtyes and chaincodeEndorsementPolicyAsBytes.
+//            ////  Now as org2
+//            LifecycleChaincodePackage org2LifecycleChaincodePackage = LifecycleChaincodePackage.fromBytes(chaincodePackageBtyes);
+//            LifecycleChaincodeEndorsementPolicy org2ChaincodeEndorsementPolicy = chaincodeEndorsementPolicyAsBytes == null ? null :
+//                    LifecycleChaincodeEndorsementPolicy.fromBytes(chaincodeEndorsementPolicyAsBytes);
+//
+//            org2Client.setUserContext(org2.getPeerAdmin());
+//
+//            //Org2 installs the chaincode on its peers
+//            out("Org2 installs the chaincode on its peers.");
+//            String org2ChaincodePackageID = lifecycleInstallChaincode(org2Client, org2MyPeers, org2LifecycleChaincodePackage);
+//
+//            //Sanity check to see if chaincode really is on it's peers and has the hash as expected.
+//            out("Org2 check installed chaincode on peers.");
+//            verifyByQueryInstalledChaincodes(org2Client, org2MyPeers, chaincodeLabel, org2ChaincodePackageID);
+//            // check by querying for specific chaincode
+//            verifyByQueryInstalledChaincode(org2Client, org2MyPeers, org2ChaincodePackageID, chaincodeLabel);
+//
+//            //Approve the chaincode for the peer's in org2
+//            out("Org2 approving chaincode definition for my org.");
+//            BlockEvent.TransactionEvent org2TransactionEvent = lifecycleApproveChaincodeDefinitionForMyOrg(org2Client, org2Channel,
+//                    Collections.singleton(org2MyPeers.iterator().next()),  //support approve on multiple peers but really today only need one. Go with minimum.
+//                    sequence, chaincodeName, chaincodeVersion, org2ChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2ChaincodePackageID)
+//                    .get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
+//
+//
+//            out("Checking on org2's network for approvals");
+//            verifyByCheckCommitReadinessStatus(org2Client, org2Channel, sequence, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2MyPeers,
+//                    new HashSet<>(Arrays.asList(ORG_1_MSP, ORG_2_MSP)), // Approved
+//                    Collections.emptySet()); // Un approved.
+//
+//            out("Checking on org1's network for approvals");
+//            verifyByCheckCommitReadinessStatus(org1Client, org1Channel, sequence, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1MyPeers,
+//                    new HashSet<>(Arrays.asList(ORG_1_MSP, ORG_2_MSP)), // Approved
+//                    Collections.emptySet()); // unapproved.
+//
+//            // Org2 knows org1 has approved already so it does the chaincode definition commit, but this could be done by org1 too.
+//
+//
+//            // Get collection of one of org2 orgs peers and one from the other.
+//
+//            Collection<Peer> org2EndorsingPeers = Arrays.asList(org2MyPeers.iterator().next(), org2OtherPeers.iterator().next());
+//            transactionEvent = commitChaincodeDefinitionRequest(org2Client, org2Channel, sequence, chaincodeName, chaincodeVersion, org2ChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2EndorsingPeers)
+//                    .get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
+//
+//
+//            verifyByQueryChaincodeDefinition(org2Client, org2Channel, chaincodeName, org2MyPeers, sequence, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
+//            verifyByQueryChaincodeDefinition(org1Client, org1Channel, chaincodeName, org1MyPeers, sequence, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
+//
+//            verifyByQueryChaincodeDefinitions(org2Client, org2Channel, org2MyPeers, chaincodeName);
+//            verifyByQueryChaincodeDefinitions(org1Client, org1Channel, org1MyPeers, chaincodeName);
+//
+//            //Now org2 could also do the init for the chaincode but it just informs org2 admin of the commit so it does it.
+//
+//            transactionEvent = executeChaincode(org1Client, org1.getPeerAdmin(), org1Channel, "init",
+//                    initRequired ? true : null, // doInit don't even specify it has it should default to false
+//                    chaincodeName, chaincodeType, "a,", "100", "b", "300").get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
+//
+//
+//            transactionEvent = executeChaincode(org2Client, org2.getPeerAdmin(), org2Channel, "move",
+//                    false, // doInit
+//                    chaincodeName, chaincodeType, "a,", "b", "10").get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
+//
+//
+//            if (null != expected) {
+//                executeVerifyByQuery(org1Client, org1Channel, chaincodeName, (String) expected.get("queryBvalue"));
+//                executeVerifyByQuery(org2Client, org2Channel, chaincodeName, (String) expected.get("queryBvalue"));
+//            }
+//
+//            /// Upgrading chaincode is really the same processes as the initial install. Any change requires a new sequence.
+//            /// Upgrading the actual code will need same chaincode name,  new chaincode package and version.
+//            /// Cases where running init is never needed include updating the endorsement policy, or adding collections.
+//            // For that no chaincode install is needed. As always a new sequence is needed and the same chaincode name, version and hash would be used
+//            // in the ApproveChaincodeDefinitionForMyOrg and commitChaincodeDefinition operations.
+//            // If chaincode has been committed by other organizations, to run own your own organization peers besides installing it
+//            //  also the ApproveChaincodeDefinitionForMyOrg operation is needed which in this case would use the same sequence number since there is
+//            // no actual change to the definition.
+//
+//        } catch (Exception e) {
+//
+//            e.printStackTrace();
+//
+//        }
+//    }
+//
 
 
     private LifecycleChaincodePackage createLifecycleChaincodePackage(String chaincodeLabel, TransactionRequest.Type chaincodeType, String chaincodeSourceLocation, String chaincodePath, String metadadataSource) throws IOException, InvalidArgumentException {

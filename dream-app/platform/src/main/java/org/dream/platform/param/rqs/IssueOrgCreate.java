@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ public class IssueOrgCreate {
      * 下发机构基础费率
      */
     @NotBlank(message = "下发机构基础费率不能为空")
+    @DecimalMin(value = "0", message = "下发机构基础费率不能小于0")
     private BigDecimal rateBasic;
     /**
      * 下发机构机构状态(启用/禁用)

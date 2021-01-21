@@ -1,4 +1,4 @@
-package org.dream.platform.param.rsp;
+package org.dream.platform.param.rqs;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +12,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Individual {
+public class IndividualUpdate {
 
     /**
      * 个体ID
@@ -27,7 +27,15 @@ public class Individual {
      */
     private String platformOrgID;
     /**
+     * 个体证件号
+     */
+    private String certificateNo;
+    /**
+     * 个体证件类型 (身份证/港澳台证/护照/军官证)
+     */
+    private String certificateType;
+    /**
      * 个体状态(启用/禁用)
      */
-    private Integer status;
+    private String status;
 }

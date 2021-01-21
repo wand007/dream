@@ -48,7 +48,7 @@ public class AgencyOrgCreate {
      * 分销商机构状态(启用/禁用)
      */
     @NotNull(message = "分销商机构状态不能为空")
-    private int status;
+    private Integer status;
 
 
     public AgencyOrgCreate() {

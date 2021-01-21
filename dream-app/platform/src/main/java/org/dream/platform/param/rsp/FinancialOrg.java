@@ -28,7 +28,7 @@ public class FinancialOrg {
     /**
      * 金融机构状态(启用/禁用)
      */
-    private int status;
+    private Integer status;
 
 
     public FinancialOrg() {

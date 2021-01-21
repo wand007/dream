@@ -28,7 +28,7 @@ public class AgencyOrg {
     /**
      * 分销商机构状态(启用/禁用)
      */
-    private int status;
+    private Integer status;
 
 
     public AgencyOrg() {

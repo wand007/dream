@@ -285,6 +285,7 @@ func (t *IndividualChainCode) FindPrivateDataById(ctx contractapi.TransactionCon
 }
 
 func (t *IndividualChainCode) QueryIndividualSimpleWithPagination(ctx contractapi.TransactionContextInterface, queryString, bookmark string, pageSize int) ([]*QueryResult, error) {
+	fmt.Println("个体公开数据分页查询入参参数 %s,%s,%s", queryString, bookmark, pageSize)
 	if len(queryString) == 0 {
 		return nil, errors.New("查询条件不能为空")
 	}

@@ -42,5 +42,5 @@ public class FinancialOrgGeneralAccountCreate {
     /**
      * 金融机构共管账户状态(正常/冻结/黑名单/禁用/限制)
      */
-    private String accStatus;
+    private Integer accStatus;
 }

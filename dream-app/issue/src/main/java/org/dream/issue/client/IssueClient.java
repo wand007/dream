@@ -1,12 +1,12 @@
-package org.dream.retailer.client;
+package org.dream.issue.client;
 
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.core.base.BusinessResponse;
 import org.dream.core.base.GlobalExceptionHandler;
-import org.dream.retailer.param.rqs.RetailerOrgCreate;
-import org.dream.retailer.param.rsp.RetailerOrg;
-import org.dream.retailer.param.rsp.RetailerOrgPrivateData;
+import org.dream.issue.param.rqs.IssueOrgCreate;
+import org.dream.issue.param.rsp.IssueOrg;
+import org.dream.issue.param.rsp.IssueOrgPrivateData;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
 import org.hyperledger.fabric.gateway.Network;
@@ -17,6 +17,8 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -26,53 +28,61 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 @RestController
-public class RetailerClient extends GlobalExceptionHandler {
+public class IssueClient extends GlobalExceptionHandler {
     @Resource
     Network network;
-    @Resource(name = "retailer-contract")
-    Contract retailerContract;
+    @Resource(name = "issue-contract")
+    Contract ssueContract;
 
     /**
-     * 金融机构公开数据查询
+     * 下发机构公开数据查询
      *
-     * @param id 金融机构ID
+     * @param id 下发机构ID
      * @return
      * @throws ContractException
      */
     @GetMapping({"findById"})
     public BusinessResponse findById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = retailerContract.evaluateTransaction("FindById", id);
+        byte[] bytes = ssueContract.evaluateTransaction("FindById", id);
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
-        return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), RetailerOrg.class));
+        return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), IssueOrg.class));
     }
 
     /**
-     * 金融机构私有数据查询
+     * 下发机构私有数据查询
      *
-     * @param id 金融机构ID
+     * @param id 下发机构ID
      * @return
      * @throws ContractException
      */
     @GetMapping({"findPrivateDataById"})
     public BusinessResponse FindPrivateDataById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = retailerContract.evaluateTransaction("FindPrivateDataById", id);
+        byte[] bytes = ssueContract.evaluateTransaction("FindPrivateDataById", id);
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
-        return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), RetailerOrgPrivateData.class));
+        return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), IssueOrgPrivateData.class));
     }
 
     /**
-     * 金融机构新建
+     * 下发机构新建
      *
      * @param param
      * @return
      * @throws ContractException
      */
     @PostMapping({"create"})
-    public BusinessResponse create(@RequestBody @Valid RetailerOrgCreate param)
+    public BusinessResponse create(@RequestBody @Valid IssueOrgCreate param)
             throws ContractException, TimeoutException, InterruptedException {
-        byte[] bytes = retailerContract.createTransaction("Create")
+
+        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
+            {
+                put("rateBasic", param.getRateBasic().toPlainString().getBytes());
+                put("id", param.getId().getBytes());
+            }
+        };
+        byte[] bytes = ssueContract.createTransaction("Create")
                 .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
-                .submit(param.getId(), param.getName(), param.getAgencyOrgID(), String.valueOf(param.getUnifiedSocialCreditCode()));
+                .setTransient(transienthMap)
+                .submit(param.getId(), param.getName());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
     }

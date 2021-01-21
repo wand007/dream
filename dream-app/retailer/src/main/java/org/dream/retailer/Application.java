@@ -41,7 +41,7 @@ public class Application {
 
     @Bean("network")
     public Network network() {
-        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/platform/src/main/resources/connection.json");
+        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/retailer/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org5/admin.org5.example.com/msp");
         try {
             //使用org1中的user1初始化一个网关wallet账户用于连接网络

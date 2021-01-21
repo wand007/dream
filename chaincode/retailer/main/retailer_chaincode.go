@@ -15,7 +15,7 @@ type RetailerOrgChainCode struct {
 const COLLECTION_RETAILER string = "collectionRetailer"
 
 /**
- 零售商机构私有数据属性
+ 零售商机构数据属性
  */
 type RetailerOrg struct {
 	ID                      string `json:"id"`                      //零售商机构ID
@@ -25,7 +25,7 @@ type RetailerOrg struct {
 }
 
 /**
- 零售商机构属性
+ 零售商机构私有属性
  */
 type RetailerOrgPrivateData struct {
 	ID          string  `json:"id"`          //零售商机构ID

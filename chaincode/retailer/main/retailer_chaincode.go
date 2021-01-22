@@ -186,7 +186,7 @@ func (t *RetailerOrgChainCode) FindById(ctx contractapi.TransactionContextInterf
 	return string(bytes), nil
 }
 
-func (t *RetailerOrgChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string, collectionName string) (string, error) {
+func (t *RetailerOrgChainCode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("金融机构id不能为空")
 	}

@@ -68,6 +68,9 @@ type QueryResult struct {
 	Bookmark            string    `json:"bookmark"`
 }
 
+/**
+初始化金融机构一般账户----个体
+ */
 func (t *FinancialGeneralAccountChaincode) InitIndividualsLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitIndividualsLedger Init")
 
@@ -99,6 +102,9 @@ func (t *FinancialGeneralAccountChaincode) InitIndividualsLedger(ctx contractapi
 	return nil
 }
 
+/**
+初始化金融机构一般账户 ----零售商机构
+ */
 func (t *FinancialGeneralAccountChaincode) InitRetailersLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitRetailersLedger Init")
 
@@ -130,6 +136,9 @@ func (t *FinancialGeneralAccountChaincode) InitRetailersLedger(ctx contractapi.T
 	return nil
 }
 
+/**
+初始化金融机构一般账户 ----分销商机构
+ */
 func (t *FinancialGeneralAccountChaincode) InitAgencysLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitAgencysLedger Init")
 
@@ -161,6 +170,9 @@ func (t *FinancialGeneralAccountChaincode) InitAgencysLedger(ctx contractapi.Tra
 	return nil
 }
 
+/**
+初始化金融机构一般账户 ----下发机构
+ */
 func (t *FinancialGeneralAccountChaincode) InitIssuesLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitIssuesLedger Init")
 
@@ -170,7 +182,7 @@ func (t *FinancialGeneralAccountChaincode) InitIssuesLedger(ctx contractapi.Tran
 	if err != nil {
 		return fmt.Errorf("failed to get verified OrgID: %s", err.Error())
 	}
-
+	fmt.Println("clientOrgID Init" + clientOrgID)
 	//下发机构
 	issues := []FinancialOrgGeneralAccountPrivateData{
 		{CardNo: "6229486603953201814", FinancialOrgID: "F766005404604841984", CertificateNo: "91370181MA3D7J9W3W", CertificateType: CERTIFICATE_TYPE_5, CurrentBalance: 0, VoucherCurrentBalance: 0, OwnerOrg: clientOrgID, AccStatus: 1},

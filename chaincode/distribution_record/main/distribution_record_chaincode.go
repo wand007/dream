@@ -56,7 +56,7 @@ type DistributionRecordPrivateData struct {
 	ManagedAccountCardNo string  `json:"managedAccountCardNo"` //共管账户账号 FinancialOrgManagedAccountPrivateData.CardNo
 	IssueCardNo          string  `json:"issueCardNo"`          //下发机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	IndividualCardNo     string  `json:"individualCardNo"`     //个体一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
-	AgencyCardNo         string  `json:"managedCardNo"`        //分销商机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
+	AgencyCardNo         string  `json:"agencyCardNo"`        //分销商机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	ManagedCardNo        string  `json:"managedCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	GeneralCardNo        string  `json:"generalCardNo"`        //金融机构公管账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	Amount               int     `json:"amount"`               //派发金额

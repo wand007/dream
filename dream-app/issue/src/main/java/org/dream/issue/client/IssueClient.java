@@ -75,8 +75,9 @@ public class IssueClient extends GlobalExceptionHandler {
 
         Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
             {
-                put("rateBasic", param.getRateBasic().toPlainString().getBytes());
-                put("id", param.getId().getBytes());
+//                put("rateBasic", param.getRateBasic().toPlainString().getBytes());
+//                put("id", param.getId().getBytes());
+                put("issue", JSON.toJSONString(param).getBytes());
             }
         };
         byte[] bytes = ssueContract.createTransaction("Create")

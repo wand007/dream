@@ -61,9 +61,10 @@ public class DistributionRecordClient extends GlobalExceptionHandler {
     public BusinessResponse create(@RequestBody @Valid DistributionRecordCreate param) throws ContractException, TimeoutException, InterruptedException {
         Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
             {
-                put("rateBasic", param.getAmount().toPlainString().getBytes());
-                put("issueOrgID", param.getId().getBytes());
-                put("id", param.getId().getBytes());
+//                put("rateBasic", param.getAmount().toPlainString().getBytes());
+//                put("issueOrgID", param.getId().getBytes());
+//                put("id", param.getId().getBytes());
+                put("distributionRecord", JSON.toJSONString(param).getBytes());
             }
         };
         byte[] bytes = contract.createTransaction("Create")

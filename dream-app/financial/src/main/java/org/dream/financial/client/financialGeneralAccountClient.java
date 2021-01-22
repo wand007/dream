@@ -75,16 +75,19 @@ public class financialGeneralAccountClient extends GlobalExceptionHandler {
      */
     @PostMapping({"create"})
     public BusinessResponse create(@RequestBody @Valid FinancialOrgGeneralAccountCreate param) throws ContractException, TimeoutException, InterruptedException {
+
+
         Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
             {
-                put("currentBalance", param.getCurrentBalance().toPlainString().getBytes());
-                put("voucherCurrentBalance", param.getVoucherCurrentBalance().toPlainString().getBytes());
-                put("cardNo", param.getCardNo().getBytes());
-                put("accStatus", String.valueOf(param.getAccStatus()).getBytes());
-                put("certificateNo", param.getCertificateNo().getBytes());
-                put("financialOrgID", param.getFinancialOrgID().getBytes());
-                put("ownerOrg", param.getOwnerOrg().getBytes());
-                put("certificateType", String.valueOf(param.getCertificateType()).getBytes());
+                put("generalAccount", JSON.toJSONString(param).getBytes());
+//                put("currentBalance", param.getCurrentBalance().toPlainString().getBytes());
+//                put("voucherCurrentBalance", param.getVoucherCurrentBalance().toPlainString().getBytes());
+//                put("cardNo", param.getCardNo().getBytes());
+//                put("accStatus", String.valueOf(param.getAccStatus()).getBytes());
+//                put("certificateNo", param.getCertificateNo().getBytes());
+//                put("financialOrgID", param.getFinancialOrgID().getBytes());
+//                put("ownerOrg", param.getOwnerOrg().getBytes());
+//                put("certificateType", String.valueOf(param.getCertificateType()).getBytes());
             }
         };
         byte[] bytes = contract.createTransaction("Create")

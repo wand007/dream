@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/financial.tar.gz
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:8625f8eab79716deb23658c112c6437cf8f61af544467e1b733a569f04010f8e
+export CC_PACKAGE_ID=financial_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -48,7 +48,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial/con
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:8625f8eab79716deb23658c112c6437cf8f61af544467e1b733a569f04010f8e
+export CC_PACKAGE_ID=financial_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -80,6 +80,7 @@ peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name financ
 # 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
 peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial --version 1 --sequence 1 --output json --init-required --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org2MSP.member')"
 
+exit
 
 # pee0-org4安装链码
 docker exec -it cli-org4-peer0 bash
@@ -94,12 +95,6 @@ docker exec -it cli-org6-peer0 bash
 # 重复pee0-org3安装链码
 
 
-
-# pee1-org1安装链码
-docker exec -it cli-org1-peer1 bash
-
-重复上部操作
-exit
 
 
 # 部署链码

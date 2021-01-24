@@ -69,6 +69,32 @@ type QueryResult struct {
 }
 
 /**
+初始化金融机构
+*/
+func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("InitLedger Init")
+
+	var err = t.InitIndividualsLedger(ctx)
+	if err != nil {
+		return fmt.Errorf("InitIndividualsLedger Failed to put to world state. %s", err.Error())
+	}
+	err = t.InitRetailersLedger(ctx)
+	if err != nil {
+		return fmt.Errorf("InitRetailersLedger Failed to put to world state. %s", err.Error())
+	}
+	err = t.InitAgencyLedger(ctx)
+	if err != nil {
+		return fmt.Errorf("InitAgencyLedger Failed to put to world state. %s", err.Error())
+	}
+	err = t.InitIssuesLedger(ctx)
+	if err != nil {
+		return fmt.Errorf("InitIssuesLedger Failed to put to world state. %s", err.Error())
+	}
+
+	return nil
+}
+
+/**
 初始化金融机构一般账户----个体
 */
 func (t *FinancialGeneralAccountChaincode) InitIndividualsLedger(ctx contractapi.TransactionContextInterface) error {
@@ -139,8 +165,8 @@ func (t *FinancialGeneralAccountChaincode) InitRetailersLedger(ctx contractapi.T
 /**
 初始化金融机构一般账户 ----分销商机构
 */
-func (t *FinancialGeneralAccountChaincode) InitAgencysLedger(ctx contractapi.TransactionContextInterface) error {
-	fmt.Println("InitAgencysLedger Init")
+func (t *FinancialGeneralAccountChaincode) InitAgencyLedger(ctx contractapi.TransactionContextInterface) error {
+	fmt.Println("InitAgencyLedger Init")
 
 	// Get client org id and verify it matches peer org id.
 	// In this scenario, client is only authorized to read/write private data from its own peer.

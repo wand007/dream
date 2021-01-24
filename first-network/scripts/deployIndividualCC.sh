@@ -77,16 +77,6 @@ docker exec -it cli-org6-peer0 bash
 
 
 
-# pee1-org1安装链码
-docker exec -it cli-org1-peer1 bash
-
-# 安装链码
-peer lifecycle chaincode install /usr/local/chaincode-artifacts/individual.tar.gz
-
-# 查看peer0.org2.example.com链码安装结果
-peer lifecycle chaincode queryinstalled
-
-exit
 
 
 # 部署链码

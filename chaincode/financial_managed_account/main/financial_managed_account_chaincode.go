@@ -36,7 +36,7 @@ type FinancialOrgManagedAccountPrivateData struct {
 	RetailerOrgID         string `json:"retailerOrgID"`         //零售商机构ID RetailerOrg.ID
 	AgencyOrgID           string `json:"agencyOrgID"`           //分销商机构ID AgencyOrg.ID
 	IssueCardNo           string `json:"issueCardNo"`           //下发机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
-	AgencyCardNo          string `json:"managedCardNo"`         //分销商机构一般账户账号 FinancialOrgManagedAccountPrivateData.CardNo
+	AgencyCardNo          string `json:"agencyCardNo"`         //分销商机构一般账户账号 FinancialOrgManagedAccountPrivateData.CardNo
 	ManagedCardNo         string `json:"managedCardNo"`         //分销商机构一般账户账号 FinancialOrgManagedAccountPrivateData.CardNo
 	GeneralCardNo         string `json:"generalCardNo"`         //零售商机构一般账户账号 FinancialOrgGeneralAccountPrivateData.CardNo
 	VoucherCurrentBalance int    `json:"voucherCurrentBalance"` //金融机构零售商机构账户凭证(token)余额

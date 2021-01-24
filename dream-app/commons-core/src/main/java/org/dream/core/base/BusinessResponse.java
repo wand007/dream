@@ -46,16 +46,12 @@ public class BusinessResponse<T> implements Serializable {
         return new BusinessResponse<>(BusinessCode.ALERT_MESSAGE.getCode(), errMsg, null, System.currentTimeMillis());
     }
 
-    public static BusinessResponse fromBusinessCode(int statusCode, String statusText) {
+    public static <T> BusinessResponse<T> fromBusinessCode(int statusCode, String statusText) {
         return new BusinessResponse(statusCode, statusText, null, System.currentTimeMillis());
     }
 
-    public static BusinessResponse fromBusinessCode(BusinessCode businessCode) {
-        return new BusinessResponse(businessCode.getCode(), businessCode.getDesc(), null, System.currentTimeMillis());
-    }
-
-    public static BusinessResponse fromBusinessCode(BusinessCode businessCode, String statusText) {
-        return new BusinessResponse(businessCode.getCode(), statusText, null, System.currentTimeMillis());
+    public static <T> BusinessResponse<T> fromBusinessCode(BusinessCode businessCode) {
+        return new BusinessResponse<>(businessCode.getCode(), businessCode.getDesc(), null, System.currentTimeMillis());
     }
 
 

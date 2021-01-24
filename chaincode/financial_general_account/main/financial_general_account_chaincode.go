@@ -16,13 +16,13 @@ import (
 一般账户现金交易
 一般账户票据交易
 一般账户票据兑换现金交易
- */
+*/
 /**
 需要给不同的角色设置不同的私有数据集
- */
+*/
 /**
 一般账户链码
- */
+*/
 type FinancialGeneralAccountChaincode struct {
 	contractapi.Contract
 }
@@ -46,8 +46,8 @@ const (
 )
 
 /**
-   金融机构一般账户私有数据属性
- */
+  金融机构一般账户私有数据属性
+*/
 type FinancialOrgGeneralAccountPrivateData struct {
 	CardNo                string `json:"cardNo"`                //金融机构公管账户账号(唯一不重复)
 	FinancialOrgID        string `json:"financialOrgID"`        //金融机构ID FinancialOrg.ID
@@ -70,7 +70,7 @@ type QueryResult struct {
 
 /**
 初始化金融机构一般账户----个体
- */
+*/
 func (t *FinancialGeneralAccountChaincode) InitIndividualsLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitIndividualsLedger Init")
 
@@ -104,7 +104,7 @@ func (t *FinancialGeneralAccountChaincode) InitIndividualsLedger(ctx contractapi
 
 /**
 初始化金融机构一般账户 ----零售商机构
- */
+*/
 func (t *FinancialGeneralAccountChaincode) InitRetailersLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitRetailersLedger Init")
 
@@ -138,7 +138,7 @@ func (t *FinancialGeneralAccountChaincode) InitRetailersLedger(ctx contractapi.T
 
 /**
 初始化金融机构一般账户 ----分销商机构
- */
+*/
 func (t *FinancialGeneralAccountChaincode) InitAgencysLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitAgencysLedger Init")
 
@@ -172,7 +172,7 @@ func (t *FinancialGeneralAccountChaincode) InitAgencysLedger(ctx contractapi.Tra
 
 /**
 初始化金融机构一般账户 ----下发机构
- */
+*/
 func (t *FinancialGeneralAccountChaincode) InitIssuesLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("InitIssuesLedger Init")
 
@@ -205,8 +205,8 @@ func (t *FinancialGeneralAccountChaincode) InitIssuesLedger(ctx contractapi.Tran
 }
 
 /**
- 新增金融机构一般账户私有数据
- */
+新增金融机构一般账户私有数据
+*/
 func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionContextInterface) (string, error) {
 
 	transMap, err := ctx.GetStub().GetTransient()
@@ -270,7 +270,7 @@ func (t *FinancialGeneralAccountChaincode) Create(ctx contractapi.TransactionCon
 /**
   现金交易
 零售商向零售商一般账户充值现金余额
- */
+*/
 func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, amount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
@@ -312,7 +312,7 @@ func (t *FinancialGeneralAccountChaincode) TransferCashAsset(ctx contractapi.Tra
 /**
   票据交易
 增加个体/零售商/分销商的票据
- */
+*/
 func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
@@ -351,7 +351,7 @@ func (t *FinancialGeneralAccountChaincode) TransferVoucherAsset(ctx contractapi.
   现金和票据交易 （票据提现）
 提现时增加个体/零售商/分销商的现金
 提现时减少个体/零售商/分销商的票据
- */
+*/
 func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.TransactionContextInterface, generalCardNo string, voucherAmount int) error {
 	if len(generalCardNo) == 0 {
 		return errors.New("一般账户卡号不能为空")
@@ -392,8 +392,8 @@ func (t *FinancialGeneralAccountChaincode) TransferAsset(ctx contractapi.Transac
 }
 
 /**
- 查询金融机构一般账户私有数据
- */
+查询金融机构一般账户私有数据
+*/
 func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	if len(id) == 0 {
 		return "", errors.New("一般账户id不能为空")
@@ -410,8 +410,8 @@ func (t *FinancialGeneralAccountChaincode) FindPrivateDataById(ctx contractapi.T
 
 /**
 根据所属组织机构查询
- */
-func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralByOwnerOrgWithPagination(ctx contractapi.TransactionContextInterface, financialOrgID, certificateNo string, bookmark string, pageSize int) ([]*QueryResult, error) {
+*/
+func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralByOwnerOrgWithPagination(ctx contractapi.TransactionContextInterface, certificateNo string, bookmark string, pageSize int) ([]*QueryResult, error) {
 	if len(certificateNo) == 0 {
 		return nil, errors.New("证件号查询条件不能为空")
 	}
@@ -422,20 +422,20 @@ func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralByOwnerOrgWithPa
 		return nil, fmt.Errorf("failed to get verified OrgID: %s", err.Error())
 	}
 
-	queryString := fmt.Sprintf(`{"selector":{"ownerOrg":"%s"}}`, clientOrgID)
+	queryString := fmt.Sprintf(`{"selector":{"ownerOrg":"%s" and "certificateNo":"%s"}}`, clientOrgID, certificateNo)
 
 	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
 }
 
 /**
 查询全部
- */
+*/
 func (t *FinancialGeneralAccountChaincode) QueryFinancialGeneralWithPagination(ctx contractapi.TransactionContextInterface, financialOrgID, certificateNo string, bookmark string, pageSize int) ([]*QueryResult, error) {
 	if len(certificateNo) == 0 {
 		return nil, errors.New("证件号查询条件不能为空")
 	}
 
-	queryString := fmt.Sprintf(`{"selector":{"financialOrgID":"%s"}}`, financialOrgID)
+	queryString := fmt.Sprintf(`{"selector":{"financialOrgID":"%s"} and "certificateNo":"%s"}}`, financialOrgID, certificateNo)
 
 	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
 }
@@ -513,7 +513,7 @@ func verifyClientOrgMatchesPeerOrg(clientOrgID string) error {
 
 /**
 富查询 必须是CouchDB才行
- */
+*/
 func (t *FinancialGeneralAccountChaincode) GetAllFinancialGenerals(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*QueryResult, error) {
 	// range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
 	resultsIterator, err := ctx.GetStub().GetPrivateDataByRange(COLLECTION_FINANCIAL_GENERAL_ACCOUNT, startKey, endKey)
@@ -528,7 +528,7 @@ func (t *FinancialGeneralAccountChaincode) GetAllFinancialGenerals(ctx contracta
 
 /**
 查询历史数据
- */
+*/
 func (t *FinancialGeneralAccountChaincode) GetHistoryForMarble(ctx contractapi.TransactionContextInterface, cardNo string) ([]QueryResult, error) {
 
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(cardNo)

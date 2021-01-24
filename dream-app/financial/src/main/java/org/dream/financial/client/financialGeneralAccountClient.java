@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -74,10 +75,11 @@ public class financialGeneralAccountClient extends GlobalExceptionHandler {
      * @throws ContractException
      */
     @PostMapping({"create"})
-    public BusinessResponse create(@RequestBody @Valid FinancialOrgGeneralAccountCreate param) throws ContractException, TimeoutException, InterruptedException {
+    public BusinessResponse create(@RequestBody @Valid FinancialOrgGeneralAccountCreate param)
+            throws ContractException, TimeoutException, InterruptedException {
 
 
-        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
+        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
                 put("generalAccount", JSON.toJSONString(param).getBytes());
 //                put("currentBalance", param.getCurrentBalance().toPlainString().getBytes());
@@ -106,10 +108,78 @@ public class financialGeneralAccountClient extends GlobalExceptionHandler {
      * @throws ContractException
      */
     @PostMapping({"realization"})
-    public BusinessResponse realization(@RequestBody @Valid FinancialOrgRealization param) throws ContractException, TimeoutException, InterruptedException {
+    public BusinessResponse realization(@RequestBody @Valid FinancialOrgRealization param)
+            throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = contract.createTransaction("Realization")
                 .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(param.getManagedCardNo(), param.getGeneralCardNo(), param.getVoucherAmount().toPlainString());
+        System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 现金交易
+     * 零售商向零售商一般账户充值现金余额
+     *
+     * @param generalCardNo
+     * @param voucherAmount
+     * @return
+     * @throws ContractException
+     * @throws TimeoutException
+     * @throws InterruptedException
+     */
+    @PostMapping({"transferCashAsset"})
+    public BusinessResponse transferCashAsset(@RequestParam(name = "generalCardNo") String generalCardNo,
+                                              @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
+            throws ContractException, TimeoutException, InterruptedException {
+        byte[] bytes = contract.createTransaction("TransferCashAsset")
+                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .submit(generalCardNo, voucherAmount.toPlainString());
+        System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 票据交易
+     * 增加个体/零售商/分销商的票据
+     *
+     * @param generalCardNo
+     * @param voucherAmount
+     * @return
+     * @throws ContractException
+     * @throws TimeoutException
+     * @throws InterruptedException
+     */
+    @PostMapping({"transferVoucherAsset"})
+    public BusinessResponse transferVoucherAsset(@RequestParam(name = "generalCardNo") String generalCardNo,
+                                                 @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
+            throws ContractException, TimeoutException, InterruptedException {
+        byte[] bytes = contract.createTransaction("TransferVoucherAsset")
+                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .submit(generalCardNo, voucherAmount.toPlainString());
+        System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 现金和票据交易 （票据提现）
+     * 提现时增加个体/零售商/分销商的现金
+     * 提现时减少个体/零售商/分销商的票据
+     *
+     * @param generalCardNo
+     * @param voucherAmount
+     * @return
+     * @throws ContractException
+     * @throws TimeoutException
+     * @throws InterruptedException
+     */
+    @PostMapping({"transferAsset"})
+    public BusinessResponse transferAsset(@RequestParam(name = "generalCardNo") String generalCardNo,
+                                          @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
+            throws ContractException, TimeoutException, InterruptedException {
+        byte[] bytes = contract.createTransaction("TransferAsset")
+                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .submit(generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
     }
@@ -121,9 +191,54 @@ public class financialGeneralAccountClient extends GlobalExceptionHandler {
      * @return
      * @throws ContractException
      */
-    @PostMapping({"getHistoryForMarble"})
-    public BusinessResponse getHistoryForMarble(@RequestParam(name = "cardNo") String cardNo) throws ContractException {
+    @GetMapping({"getHistoryForMarble"})
+    public BusinessResponse getHistoryForMarble(@RequestParam(name = "financialOrgID") String cardNo)
+            throws ContractException {
         byte[] bytes = contract.evaluateTransaction("GetHistoryForMarble", cardNo);
+        System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(JSON.parseArray(new String(bytes, StandardCharsets.UTF_8), FinancialOrgGeneralAccountPrivateData.class));
+    }
+
+    /**
+     * 查询全部
+     *
+     * @param financialOrgID
+     * @param certificateNo
+     * @param bookmark
+     * @param pageSize
+     * @return
+     * @throws ContractException
+     */
+    @GetMapping({"queryFinancialGeneralByOwnerOrgWithPagination"})
+    public BusinessResponse queryFinancialGeneralByOwnerOrgWithPagination(@RequestParam(name = "financialOrgID") String financialOrgID,
+                                                                          @RequestParam(name = "certificateNo") String certificateNo,
+                                                                          @RequestParam(name = "bookmark") String bookmark,
+                                                                          @RequestParam(name = "pageSize") Integer pageSize)
+            throws ContractException {
+        byte[] bytes = contract.evaluateTransaction("QueryFinancialGeneralByOwnerOrgWithPagination",
+                financialOrgID, certificateNo, bookmark, String.valueOf(pageSize));
+        System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(JSON.parseArray(new String(bytes, StandardCharsets.UTF_8), FinancialOrgGeneralAccountPrivateData.class));
+    }
+
+    /**
+     * 根据所属组织机构查询
+     *
+     * @param financialOrgID
+     * @param certificateNo
+     * @param bookmark
+     * @param pageSize
+     * @return
+     * @throws ContractException
+     */
+    @GetMapping({"queryFinancialGeneralWithPagination"})
+    public BusinessResponse queryFinancialGeneralWithPagination(@RequestParam(name = "financialOrgID") String financialOrgID,
+                                                                @RequestParam(name = "certificateNo") String certificateNo,
+                                                                @RequestParam(name = "bookmark") String bookmark,
+                                                                @RequestParam(name = "pageSize") Integer pageSize)
+            throws ContractException {
+        byte[] bytes = contract.evaluateTransaction("QueryFinancialGeneralWithPagination",
+                financialOrgID, certificateNo, bookmark, String.valueOf(pageSize));
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseArray(new String(bytes, StandardCharsets.UTF_8), FinancialOrgGeneralAccountPrivateData.class));
     }

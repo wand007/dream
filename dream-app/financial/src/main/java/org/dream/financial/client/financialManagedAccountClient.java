@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.core.base.BusinessResponse;
 import org.dream.core.base.GlobalExceptionHandler;
-import org.dream.financial.param.rqs.FinancialOrgCreate;
-import org.dream.financial.param.rqs.FinancialOrgRealization;
-import org.dream.financial.param.rsp.FinancialOrg;
+import org.dream.financial.param.rqs.FinancialOrgManagedAccountPrivateDataCreate;
 import org.dream.financial.param.rsp.FinancialOrgPrivateData;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
@@ -16,8 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -35,19 +36,6 @@ public class financialManagedAccountClient extends GlobalExceptionHandler {
     @Resource
     Contract contract;
 
-    /**
-     * 金融机构公开数据查询
-     *
-     * @param id 金融机构ID
-     * @return
-     * @throws ContractException
-     */
-    @GetMapping({"findById"})
-    public BusinessResponse findById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = contract.evaluateTransaction("FindById", id);
-        System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
-        return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), FinancialOrg.class));
-    }
 
     /**
      * 金融机构私有数据查询
@@ -71,31 +59,41 @@ public class financialManagedAccountClient extends GlobalExceptionHandler {
      * @throws ContractException
      */
     @PostMapping({"create"})
-    public BusinessResponse create(@RequestBody @Valid FinancialOrgCreate param) throws ContractException, TimeoutException, InterruptedException {
+    public BusinessResponse create(@RequestBody @Valid FinancialOrgManagedAccountPrivateDataCreate param) throws ContractException, TimeoutException, InterruptedException {
+        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
+            {
+                put("managedAccount", JSON.toJSONString(param).getBytes());
+            }
+        };
         byte[] bytes = contract.createTransaction("Create")
                 .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
-                .submit(param.getId(), param.getName(), param.getCode(), String.valueOf(param.getStatus()));
+                .setTransient(transienthMap)
+                .submit();
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
-//        TransactionId 不知道在哪里存着的
-//        354e879d0fecc640aa50f22f9c17486f63206b6226bf70ac9d76f3295eddbdc9
-//        932c2bbfa6ee238370459a7689e42430c3353a72a60f5b4244f332041c7bd94c
+
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
     }
+
 
     /**
-     * 一般账户向共管账户票据兑换现金 (票据变现)
+     * 票据交易
+     * 零售商向零售商共管账户充值现金时增加票据余额
      *
-     * @param param
+     * @param managedCardNo
+     * @param voucherAmount
      * @return
      * @throws ContractException
+     * @throws TimeoutException
+     * @throws InterruptedException
      */
-    @PostMapping({"realization"})
-    public BusinessResponse Realization(@RequestBody @Valid FinancialOrgRealization param) throws ContractException, TimeoutException, InterruptedException {
-        byte[] bytes = contract.createTransaction("Realization")
+    @PostMapping({"transferVoucherAsset"})
+    public BusinessResponse transferVoucherAsset(@RequestParam(name = "managedCardNo") String managedCardNo,
+                                                 @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
+            throws ContractException, TimeoutException, InterruptedException {
+        byte[] bytes = contract.createTransaction("TransferVoucherAsset")
                 .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
-                .submit(param.getManagedCardNo(), param.getGeneralCardNo(), param.getVoucherAmount().toPlainString());
+                .submit(managedCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
     }
-
 }

@@ -72,7 +72,7 @@ public class AgencyClient extends GlobalExceptionHandler {
      */
     @PostMapping({"create"})
     public BusinessResponse create(@RequestBody @Valid AgencyOrgCreate param) throws ContractException, TimeoutException, InterruptedException {
-        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
+        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
 //                put("rateBasic", param.getRateBasic().toPlainString().getBytes());
 //                put("issueOrgID", param.getIssueOrgID().getBytes());

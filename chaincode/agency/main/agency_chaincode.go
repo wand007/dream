@@ -66,9 +66,7 @@ func (t *AgencyOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterf
 				return fmt.Errorf("Failed to put to world state. %s", err.Error())
 			}
 		}
-
 	}
-
 	return nil
 }
 

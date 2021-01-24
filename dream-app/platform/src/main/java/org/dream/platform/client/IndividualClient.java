@@ -114,7 +114,7 @@ public class IndividualClient extends GlobalExceptionHandler {
      */
     @PostMapping({"create"})
     public BusinessResponse create(@RequestBody @Valid IndividualCreate param) throws ContractException, TimeoutException, InterruptedException {
-        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
+        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
                 put("individual", JSON.toJSONString(param).getBytes());
 //                put("id", param.getId().getBytes());
@@ -143,7 +143,7 @@ public class IndividualClient extends GlobalExceptionHandler {
      */
     @PostMapping({"update"})
     public BusinessResponse update(@RequestBody @Valid IndividualUpdate param) throws ContractException, TimeoutException, InterruptedException {
-        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
+        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
                 put("individual", JSON.toJSONString(param).getBytes());
 //                put("id", param.getId().getBytes());

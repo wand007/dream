@@ -32,7 +32,7 @@ public class IssueClient extends GlobalExceptionHandler {
     @Resource
     Network network;
     @Resource(name = "issue-contract")
-    Contract ssueContract;
+    Contract issueContract;
 
     /**
      * 下发机构公开数据查询
@@ -43,7 +43,7 @@ public class IssueClient extends GlobalExceptionHandler {
      */
     @GetMapping({"findById"})
     public BusinessResponse findById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = ssueContract.evaluateTransaction("FindById", id);
+        byte[] bytes = issueContract.evaluateTransaction("FindById", id);
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), IssueOrg.class));
     }
@@ -57,7 +57,7 @@ public class IssueClient extends GlobalExceptionHandler {
      */
     @GetMapping({"findPrivateDataById"})
     public BusinessResponse FindPrivateDataById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = ssueContract.evaluateTransaction("FindPrivateDataById", id);
+        byte[] bytes = issueContract.evaluateTransaction("FindPrivateDataById", id);
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), IssueOrgPrivateData.class));
     }
@@ -73,14 +73,14 @@ public class IssueClient extends GlobalExceptionHandler {
     public BusinessResponse create(@RequestBody @Valid IssueOrgCreate param)
             throws ContractException, TimeoutException, InterruptedException {
 
-        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>() {
+        Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
 //                put("rateBasic", param.getRateBasic().toPlainString().getBytes());
 //                put("id", param.getId().getBytes());
                 put("issue", JSON.toJSONString(param).getBytes());
             }
         };
-        byte[] bytes = ssueContract.createTransaction("Create")
+        byte[] bytes = issueContract.createTransaction("Create")
                 .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit(param.getId(), param.getName());

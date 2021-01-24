@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.concurrent.TimeoutException;
@@ -93,6 +94,71 @@ public class FinancialClient extends GlobalExceptionHandler {
         byte[] bytes = contract.createTransaction("Realization")
                 .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(param.getManagedCardNo(), param.getGeneralCardNo(), param.getVoucherAmount().toPlainString());
+        System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 一般账户向共管账户现金兑换票据
+     *
+     * @param id
+     * @param amount
+     * @return
+     * @throws ContractException
+     * @throws TimeoutException
+     * @throws InterruptedException
+     */
+    @PostMapping({"grant"})
+    public BusinessResponse grant(@RequestParam(name = "id") String id,
+                                  @RequestParam(name = "amount") BigDecimal amount) throws ContractException, TimeoutException, InterruptedException {
+        byte[] bytes = contract.createTransaction("Grant")
+                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .submit(id, amount.toPlainString());
+        System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 一般账户向共管账户现金兑换票据 (现金充值)
+     * 零售商用一般账户的现金余额向上级代理的上级下发机构的金融机构的共管账户充值，获取金融机构颁发的票据，共管账户增加票据余额，零售商减少一般账户的现金余额，增加金融机构的现金余额和票据余额。
+     *
+     * @param managedCardNo
+     * @param generalCardNo
+     * @param amount
+     * @return
+     * @throws ContractException
+     * @throws TimeoutException
+     * @throws InterruptedException
+     */
+    @PostMapping({"transferAsset"})
+    public BusinessResponse transferAsset(@RequestParam(name = "managedCardNo") String managedCardNo,
+                                          @RequestParam(name = "generalCardNo") String generalCardNo,
+                                          @RequestParam(name = "amount") BigDecimal amount) throws ContractException, TimeoutException, InterruptedException {
+        byte[] bytes = contract.createTransaction("TransferAsset")
+                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .submit(managedCardNo, generalCardNo, amount.toPlainString());
+        System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
+        return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 共管账户向一般账户交易票据 (票据下发)
+     *
+     * @param managedCardNo
+     * @param generalCardNo
+     * @param voucherAmount
+     * @return
+     * @throws ContractException
+     * @throws TimeoutException
+     * @throws InterruptedException
+     */
+    @PostMapping({"transferVoucherAsset"})
+    public BusinessResponse transferVoucherAsset(@RequestParam(name = "managedCardNo") String managedCardNo,
+                                                 @RequestParam(name = "generalCardNo") String generalCardNo,
+                                                 @RequestParam(name = "voucherAmount") BigDecimal voucherAmount) throws ContractException, TimeoutException, InterruptedException {
+        byte[] bytes = contract.createTransaction("TransferVoucherAsset")
+                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .submit(managedCardNo, generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
     }

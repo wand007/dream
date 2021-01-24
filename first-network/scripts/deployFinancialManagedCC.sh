@@ -104,6 +104,7 @@ peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name financ
 # 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
 peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name financial_managed_account_chaincode --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH
 
+exit
 
 # pee0-org5安装链码
 docker exec -it cli-org5-peer0 bash
@@ -131,7 +132,7 @@ exit
 # pee0-org6安装链码
 docker exec -it cli-org6-peer0 bash
 # 重复pee0-org4安装链码
-
+exit
 
 
 

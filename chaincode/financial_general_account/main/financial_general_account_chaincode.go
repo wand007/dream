@@ -72,8 +72,7 @@ type QueryResult struct {
 初始化金融机构
 */
 func (t *FinancialGeneralAccountChaincode) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	fmt.Println("InitLedger Init")
-
+	fmt.Println("FinancialGeneralAccountChaincode Init")
 	var err = t.InitIndividualsLedger(ctx)
 	if err != nil {
 		return fmt.Errorf("InitIndividualsLedger Failed to put to world state. %s", err.Error())

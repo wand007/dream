@@ -21,7 +21,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/platform.tar.gz 
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/platform.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=platform_1:575bf94df6be77ff046e86ee94b6cb99116eb6b0c1a7faaf5ab179c3e382344c
+export CC_PACKAGE_ID=platform_1:b76ecf1983da96db99b76c4b0a02a5a2b06f7c6505894a0d0f03cf9349c91f00
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -86,9 +86,11 @@ peer lifecycle chaincode commit -o orderer1.org0.example.com:7050 --channelID $C
 # 查询已经提交的链码
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name platform
 
-# 链码执行
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n platform --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org4.example.com:13051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org5.example.com:15051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE   --peerAddresses peer0.org6.example.com:17051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"function":"InitLedger","Args":[]}' --waitForEvent
+# 初始化默认数据
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n platform --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"Args":[]}' --waitForEvent
 ## 测试链码
+# 链码执行
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n platform --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"function":"InitLedger","Args":[]}' --waitForEvent
 peer chaincode query -C $CHANNEL_NAME -n platform -c '{"function":"FindById","Args":["P768877118787432448"]}'
 
 exit

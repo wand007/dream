@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/retailer.tar.gz 
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/retailer.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=retailer_1:b42f45fb90f5b1dcdee619889f91bb2658de2a751f151fd367400ce920a54319
+export CC_PACKAGE_ID=retailer_1:16314ce6fd6744790f5be3ea0e3b9b8ecde92d30a4cb0dcfc813c531e92a1c81
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -69,7 +69,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/retailer/conf
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/retailer.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=retailer_1:b42f45fb90f5b1dcdee619889f91bb2658de2a751f151fd367400ce920a54319
+export CC_PACKAGE_ID=retailer_1:16314ce6fd6744790f5be3ea0e3b9b8ecde92d30a4cb0dcfc813c531e92a1c81
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled

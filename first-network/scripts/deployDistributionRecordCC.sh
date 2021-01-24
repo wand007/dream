@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/distribution_rec
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/distribution_record.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=distribution_record_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
+export CC_PACKAGE_ID=distribution_record_1:1ff354d50c5486cadcd49d84bc3309c808a398d4d962b50df1a29402591f68c6
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -69,7 +69,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/distribution_
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/distribution_record.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=distribution_record_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
+export CC_PACKAGE_ID=distribution_record_1:1ff354d50c5486cadcd49d84bc3309c808a398d4d962b50df1a29402591f68c6
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -84,50 +84,12 @@ exit
 
 # pee0-org4安装链码
 docker exec -it cli-org4-peer0 bash
-
-# 链码路径
-export CC_SRC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/distribution_record/main/
-# 私有数据规则配置文件路径
-export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/distribution_record/config/collections_config.json
-# 安装链码
-peer lifecycle chaincode install /usr/local/chaincode-artifacts/distribution_record.tar.gz
-
-# 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=distribution_record_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
-
-# 查看peer0.org2.example.com链码安装结果
-peer lifecycle chaincode queryinstalled
-
-# 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
-peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name distribution_record --version 1 --sequence 1 --init-required --package-id $CC_PACKAGE_ID -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member', 'Org4MSP.member', 'Org5MSP.member')" --waitForEvent
-
-# 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
-peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name distribution_record --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member', 'Org4MSP.member', 'Org5MSP.member')"
-
+# 重复pee0-org3安装链码
 exit
 
 # pee0-org5安装链码
 docker exec -it cli-org5-peer0 bash
-
-# 链码路径
-export CC_SRC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/distribution_record/main/
-# 私有数据规则配置文件路径
-export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/distribution_record/config/collections_config.json
-# 安装链码
-peer lifecycle chaincode install /usr/local/chaincode-artifacts/distribution_record.tar.gz
-
-# 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=distribution_record_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
-
-# 查看peer0.org2.example.com链码安装结果
-peer lifecycle chaincode queryinstalled
-
-# 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
-peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name distribution_record --version 1 --sequence 1 --init-required --package-id $CC_PACKAGE_ID -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member', 'Org4MSP.member', 'Org5MSP.member')" --waitForEvent
-
-# 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
-peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name distribution_record --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member', 'Org4MSP.member', 'Org5MSP.member')"
-
+# 重复pee0-org3安装链码
 exit
 
 # pee0-org6安装链码
@@ -154,8 +116,8 @@ peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $COR
 
 ## 测试链码
 # 新建下发记录
-export MARBLE=$(echo -n "{\"id\":\"6229486603953201814\",\"individualID:\"IN760934239574175744\",\"managedAccountCardNo\":\"3036603953562710\",\"individualCardNo\":\"6229486603953152819\",\"amount\":10,\"rate\":0.61}" | base64 | tr -d \\n)
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial_general_account --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":[]}' --transient "{\"distributionRecord\":\"$MARBLE\"}" --waitForEvent
+export MARBLE=$(echo -n "{\"id\":\"6229486603953201814\",\"individualID\":\"IN760934239574175744\",\"managedAccountCardNo\":\"3036603953562710\",\"individualCardNo\":\"6229486603953152819\",\"amount\":10,\"rate\":0.61}" | base64 | tr -d \\n)
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n distribution_record --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":[]}' --transient "{\"distributionRecord\":\"$MARBLE\"}" --waitForEvent
 
 # 查询默认私有数据
 peer chaincode query -C $CHANNEL_NAME -n distribution_record   -c '{"function":"FindPrivateDataById","Args":["6229486603953201814"]}'

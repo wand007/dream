@@ -149,7 +149,7 @@ func (t *DistributionRecordChaincode) Create(ctx contractapi.TransactionContextI
 	}
 
 	if len(financialPrivateDataJsonBytes) == 0 {
-		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
+		return "", errors.New("DistributionRecordChaincode value in the transient map must be a non-empty JSON string")
 	}
 	var transientInput DistributionRecordTransientInput
 	err = json.Unmarshal(financialPrivateDataJsonBytes, &transientInput)

@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/financial_genera
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial_general_account.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_general_account_1:57bc23c3802d0b86f7bc16ce140f64088d36486692bb50205d63f542c1a3c7f4
+export CC_PACKAGE_ID=financial_general_account_1:d5f45b657379f57f2a3341fcba2c88e9b49a5b720bf05c37c56e08a57da57d70
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -48,7 +48,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial_gen
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial_general_account.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_general_account_1:57bc23c3802d0b86f7bc16ce140f64088d36486692bb50205d63f542c1a3c7f4
+export CC_PACKAGE_ID=financial_general_account_1:d5f45b657379f57f2a3341fcba2c88e9b49a5b720bf05c37c56e08a57da57d70
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -117,7 +117,7 @@ peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $COR
 ## 测试链码
 
 # 新建金融机构一般账户----个体
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial_general_account --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"function":"InitIndividualsLedger","Args":[]}' --waitForEvent
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial_general_account --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"function":"InitLedger","Args":[]}' --waitForEvent
 # 查询默认私有数据
 peer chaincode query -C $CHANNEL_NAME -n financial_general_account   -c '{"function":"FindPrivateDataById","Args":["6229486603953152819"]}'
 

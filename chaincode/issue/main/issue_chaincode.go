@@ -15,8 +15,8 @@ type IssueChaincode struct {
 const COLLECTION_ISSUE string = "collectionIssue"
 
 /**
-   下发机构属性
- */
+  下发机构属性
+*/
 type IssueOrg struct {
 	ID     string `json:"id"`     //下发机构ID
 	Name   string `json:"name"`   //下发机构名称
@@ -24,8 +24,8 @@ type IssueOrg struct {
 }
 
 /**
-   下发机构私有数据属性
- */
+  下发机构私有数据属性
+*/
 type IssueOrgPrivateData struct {
 	ID        string  `json:"id"`        //下发机构ID IssueOrg.ID
 	RateBasic float64 `json:"rateBasic"` //下发机构基础费率
@@ -66,7 +66,7 @@ func (t *IssueChaincode) InitLedger(ctx contractapi.TransactionContextInterface)
 
 /**
   新增下发机构共管账户私有数据
- */
+*/
 func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id string, name string) (string, error) {
 	//公有数据入参参数
 	if len(id) == 0 {
@@ -103,7 +103,7 @@ func (t *IssueChaincode) Create(ctx contractapi.TransactionContextInterface, id 
 		jsonResp := "{\"Error\":\"Failed to get state for " + id + "\"}"
 		return "", errors.New(jsonResp)
 	}
-
+	fmt.Printf("Avalbytes:%v", Avalbytes)
 	if Avalbytes != nil {
 		jsonResp := "{\"Error\":\"Nil amount for " + id + "\"}"
 		return "", errors.New(jsonResp)

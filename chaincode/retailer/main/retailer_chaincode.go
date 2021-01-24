@@ -111,7 +111,7 @@ func (t *RetailerOrgChainCode) Create(ctx contractapi.TransactionContextInterfac
 	}
 
 	if len(financialPrivateDataJsonBytes) == 0 {
-		return "", errors.New("financial value in the transient map must be a non-empty JSON string")
+		return "", errors.New("RetailerOrgChainCode value in the transient map must be a non-empty JSON string")
 	}
 	var retailerOrgPrivateData RetailerOrgPrivateData
 	err = json.Unmarshal(financialPrivateDataJsonBytes, &retailerOrgPrivateData)

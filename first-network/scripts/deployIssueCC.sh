@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/issue.tar.gz --p
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/issue.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=issue_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
+export CC_PACKAGE_ID=issue_1:bd2b1f427a63da875ba6fa12b0b5726c17eec4a1794464dce2753472989267a2
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -47,17 +47,14 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/issue/config/
 # 安装链码
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/issue.tar.gz
 
-# 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=issue_1:b93a20e0ae4bb407093dc51197a01db12e6013bf81e4ee2703541e43dcd7e88d
-
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
 
 # 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
-peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name issue --version 1 --sequence 1 --init-required --package-id $CC_PACKAGE_ID -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')" --waitForEvent
+peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name issue --version 1 --init-required --sequence 1 -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')" --waitForEvent
 
 # 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
-peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name issue --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')"
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name issue --version 1 --sequence 1 --output json --init-required --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')"
 
 exit
 
@@ -71,30 +68,33 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/issue/config/
 # 安装链码
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/issue.tar.gz
 
+# 将链码id设置变量,便于我们后面的使用
+export CC_PACKAGE_ID=issue_1:bd2b1f427a63da875ba6fa12b0b5726c17eec4a1794464dce2753472989267a2
+
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
 
 # 链码认证 根据设置的链码审批规则，只需要当前组织中的任意一个节点审批通过即可
-peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name issue --version 1 --init-required --sequence 1 -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')" --waitForEvent
+peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name issue --version 1 --sequence 1 --init-required --package-id $CC_PACKAGE_ID -o orderer1.org0.example.com:7050 --ordererTLSHostnameOverride orderer1.org0.example.com --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')" --waitForEvent
 
 # 查看链码认证结果 此时只有Org1MSP和Org2MSP审核通过了
-peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name issue --version 1 --sequence 1 --output json --init-required --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')"
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name issue --version 1 --sequence 1 --output json --init-required  --collections-config $CC_CC_PATH --signature-policy "AND('Org1MSP.member', 'Org3MSP.member')"
 
 exit
 
 # pee0-org4安装链码
 docker exec -it cli-org4-peer0 bash
-# 重复pee0-org3安装链码
+# 重复pee0-org2安装链码
 
 # pee0-org5安装链码
 docker exec -it cli-org5-peer0 bash
-# 重复pee0-org3安装链码
+# 重复pee0-org2安装链码
 
 exit
 
 # pee0-org6安装链码
 docker exec -it cli-org6-peer0 bash
-# 重复pee0-org3安装链码
+# 重复pee0-org2安装链码
 exit
 
 
@@ -112,17 +112,18 @@ peer lifecycle chaincode commit -o orderer1.org0.example.com:7050 --channelID $C
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name issue
 
 # 链码执行
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n issue --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org3.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"Args":[]}' --waitForEvent
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n issue --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --isInit  -c '{"Args":[]}' --waitForEvent
 
 ## 测试链码
 # 初始化默认数据
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n issue --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org3.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"InitLedger","Args":[]}' --waitForEvent
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n issue --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"InitLedger","Args":[]}' --waitForEvent
 # 查询默认公开数据
 peer chaincode query -C $CHANNEL_NAME -n issue   -c '{"function":"FindById","Args":["I766005404604841984"]}'
 # 查询默认私有数据
 peer chaincode query -C $CHANNEL_NAME -n issue   -c '{"function":"FindPrivateDataById","Args":["I766005404604841984"]}'
 
 # 新建下发机构
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n issue --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org3.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":["I766005404604841985","新增下发机构1"]}' --waitForEvent
+export MARBLE=$(echo -n "{\"id\":\"M764441096829812123\",\"rateBasic\":0.62}" | base64 | tr -d \\n)
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n issue --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":["I766005404604841985","新增下发机构1"]}' --transient "{\"issue\":\"$MARBLE\"}" --waitForEvent
 
 exit

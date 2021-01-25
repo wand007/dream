@@ -166,7 +166,7 @@ func (t *FinancialChainCode) Create(ctx contractapi.TransactionContextInterface,
 	}
 
 	if Avalbytes != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + id + "\"}"
+		jsonResp := "{\"Error\":\"私有数据不为空 " + id + "\"}"
 		return "", errors.New(jsonResp)
 	}
 	//私有数据

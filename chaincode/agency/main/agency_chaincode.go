@@ -15,8 +15,8 @@ type AgencyOrgChainCode struct {
 const COLLECTION_AGENCY string = "collectionAgency"
 
 /**
- 分销商机构属性
- */
+分销商机构属性
+*/
 type AgencyOrg struct {
 	ID                      string `json:"id"`                      //分销商机构ID
 	Name                    string `json:"name"`                    //分销商机构名称
@@ -25,8 +25,8 @@ type AgencyOrg struct {
 }
 
 /**
- 分销商机构私有数据属性
- */
+分销商机构私有数据属性
+*/
 type AgencyOrgPrivateData struct {
 	ID         string  `json:"id"`         //分销商机构ID
 	IssueOrgID string  `json:"issueOrgID"` //下发机构ID IssueOrg.ID
@@ -71,8 +71,8 @@ func (t *AgencyOrgChainCode) InitLedger(ctx contractapi.TransactionContextInterf
 }
 
 /**
-   新增代理机构共管账户私有数据
- */
+  新增代理机构共管账户私有数据
+*/
 func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface, id string, name string, unifiedSocialCreditCode string) (string, error) {
 	//公有数据入参参数
 	if len(id) == 0 {
@@ -117,7 +117,7 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 	}
 
 	if Avalbytes != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + id + "\"}"
+		jsonResp := "{\"Error\":\"公开数据已存在" + id + "\"}"
 		return "", errors.New(jsonResp)
 	}
 
@@ -129,8 +129,8 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 		return "", errors.New(jsonResp)
 	}
 
-	if resultsIterator != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + name + "\"}"
+	if resultsIterator.HasNext() {
+		jsonResp := "{\"Error\":\"私有数据已存在 " + name + "\"}"
 		return "", errors.New(jsonResp)
 	}
 

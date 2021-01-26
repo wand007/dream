@@ -32,7 +32,7 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 @RestController
 @RequestMapping("general")
-public class financialGeneralAccountClient extends GlobalExceptionHandler {
+public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
 
     @Resource
     Network network;

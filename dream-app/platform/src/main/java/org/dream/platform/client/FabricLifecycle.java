@@ -36,12 +36,12 @@ import static java.lang.String.format;
 public class FabricLifecycle {
     @Resource
     Network network;
-    @Resource(name = "financial-contract")
-    Contract financialContract;
-    @Resource(name = "retailer-contract")
-    Contract retailerContract;
-    @Resource(name = "financial-gateway")
-    GatewayImpl financialGateway;
+//    @Resource(name = "financial-contract")
+//    Contract financialContract;
+//    @Resource(name = "retailer-contract")
+//    Contract retailerContract;
+//    @Resource(name = "financial-gateway")
+//    GatewayImpl financialGateway;
     @Resource(name = "retailer-gateway")
     GatewayImpl retailerGateway;
 

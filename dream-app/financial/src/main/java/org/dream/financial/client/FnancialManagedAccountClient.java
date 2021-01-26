@@ -28,7 +28,7 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 @RestController
-@RequestMapping("financial")
+@RequestMapping("managed")
 public class financialManagedAccountClient extends GlobalExceptionHandler {
 
     @Resource

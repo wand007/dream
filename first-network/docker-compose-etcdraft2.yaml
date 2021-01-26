@@ -643,7 +643,7 @@ services:
     networks:
       - byfn
     ports:
-      - 15051:11051
+      - 15051:15051
     depends_on:
       - couchdb0.org5.example.com
 

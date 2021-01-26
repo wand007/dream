@@ -80,6 +80,86 @@ public class Application {
         }
     }
 
+    @Bean("platform-gateway")
+    public GatewayImpl platformGateway() {
+        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/platform/src/main/resources/connection.json");
+        Path credentialPath = Paths.get("first-network/crypto-config/org1/admin.org1.example.com/msp");
+        try {
+            //使用org1中的user1初始化一个网关wallet账户用于连接网络
+            Wallet wallet = Wallets.newInMemoryWallet();
+            Path certificatePath = credentialPath.resolve(Paths.get("signcerts", "cert.pem"));
+
+            X509Certificate certificate = readX509Certificate(certificatePath);
+
+            Path privateKeyPath = credentialPath.resolve(Paths.get("keystore", "key.pem"));
+
+            PrivateKey privateKey = getPrivateKey(privateKeyPath);
+
+            wallet.put("user", Identities.newX509Identity("Org1MSP", certificate, privateKey));
+
+            //根据connection.json 获取Fabric网络连接对象
+            GatewayImpl.Builder builder = (GatewayImpl.Builder) Gateway.createBuilder();
+
+            builder.identity(wallet, "user").networkConfig(NETWORK_CONFIG_PATH);
+            //连接网关
+            GatewayImpl gateway = builder.connect();
+
+            return gateway;
+
+        } catch (IOException e) {
+            log.error("网关初始化文件失败", e);
+            throw new BusinessException("网关初始化文件失败");
+        } catch (CertificateException e) {
+            log.error("网关初始化认证失败", e);
+            throw new BusinessException("网关初始化认证失败");
+        } catch (InvalidKeyException e) {
+            log.error("网关初始化密钥失败", e);
+            throw new BusinessException("网关初始化密钥失败");
+        }
+    }
+
+    /**
+     * 平台合约对象
+     *
+     * @param gateway
+     * @return
+     */
+    @Bean("platform-contract")
+    @DependsOn("platform-gateway")
+    public Contract platformContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
+        //获取mychannel通道
+        Network network = gateway.getNetwork(CHANNEL_NAME);
+        return network.getContract("platform");
+    }
+
+    /**
+     * 个体合约对象
+     *
+     * @param gateway
+     * @return
+     */
+    @Bean("individual-contract")
+    @DependsOn("platform-gateway")
+    public Contract individualContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
+        //获取mychannel通道
+        Network network = gateway.getNetwork(CHANNEL_NAME);
+        return network.getContract("individual");
+    }
+
+    /**
+     * 个体合约对象
+     *
+     * @param gateway
+     * @return
+     */
+    @Bean("distributionRecord-contract")
+    @DependsOn("platform-gateway")
+    public Contract distributionRecordContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
+        //获取mychannel通道
+        Network network = gateway.getNetwork(CHANNEL_NAME);
+        return network.getContract("distribution_record");
+    }
+
     @Bean("financial-gateway")
     public GatewayImpl financiaGateway() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/financial/src/main/resources/connection.json");
@@ -103,7 +183,6 @@ public class Application {
             builder.identity(wallet, "user").networkConfig(NETWORK_CONFIG_PATH);
             //连接网关
             GatewayImpl gateway = builder.connect();
-
 
             return gateway;
 
@@ -130,9 +209,7 @@ public class Application {
     public Contract financialContract(@Qualifier("financial-gateway") GatewayImpl gateway) {
         //获取mychannel通道
         Network network = gateway.getNetwork(CHANNEL_NAME);
-        //获取合约对象
-        Contract contract = network.getContract("financial");
-        return contract;
+        return network.getContract("financial");
     }
 
     @Bean("retailer-gateway")
@@ -159,7 +236,6 @@ public class Application {
             //连接网关
             GatewayImpl gateway = builder.connect();
 
-
             return gateway;
 
         } catch (IOException e) {
@@ -175,7 +251,7 @@ public class Application {
     }
 
     /**
-     * 金融机构合约对象
+     * 零售机构合约对象
      *
      * @param gateway
      * @return
@@ -185,37 +261,7 @@ public class Application {
     public Contract retailerContract(@Qualifier("retailer-gateway") GatewayImpl gateway) {
         //获取mychannel通道
         Network network = gateway.getNetwork(CHANNEL_NAME);
-        //获取合约对象
-        Contract contract = network.getContract("financial");
-        return contract;
-    }
-
-    /**
-     * 平台合约对象
-     *
-     * @param network
-     * @return
-     */
-    @Bean("platform-contract")
-    @DependsOn("network")
-    public Contract platformContract(Network network) {
-        //获取合约对象
-        Contract contract = network.getContract("platform");
-        return contract;
-    }
-
-    /**
-     * 个体合约对象
-     *
-     * @param network
-     * @return
-     */
-    @Bean("individual-contract")
-    @DependsOn("network")
-    public Contract individualContract(Network network) {
-        //获取合约对象
-        Contract contract = network.getContract("individual");
-        return contract;
+        return network.getContract("retailer");
     }
 
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {

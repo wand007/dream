@@ -94,7 +94,6 @@ public class Application {
     }
 
 
-
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {
         try (Reader certificateReader = Files.newBufferedReader(certificatePath, StandardCharsets.UTF_8)) {
             return Identities.readX509Certificate(certificateReader);

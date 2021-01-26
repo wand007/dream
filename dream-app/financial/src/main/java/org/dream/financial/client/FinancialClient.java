@@ -32,7 +32,7 @@ public class FinancialClient extends GlobalExceptionHandler {
 
     @Resource
     Network network;
-    @Resource
+    @Resource(name = "financial-contract")
     Contract contract;
 
     /**

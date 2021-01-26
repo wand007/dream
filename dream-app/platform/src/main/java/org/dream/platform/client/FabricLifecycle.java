@@ -3,7 +3,6 @@ package org.dream.platform.client;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.platform.IntegrationSuite;
-import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.Network;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.hyperledger.fabric.sdk.*;
@@ -36,14 +35,12 @@ import static java.lang.String.format;
 public class FabricLifecycle {
     @Resource
     Network network;
-//    @Resource(name = "financial-contract")
-//    Contract financialContract;
-//    @Resource(name = "retailer-contract")
-//    Contract retailerContract;
-//    @Resource(name = "financial-gateway")
-//    GatewayImpl financialGateway;
+    @Resource(name = "financial-gateway")
+    GatewayImpl financialGateway;
     @Resource(name = "retailer-gateway")
     GatewayImpl retailerGateway;
+    @Resource(name = "platform-gateway")
+    GatewayImpl platformGateway;
 
 
     private static final String DEFAULT_VALDITATION_PLUGIN = "vscc";
@@ -76,7 +73,7 @@ public class FabricLifecycle {
         org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 
         verifyNoInstalledChaincodes(org1Client, org1MyPeers);
-        HFClient org2Client = retailerGateway.getClient();
+        HFClient org2Client = financialGateway.getClient();
         org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
         Channel org2Channel = network.getChannel();
         Collection<Peer> org2MyPeers = org2Channel.getPeers();

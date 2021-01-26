@@ -207,7 +207,7 @@
       }
     },
     "peer0.org3.example.com": {
-      "url": "grpcs://127.0.0.1:9051",
+      "url": "grpcs://127.0.0.1:11051",
       "grpcOptions": {
         "ssl-target-name-override": "peer0.org3.example.com",
         "hostnameOverride": "peer0.org3.example.com",
@@ -218,7 +218,7 @@
       }
     },
     "peer0.org4.example.com": {
-      "url": "grpcs://127.0.0.1:11051",
+      "url": "grpcs://127.0.0.1:13051",
       "grpcOptions": {
         "ssl-target-name-override": "peer0.org4.example.com",
         "hostnameOverride": "peer0.org4.example.com",
@@ -229,7 +229,7 @@
       }
     },
     "peer0.org5.example.com": {
-      "url": "grpcs://127.0.0.1:13051",
+      "url": "grpcs://127.0.0.1:15051",
       "grpcOptions": {
         "ssl-target-name-override": "peer0.org5.example.com",
         "hostnameOverride": "peer0.org5.example.com",

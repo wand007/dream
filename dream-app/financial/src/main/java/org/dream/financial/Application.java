@@ -78,7 +78,7 @@ public class Application {
         }
     }
 
-    @Bean
+    @Bean("financial-contract")
     @DependsOn("network")
     public Contract contract(Network network) {
         //获取合约对象

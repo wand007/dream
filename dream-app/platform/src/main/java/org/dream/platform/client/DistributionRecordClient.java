@@ -32,7 +32,7 @@ public class DistributionRecordClient extends GlobalExceptionHandler {
 
     @Resource
     Network network;
-    @Resource
+    @Resource(name = "distributionRecord-contract")
     Contract contract;
 
 

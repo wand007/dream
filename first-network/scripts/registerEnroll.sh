@@ -7,7 +7,7 @@
 
 
 ## 首次运行清除docker影响
-docker-compose -f docker-compose-ca.yaml  down --volumes --remove-orphans
+# docker-compose -f docker-compose-ca.yaml  down --volumes --remove-orphans
 
 ## docker ps -a|awk '{print $1}'|xargs -i docker stop {}
 ## docker ps -a|awk '{print $1}'|xargs -i docker rm {}

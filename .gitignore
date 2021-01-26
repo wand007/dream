@@ -55,3 +55,7 @@ HELP.md
 
 ### VS Code ###
 .vscode/
+
+### Fabric ###
+**/data/
+**/vendor/

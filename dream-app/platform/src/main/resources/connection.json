@@ -149,7 +149,7 @@
       }
     },
     "orderer2.org0.example.com": {
-      "url": "grpcs://127.0.0.1:7050",
+      "url": "grpcs://127.0.0.1:8050",
       "mspid": "Org0MSP",
       "grpcOptions": {
         "ssl-target-name-override": "orderer2.org0.example.com",
@@ -166,7 +166,7 @@
       }
     },
     "orderer3.org0.example.com": {
-      "url": "grpcs://127.0.0.1:7050",
+      "url": "grpcs://127.0.0.1:9050",
       "mspid": "Org0MSP",
       "grpcOptions": {
         "ssl-target-name-override": "orderer3.org0.example.com",

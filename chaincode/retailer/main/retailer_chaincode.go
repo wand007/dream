@@ -145,9 +145,10 @@ func (t *RetailerOrgChainCode) Create(ctx contractapi.TransactionContextInterfac
 		jsonResp := "{\"Error\":\"Failed to get state for " + unifiedSocialCreditCode + "\"}"
 		return "", errors.New(jsonResp)
 	}
+	defer resultsIterator.Close()
 
-	if resultsIterator != nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + unifiedSocialCreditCode + "\"}"
+	if resultsIterator.HasNext() {
+		jsonResp := "{\"Error\":\"私有数据已存在 " + name + "\"}"
 		return "", errors.New(jsonResp)
 	}
 

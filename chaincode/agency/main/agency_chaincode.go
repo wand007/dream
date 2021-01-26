@@ -128,6 +128,7 @@ func (t *AgencyOrgChainCode) Create(ctx contractapi.TransactionContextInterface,
 		jsonResp := "{\"Error\":\"Failed to get state for " + name + "\"}"
 		return "", errors.New(jsonResp)
 	}
+	defer resultsIterator.Close()
 
 	if resultsIterator.HasNext() {
 		jsonResp := "{\"Error\":\"私有数据已存在 " + name + "\"}"

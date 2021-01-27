@@ -46,8 +46,9 @@ public class FabricLifecycle {
     private static final String DEFAULT_VALDITATION_PLUGIN = "vscc";
     private static final String DEFAULT_ENDORSMENT_PLUGIN = "escc";
 
-    private static final String CHAIN_CODE_PATH = "chaincode/financial/main";
-    private static final String TEST_FIXTURES_PATH = "chaincode/financial/config/collections_config.json";
+    private static final String CHAIN_CODE_PATH = "first-network/chaincode/financial/chaincode-artifacts";
+    private static final String TEST_FIXTURES_PATH = "first-network/chaincode/financial/config/collections_config.json";
+    public static final Path TEST_FIXTURE_PATH = Paths.get("first-network/chaincode/financial/main");
     private static final String CHAIN_CODE_VERSION = "1";
     private static final String ORG_1_MSP = "Org1MSP";
     private static final String ORG_2_MSP = "Org2MSP";
@@ -67,16 +68,15 @@ public class FabricLifecycle {
     public void runFabricLifecycle() throws IOException, InvalidArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException, CryptoException, ClassNotFoundException, ChaincodeEndorsementPolicyParseException, ProposalException, ChaincodeCollectionConfigurationException {
         HFClient org1Client = retailerGateway.getClient();
         Channel org1Channel = network.getChannel();
-
         Collection<Peer> org1MyPeers = org1Channel.getPeers();
-
-        org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+//        org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 
         verifyNoInstalledChaincodes(org1Client, org1MyPeers);
+
         HFClient org2Client = financialGateway.getClient();
-        org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
         Channel org2Channel = network.getChannel();
         Collection<Peer> org2MyPeers = org2Channel.getPeers();
+        org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 
         verifyNoInstalledChaincodes(org2Client, org2MyPeers);
         //    verifyNotInstalledChaincode(org2Client, org2MyPeers, CHAIN_CODE_NAME, CHAIN_CODE_VERSION);
@@ -90,9 +90,9 @@ public class FabricLifecycle {
         ////  DO Go with our own endorsement policy
 
         LifecycleChaincodePackage lifecycleChaincodePackage = createLifecycleChaincodePackage(
-                "lc_example_cc_go_1", // some label
+                "platform_cc_go_1", // some label
                 TransactionRequest.Type.GO_LANG,
-                IntegrationSuite.getGoChaincodePath("sample1").toString(),
+                TEST_FIXTURE_PATH.toString(),
                 CHAIN_CODE_PATH,
                 null);
 
@@ -116,7 +116,7 @@ public class FabricLifecycle {
         LifecycleChaincodePackage lifecycleChaincodePackageUpdate = createLifecycleChaincodePackage(
                 "lc_example_cc_go_11", // some label
                 TransactionRequest.Type.GO_LANG,
-                IntegrationSuite.getGoChaincodePath("sample_11").toString(),
+                TEST_FIXTURE_PATH.toString(),
                 CHAIN_CODE_PATH,
                 null); // no metadata this time.
 
@@ -138,7 +138,7 @@ public class FabricLifecycle {
         LifecycleChaincodePackage lifecycleChaincodePackageNoInit = createLifecycleChaincodePackage(
                 "lc_example_cc_go_1", // some label
                 TransactionRequest.Type.GO_LANG,
-                IntegrationSuite.getGoChaincodePath("sample1NoInit").toString(),
+                TEST_FIXTURE_PATH.toString(),
                 CHAIN_CODE_PATH,
                 null);
 

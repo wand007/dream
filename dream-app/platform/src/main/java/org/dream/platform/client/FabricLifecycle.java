@@ -4,7 +4,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.platform.IntegrationSuite;
 import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
+import org.hyperledger.fabric.gateway.impl.NetworkImpl;
 import org.hyperledger.fabric.sdk.*;
 import org.hyperledger.fabric.sdk.exception.*;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import static java.lang.String.format;
+import static org.dream.core.config.HFConfig.CHANNEL_NAME;
 
 /**
  * @author 咚咚锵
@@ -34,13 +37,15 @@ import static java.lang.String.format;
 @RestController
 public class FabricLifecycle {
     @Resource
-    Network network;
-    @Resource(name = "financial-gateway")
-    GatewayImpl financialGateway;
-    @Resource(name = "retailer-gateway")
-    GatewayImpl retailerGateway;
-    @Resource(name = "platform-gateway")
-    GatewayImpl platformGateway;
+    NetworkImpl network;
+//    @Resource(name = "financial-gateway")
+//    GatewayImpl financialGateway;
+//    @Resource(name = "retailer-gateway")
+//    GatewayImpl retailerGateway;
+//    @Resource(name = "platform-gateway")
+//    GatewayImpl platformGateway;
+    @Resource(name = "platform-contract")
+    ContractImpl platformContract;
 
 
     private static final String DEFAULT_VALDITATION_PLUGIN = "vscc";
@@ -66,15 +71,17 @@ public class FabricLifecycle {
 
     @GetMapping({"runFabricLifecycle"})
     public void runFabricLifecycle() throws IOException, InvalidArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException, CryptoException, ClassNotFoundException, ChaincodeEndorsementPolicyParseException, ProposalException, ChaincodeCollectionConfigurationException {
-        HFClient org1Client = retailerGateway.getClient();
-        Channel org1Channel = network.getChannel();
+        GatewayImpl platformGateway = platformContract.getNetwork().getGateway();
+
+        HFClient org1Client = platformGateway.getClient();
+        Channel org1Channel = platformContract.getNetwork().getChannel();
         Collection<Peer> org1MyPeers = org1Channel.getPeers();
 //        org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 
         verifyNoInstalledChaincodes(org1Client, org1MyPeers);
 
-        HFClient org2Client = financialGateway.getClient();
-        Channel org2Channel = network.getChannel();
+        HFClient org2Client = platformGateway.getClient();
+        Channel org2Channel = platformGateway.getNetwork(CHANNEL_NAME).getChannel();
         Collection<Peer> org2MyPeers = org2Channel.getPeers();
         org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 

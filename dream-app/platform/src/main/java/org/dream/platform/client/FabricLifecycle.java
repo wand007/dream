@@ -2,11 +2,8 @@ package org.dream.platform.client;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
-import org.dream.platform.IntegrationSuite;
-import org.hyperledger.fabric.gateway.Network;
 import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
-import org.hyperledger.fabric.gateway.impl.NetworkImpl;
 import org.hyperledger.fabric.sdk.*;
 import org.hyperledger.fabric.sdk.exception.*;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
@@ -36,16 +33,12 @@ import static org.dream.core.config.HFConfig.CHANNEL_NAME;
 @Slf4j
 @RestController
 public class FabricLifecycle {
-    @Resource
-    NetworkImpl network;
-//    @Resource(name = "financial-gateway")
-//    GatewayImpl financialGateway;
-//    @Resource(name = "retailer-gateway")
-//    GatewayImpl retailerGateway;
-//    @Resource(name = "platform-gateway")
-//    GatewayImpl platformGateway;
     @Resource(name = "platform-contract")
     ContractImpl platformContract;
+    @Resource(name = "financial-contract")
+    ContractImpl financialContract;
+    @Resource(name = "retailer-contract")
+    ContractImpl retailerContract;
 
 
     private static final String DEFAULT_VALDITATION_PLUGIN = "vscc";
@@ -80,8 +73,9 @@ public class FabricLifecycle {
 
         verifyNoInstalledChaincodes(org1Client, org1MyPeers);
 
-        HFClient org2Client = platformGateway.getClient();
-        Channel org2Channel = platformGateway.getNetwork(CHANNEL_NAME).getChannel();
+        GatewayImpl financialGateway = financialContract.getNetwork().getGateway();
+        HFClient org2Client = financialGateway.getClient();
+        Channel org2Channel = financialGateway.getNetwork(CHANNEL_NAME).getChannel();
         Collection<Peer> org2MyPeers = org2Channel.getPeers();
         org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 

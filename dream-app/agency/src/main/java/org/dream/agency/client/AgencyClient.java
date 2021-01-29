@@ -7,9 +7,8 @@ import org.dream.agency.param.rsp.AgencyOrg;
 import org.dream.agency.param.rsp.AgencyPrivateData;
 import org.dream.core.base.BusinessResponse;
 import org.dream.core.base.GlobalExceptionHandler;
-import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
-import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,10 +29,8 @@ import java.util.concurrent.TimeoutException;
 @RestController
 public class AgencyClient extends GlobalExceptionHandler {
 
-    @Resource
-    Network network;
-    @Resource
-    Contract contract;
+    @Resource(name = "agency-contract")
+    ContractImpl contract;
 
     /**
      * 分销商机构公开数据查询
@@ -81,7 +78,7 @@ public class AgencyClient extends GlobalExceptionHandler {
             }
         };
         byte[] bytes = contract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit(param.getId(), param.getName());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));

@@ -7,9 +7,8 @@ import org.dream.core.base.GlobalExceptionHandler;
 import org.dream.retailer.param.rqs.RetailerOrgCreate;
 import org.dream.retailer.param.rsp.RetailerOrg;
 import org.dream.retailer.param.rsp.RetailerOrgPrivateData;
-import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
-import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,10 +26,8 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 @RestController
 public class RetailerClient extends GlobalExceptionHandler {
-    @Resource
-    Network network;
     @Resource(name = "retailer-contract")
-    Contract retailerContract;
+    ContractImpl retailerContract;
 
     /**
      * 金融机构公开数据查询
@@ -71,7 +68,7 @@ public class RetailerClient extends GlobalExceptionHandler {
     public BusinessResponse create(@RequestBody @Valid RetailerOrgCreate param)
             throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = retailerContract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(retailerContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(param.getId(), param.getName(), param.getAgencyOrgID(), String.valueOf(param.getUnifiedSocialCreditCode()));
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));

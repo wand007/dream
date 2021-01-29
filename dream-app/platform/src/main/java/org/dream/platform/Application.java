@@ -88,14 +88,9 @@ public class Application {
     @Bean("platform-contract")
     @DependsOn("platform-gateway")
     public ContractImpl platformContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
-
         //获取mychannel通道
         Network network = gateway.getNetwork(CHANNEL_NAME);
-
-        ContractImpl contract = (ContractImpl) network.getContract("platform");
-        return contract;
-
-
+        return (ContractImpl) network.getContract("platform");
     }
 
     /**
@@ -106,10 +101,10 @@ public class Application {
      */
     @Bean("individual-contract")
     @DependsOn("platform-gateway")
-    public Contract individualContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
+    public ContractImpl individualContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
         //获取mychannel通道
         Network network = gateway.getNetwork(CHANNEL_NAME);
-        return network.getContract("individual");
+        return (ContractImpl) network.getContract("individual");
     }
 
     /**
@@ -120,14 +115,19 @@ public class Application {
      */
     @Bean("distributionRecord-contract")
     @DependsOn("platform-gateway")
-    public Contract distributionRecordContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
+    public ContractImpl distributionRecordContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
         //获取mychannel通道
         Network network = gateway.getNetwork(CHANNEL_NAME);
-        return network.getContract("distribution_record");
+        return (ContractImpl) network.getContract("distribution_record");
     }
 
-    @Bean("financial-gateway")
-    public GatewayImpl financiaGateway() {
+    /**
+     * 金融机构合约对象
+     *
+     * @return
+     */
+    @Bean("financial-contract")
+    public ContractImpl financialContract() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/financial/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org2/admin.org2.example.com/msp");
         try {
@@ -150,7 +150,9 @@ public class Application {
             //连接网关
             GatewayImpl gateway = builder.connect();
 
-            return gateway;
+            //获取mychannel通道
+            Network network = gateway.getNetwork(CHANNEL_NAME);
+            return (ContractImpl) network.getContract("financial");
 
         } catch (IOException e) {
             log.error("网关初始化文件失败", e);
@@ -164,20 +166,6 @@ public class Application {
         }
     }
 
-    /**
-     * 金融机构合约对象
-     *
-     * @param gateway
-     * @return
-     */
-    @Bean("financial-contract")
-    @DependsOn("financial-gateway")
-    public Contract financialContract(@Qualifier("financial-gateway") GatewayImpl gateway) {
-
-        //获取mychannel通道
-        Network network = gateway.getNetwork(CHANNEL_NAME);
-        return network.getContract("financial");
-    }
 
     /**
      * 零售机构合约对象
@@ -185,7 +173,7 @@ public class Application {
      * @return
      */
     @Bean("retailer-contract")
-    public ContractImpl retailerGateway() {
+    public ContractImpl retailerContract() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/retailer/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org5/admin.org5.example.com/msp");
         try {

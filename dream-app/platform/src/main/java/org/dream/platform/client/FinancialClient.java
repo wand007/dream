@@ -10,6 +10,7 @@ import org.dream.platform.param.rsp.FinancialOrgPrivateData;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
 import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,10 +30,8 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping("financial")
 public class FinancialClient extends GlobalExceptionHandler {
 
-    @Resource
-    Network network;
     @Resource(name = "financial-contract")
-    Contract financialContract;
+    ContractImpl financialContract;
 
 
     /**
@@ -73,7 +72,7 @@ public class FinancialClient extends GlobalExceptionHandler {
     @PostMapping({"create"})
     public BusinessResponse create(@RequestBody @Valid FinancialOrgCreate param) throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = financialContract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(financialContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(param.getId(), param.getName(), param.getCode(), String.valueOf(param.getStatus()));
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
 //        TransactionId 不知道在哪里存着的

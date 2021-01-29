@@ -6,9 +6,8 @@ import org.dream.core.base.BusinessResponse;
 import org.dream.core.base.GlobalExceptionHandler;
 import org.dream.platform.param.rqs.DistributionRecordCreate;
 import org.dream.platform.param.rsp.DistributionRecordPrivateData;
-import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
-import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,10 +29,8 @@ import java.util.concurrent.TimeoutException;
 public class DistributionRecordClient extends GlobalExceptionHandler {
 
 
-    @Resource
-    Network network;
     @Resource(name = "distributionRecord-contract")
-    Contract contract;
+    ContractImpl distributionRecordContract;
 
 
     /**
@@ -45,7 +42,7 @@ public class DistributionRecordClient extends GlobalExceptionHandler {
      */
     @GetMapping({"findPrivateDataById"})
     public BusinessResponse FindPrivateDataById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = contract.evaluateTransaction("FindPrivateDataById", id);
+        byte[] bytes = distributionRecordContract.evaluateTransaction("FindPrivateDataById", id);
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), DistributionRecordPrivateData.class));
     }
@@ -67,8 +64,8 @@ public class DistributionRecordClient extends GlobalExceptionHandler {
                 put("distributionRecord", JSON.toJSONString(param).getBytes());
             }
         };
-        byte[] bytes = contract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+        byte[] bytes = distributionRecordContract.createTransaction("Create")
+                .setEndorsingPeers(distributionRecordContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit();
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));

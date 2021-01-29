@@ -10,6 +10,7 @@ import org.dream.issue.param.rsp.IssueOrgPrivateData;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
 import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,10 +30,9 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 @RestController
 public class IssueClient extends GlobalExceptionHandler {
-    @Resource
-    Network network;
+
     @Resource(name = "issue-contract")
-    Contract issueContract;
+    ContractImpl issueContract;
 
     /**
      * 下发机构公开数据查询
@@ -81,7 +81,7 @@ public class IssueClient extends GlobalExceptionHandler {
             }
         };
         byte[] bytes = issueContract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(issueContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit(param.getId(), param.getName());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));

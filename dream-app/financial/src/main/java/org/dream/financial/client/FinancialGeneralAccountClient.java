@@ -9,9 +9,8 @@ import org.dream.financial.param.rqs.FinancialOrgRealization;
 import org.dream.financial.param.rsp.FinancialOrg;
 import org.dream.financial.param.rsp.FinancialOrgGeneralAccountPrivateData;
 import org.dream.financial.param.rsp.FinancialOrgPrivateData;
-import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
-import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,10 +33,8 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping("general")
 public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
 
-    @Resource
-    Network network;
-    @Resource
-    Contract contract;
+    @Resource(name = "financial-contract")
+    ContractImpl contract;
 
     /**
      * 金融机构公开数据查询
@@ -93,7 +90,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
             }
         };
         byte[] bytes = contract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit();
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
@@ -111,7 +108,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
     public BusinessResponse realization(@RequestBody @Valid FinancialOrgRealization param)
             throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = contract.createTransaction("Realization")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(param.getManagedCardNo(), param.getGeneralCardNo(), param.getVoucherAmount().toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
@@ -133,7 +130,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
                                               @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
             throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = contract.createTransaction("TransferCashAsset")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
@@ -155,7 +152,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
                                                  @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
             throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = contract.createTransaction("TransferVoucherAsset")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
@@ -178,7 +175,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
                                           @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
             throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = contract.createTransaction("TransferAsset")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));

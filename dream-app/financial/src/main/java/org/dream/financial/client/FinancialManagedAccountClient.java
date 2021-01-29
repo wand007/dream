@@ -6,9 +6,8 @@ import org.dream.core.base.BusinessResponse;
 import org.dream.core.base.GlobalExceptionHandler;
 import org.dream.financial.param.rqs.FinancialOrgManagedAccountPrivateDataCreate;
 import org.dream.financial.param.rsp.FinancialOrgPrivateData;
-import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
-import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +30,8 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping("managed")
 public class FinancialManagedAccountClient extends GlobalExceptionHandler {
 
-    @Resource
-    Network network;
-    @Resource
-    Contract contract;
+    @Resource(name = "financial-contract")
+    ContractImpl contract;
 
 
     /**
@@ -66,7 +63,7 @@ public class FinancialManagedAccountClient extends GlobalExceptionHandler {
             }
         };
         byte[] bytes = contract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit();
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
@@ -91,7 +88,7 @@ public class FinancialManagedAccountClient extends GlobalExceptionHandler {
                                                  @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
             throws ContractException, TimeoutException, InterruptedException {
         byte[] bytes = contract.createTransaction("TransferVoucherAsset")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(managedCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));

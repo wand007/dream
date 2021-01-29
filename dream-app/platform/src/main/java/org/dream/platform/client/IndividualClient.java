@@ -11,6 +11,7 @@ import org.dream.platform.param.rsp.IndividualPrivateData;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
 import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +33,8 @@ import java.util.concurrent.TimeoutException;
 @RestController
 @RequestMapping("individual")
 public class IndividualClient extends GlobalExceptionHandler {
-    @Resource
-    Network network;
     @Resource(name = "individual-contract")
-    Contract individualContract;
+    ContractImpl individualContract;
 
     /**
      * 个体公开数据查询
@@ -127,7 +126,7 @@ public class IndividualClient extends GlobalExceptionHandler {
             }
         };
         byte[] bytes = individualContract.createTransaction("Create")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(individualContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit();
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
@@ -168,7 +167,7 @@ public class IndividualClient extends GlobalExceptionHandler {
             }
         };
         byte[] bytes = individualContract.createTransaction("Update")
-                .setEndorsingPeers(network.getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+                .setEndorsingPeers(individualContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit();
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));

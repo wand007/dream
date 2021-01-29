@@ -40,7 +40,7 @@ public class Application {
     }
 
 
-    @Bean
+    @Bean(name = "agency-contract")
     public ContractImpl agencyContract() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/agency/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org4/admin.org4.example.com/msp");

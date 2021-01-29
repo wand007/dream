@@ -3,6 +3,7 @@ package org.dream.issue;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.core.base.BusinessException;
 import org.hyperledger.fabric.gateway.*;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,9 +39,13 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-
-    @Bean("network")
-    public Network network() {
+    /**
+     * 下发机构合约对象
+     *
+     * @return
+     */
+    @Bean("issue-contract")
+    public ContractImpl issueContract() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/issue/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org3/admin.org3.example.com/msp");
         try {
@@ -64,8 +69,9 @@ public class Application {
             Gateway gateway = builder.connect();
             //获取mychannel通道
             Network network = gateway.getNetwork(CHANNEL_NAME);
-
-            return network;
+            //获取合约对象
+            ContractImpl contract = (ContractImpl) network.getContract("issue");
+            return contract;
 
         } catch (IOException e) {
             log.error("网关初始化文件失败", e);
@@ -78,21 +84,6 @@ public class Application {
             throw new BusinessException("网关初始化密钥失败");
         }
     }
-
-    /**
-     * 下发机构合约对象
-     *
-     * @param network
-     * @return
-     */
-    @Bean("issue-contract")
-    @DependsOn("network")
-    public Contract issueContract(Network network) {
-        //获取合约对象
-        Contract contract = network.getContract("issue");
-        return contract;
-    }
-
 
 
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {

@@ -41,46 +41,6 @@ public class Application {
     }
 
 
-    @Bean("network")
-    public Network network() {
-        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/platform/src/main/resources/connection.json");
-        Path credentialPath = Paths.get("first-network/crypto-config/org1/admin.org1.example.com/msp");
-        try {
-            //使用org1中的user1初始化一个网关wallet账户用于连接网络
-            Wallet wallet = Wallets.newInMemoryWallet();
-            Path certificatePath = credentialPath.resolve(Paths.get("signcerts", "cert.pem"));
-
-            X509Certificate certificate = readX509Certificate(certificatePath);
-
-            Path privateKeyPath = credentialPath.resolve(Paths.get("keystore", "key.pem"));
-
-            PrivateKey privateKey = getPrivateKey(privateKeyPath);
-
-            wallet.put("user", Identities.newX509Identity("Org1MSP", certificate, privateKey));
-
-            //根据connection.json 获取Fabric网络连接对象
-            GatewayImpl.Builder builder = (GatewayImpl.Builder) Gateway.createBuilder();
-
-            builder.identity(wallet, "user").networkConfig(NETWORK_CONFIG_PATH);
-            //连接网关
-            Gateway gateway = builder.connect();
-            //获取mychannel通道
-            Network network = gateway.getNetwork(CHANNEL_NAME);
-
-            return network;
-
-        } catch (IOException e) {
-            log.error("网关初始化文件失败", e);
-            throw new BusinessException("网关初始化文件失败");
-        } catch (CertificateException e) {
-            log.error("网关初始化认证失败", e);
-            throw new BusinessException("网关初始化认证失败");
-        } catch (InvalidKeyException e) {
-            log.error("网关初始化密钥失败", e);
-            throw new BusinessException("网关初始化密钥失败");
-        }
-    }
-
     @Bean("platform-gateway")
     public GatewayImpl platformGateway() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/platform/src/main/resources/connection.json");
@@ -126,45 +86,14 @@ public class Application {
      * @return
      */
     @Bean("platform-contract")
-    public ContractImpl platformContract() {
+    @DependsOn("platform-gateway")
+    public ContractImpl platformContract(@Qualifier("platform-gateway") GatewayImpl gateway) {
 
-        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/platform/src/main/resources/connection.json");
-        Path credentialPath = Paths.get("first-network/crypto-config/org1/admin.org1.example.com/msp");
-        try {
-            //使用org1中的user1初始化一个网关wallet账户用于连接网络
-            Wallet wallet = Wallets.newInMemoryWallet();
-            Path certificatePath = credentialPath.resolve(Paths.get("signcerts", "cert.pem"));
+        //获取mychannel通道
+        Network network = gateway.getNetwork(CHANNEL_NAME);
 
-            X509Certificate certificate = readX509Certificate(certificatePath);
-
-            Path privateKeyPath = credentialPath.resolve(Paths.get("keystore", "key.pem"));
-
-            PrivateKey privateKey = getPrivateKey(privateKeyPath);
-
-            wallet.put("user", Identities.newX509Identity("Org1MSP", certificate, privateKey));
-
-            //根据connection.json 获取Fabric网络连接对象
-            GatewayImpl.Builder builder = (GatewayImpl.Builder) Gateway.createBuilder();
-
-            builder.identity(wallet, "user").networkConfig(NETWORK_CONFIG_PATH);
-            //连接网关
-            Gateway gateway = builder.connect();
-            //获取mychannel通道
-            Network network = gateway.getNetwork(CHANNEL_NAME);
-
-            ContractImpl contract = (ContractImpl) network.getContract("platform");
-            return contract;
-
-        } catch (IOException e) {
-            log.error("网关初始化文件失败", e);
-            throw new BusinessException("网关初始化文件失败");
-        } catch (CertificateException e) {
-            log.error("网关初始化认证失败", e);
-            throw new BusinessException("网关初始化认证失败");
-        } catch (InvalidKeyException e) {
-            log.error("网关初始化密钥失败", e);
-            throw new BusinessException("网关初始化密钥失败");
-        }
+        ContractImpl contract = (ContractImpl) network.getContract("platform");
+        return contract;
 
 
     }
@@ -244,13 +173,19 @@ public class Application {
     @Bean("financial-contract")
     @DependsOn("financial-gateway")
     public Contract financialContract(@Qualifier("financial-gateway") GatewayImpl gateway) {
+
         //获取mychannel通道
         Network network = gateway.getNetwork(CHANNEL_NAME);
         return network.getContract("financial");
     }
 
-    @Bean("retailer-gateway")
-    public GatewayImpl retailerGateway() {
+    /**
+     * 零售机构合约对象
+     *
+     * @return
+     */
+    @Bean("retailer-contract")
+    public ContractImpl retailerGateway() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/retailer/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org5/admin.org5.example.com/msp");
         try {
@@ -273,7 +208,9 @@ public class Application {
             //连接网关
             GatewayImpl gateway = builder.connect();
 
-            return gateway;
+            //获取mychannel通道
+            Network network = gateway.getNetwork(CHANNEL_NAME);
+            return (ContractImpl) network.getContract("retailer");
 
         } catch (IOException e) {
             log.error("网关初始化文件失败", e);
@@ -287,19 +224,6 @@ public class Application {
         }
     }
 
-    /**
-     * 零售机构合约对象
-     *
-     * @param gateway
-     * @return
-     */
-    @Bean("retailer-contract")
-    @DependsOn("retailer-gateway")
-    public Contract retailerContract(@Qualifier("retailer-gateway") GatewayImpl gateway) {
-        //获取mychannel通道
-        Network network = gateway.getNetwork(CHANNEL_NAME);
-        return network.getContract("retailer");
-    }
 
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {
         try (Reader certificateReader = Files.newBufferedReader(certificatePath, StandardCharsets.UTF_8)) {

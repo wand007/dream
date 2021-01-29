@@ -3,6 +3,7 @@ package org.dream.retailer;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.core.base.BusinessException;
 import org.hyperledger.fabric.gateway.*;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -39,8 +40,13 @@ public class Application {
     }
 
 
-    @Bean("network")
-    public Network network() {
+    /**
+     * 零售商机构合约对象
+     *
+     * @return
+     */
+    @Bean("retailer-contract")
+    public ContractImpl retailerContract() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/retailer/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org5/admin.org5.example.com/msp");
         try {
@@ -64,8 +70,9 @@ public class Application {
             Gateway gateway = builder.connect();
             //获取mychannel通道
             Network network = gateway.getNetwork(CHANNEL_NAME);
-
-            return network;
+            //获取合约对象
+            ContractImpl contract = (ContractImpl) network.getContract("retailer");
+            return contract;
 
         } catch (IOException e) {
             log.error("网关初始化文件失败", e);
@@ -77,20 +84,6 @@ public class Application {
             log.error("网关初始化密钥失败", e);
             throw new BusinessException("网关初始化密钥失败");
         }
-    }
-
-    /**
-     * 零售商机构合约对象
-     *
-     * @param network
-     * @return
-     */
-    @Bean("retailer-contract")
-    @DependsOn("network")
-    public Contract platformContract(Network network) {
-        //获取合约对象
-        Contract contract = network.getContract("retailer");
-        return contract;
     }
 
 

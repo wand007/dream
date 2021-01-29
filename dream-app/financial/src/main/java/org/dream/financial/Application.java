@@ -3,6 +3,7 @@ package org.dream.financial;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.core.base.BusinessException;
 import org.hyperledger.fabric.gateway.*;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,8 +39,13 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean("network")
-    public Network network() {
+    /**
+     * 金融机构服务合约对象
+     *
+     * @return
+     */
+    @Bean("financial-contract")
+    public ContractImpl financialContract() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/financial/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org2/admin.org2.example.com/msp");
         try {
@@ -64,7 +70,9 @@ public class Application {
             //获取mychannel通道
             Network network = gateway.getNetwork(CHANNEL_NAME);
 
-            return network;
+            //获取合约对象
+            ContractImpl contract = (ContractImpl) network.getContract("financial");
+            return contract;
 
         } catch (IOException e) {
             log.error("网关初始化文件失败", e);
@@ -78,13 +86,6 @@ public class Application {
         }
     }
 
-    @Bean("financial-contract")
-    @DependsOn("network")
-    public Contract contract(Network network) {
-        //获取合约对象
-        Contract contract = network.getContract("financial");
-        return contract;
-    }
 
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {
         try (Reader certificateReader = Files.newBufferedReader(certificatePath, StandardCharsets.UTF_8)) {

@@ -3,6 +3,7 @@ package org.dream.agency;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.core.base.BusinessException;
 import org.hyperledger.fabric.gateway.*;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -39,9 +40,9 @@ public class Application {
     }
 
 
-    @Bean("network")
-    public Network network() {
-        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/financial/src/main/resources/connection.json");
+    @Bean
+    public ContractImpl agencyContract() {
+        Path NETWORK_CONFIG_PATH = Paths.get("dream-app/agency/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org4/admin.org4.example.com/msp");
         try {
             //使用org1中的user1初始化一个网关wallet账户用于连接网络
@@ -65,7 +66,8 @@ public class Application {
             //获取mychannel通道
             Network network = gateway.getNetwork(CHANNEL_NAME);
 
-            return network;
+            ContractImpl contract = (ContractImpl) network.getContract("agency");
+            return contract;
 
         } catch (IOException e) {
             log.error("网关初始化文件失败", e);
@@ -79,13 +81,6 @@ public class Application {
         }
     }
 
-    @Bean
-    @DependsOn("network")
-    public Contract contract(Network network) {
-        //获取合约对象
-        Contract contract = network.getContract("agency");
-        return contract;
-    }
 
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {
         try (Reader certificateReader = Files.newBufferedReader(certificatePath, StandardCharsets.UTF_8)) {

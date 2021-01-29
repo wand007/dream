@@ -10,6 +10,7 @@ import org.dream.platform.param.rsp.PlatformOrg;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
 import org.hyperledger.fabric.gateway.Network;
+import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,10 +26,9 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 @RestController
 public class PlatformClient extends GlobalExceptionHandler {
-    @Resource
-    Network network;
+
     @Resource(name = "platform-contract")
-    Contract platformContract;
+    ContractImpl platformContract;
 
     /**
      * 平台机构公开数据查询

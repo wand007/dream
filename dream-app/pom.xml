@@ -189,7 +189,7 @@
                     <include>**/*.properties</include>
                     <include>**/*.yml</include>
                     <include>**/*.yaml</include>
-                    <include>*/*.json</include>
+                    <include>**/*.json</include>
                 </includes>
             </resource>
             <resource>
@@ -201,7 +201,7 @@
                     <include>*.properties</include>
                     <include>*.yml</include>
                     <include>*.yaml</include>
-                    <include>*/*.json</include>
+                    <include>*.json</include>
                 </includes>
             </resource>
         </resources>
@@ -241,7 +241,7 @@
                                         <include>**/*.properties</include>
                                         <include>**/*.yml</include>
                                         <include>**/*.yaml</include>
-                                        <include>*/*.json</include>
+                                        <include>**/*.json</include>
                                     </includes>
                                 </resource>
                                 <resource>
@@ -253,7 +253,7 @@
                                         <include>*.properties</include>
                                         <include>*.yml</include>
                                         <include>*.yaml</include>
-                                        <include>*/*.json</include>
+                                        <include>*.json</include>
                                         <include>**/templates/</include>
                                         <include>**/static/</include>
                                     </includes>

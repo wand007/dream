@@ -26,46 +26,32 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author 咚咚锵
  * @date 2021/1/16 21:11
- * @description 金融机构链码客户端
+ * @description 金融机构一般账户链码客户端
  */
 @Slf4j
 @RestController
 @RequestMapping("general")
 public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
 
-    @Resource(name = "financial-contract")
-    ContractImpl contract;
+    @Resource(name = "financial-general-contract")
+    ContractImpl financialGeneralContract;
 
     /**
-     * 金融机构公开数据查询
+     * 金融机构一般账户私有数据查询
      *
-     * @param id 金融机构ID
-     * @return
-     * @throws ContractException
-     */
-    @GetMapping({"findById"})
-    public BusinessResponse findById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = contract.evaluateTransaction("FindById", id);
-        System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
-        return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), FinancialOrg.class));
-    }
-
-    /**
-     * 金融机构私有数据查询
-     *
-     * @param id 金融机构ID
+     * @param id 金融机构一般账户ID
      * @return
      * @throws ContractException
      */
     @GetMapping({"findPrivateDataById"})
     public BusinessResponse FindPrivateDataById(@RequestParam(name = "id") String id) throws ContractException {
-        byte[] bytes = contract.evaluateTransaction("FindPrivateDataById", id);
+        byte[] bytes = financialGeneralContract.evaluateTransaction("FindPrivateDataById", id);
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), FinancialOrgPrivateData.class));
     }
 
     /**
-     * 金融机构新建
+     * 金融机构一般账户新建
      *
      * @param param
      * @return
@@ -75,22 +61,13 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
     public BusinessResponse create(@RequestBody @Valid FinancialOrgGeneralAccountCreate param)
             throws ContractException, TimeoutException, InterruptedException {
 
-
         Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
                 put("generalAccount", JSON.toJSONString(param).getBytes());
-//                put("currentBalance", param.getCurrentBalance().toPlainString().getBytes());
-//                put("voucherCurrentBalance", param.getVoucherCurrentBalance().toPlainString().getBytes());
-//                put("cardNo", param.getCardNo().getBytes());
-//                put("accStatus", String.valueOf(param.getAccStatus()).getBytes());
-//                put("certificateNo", param.getCertificateNo().getBytes());
-//                put("financialOrgID", param.getFinancialOrgID().getBytes());
-//                put("ownerOrg", param.getOwnerOrg().getBytes());
-//                put("certificateType", String.valueOf(param.getCertificateType()).getBytes());
             }
         };
-        byte[] bytes = contract.createTransaction("Create")
-                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+        byte[] bytes = financialGeneralContract.createTransaction("Create")
+                .setEndorsingPeers(financialGeneralContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .setTransient(transienthMap)
                 .submit();
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
@@ -107,8 +84,8 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
     @PostMapping({"realization"})
     public BusinessResponse realization(@RequestBody @Valid FinancialOrgRealization param)
             throws ContractException, TimeoutException, InterruptedException {
-        byte[] bytes = contract.createTransaction("Realization")
-                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+        byte[] bytes = financialGeneralContract.createTransaction("Realization")
+                .setEndorsingPeers(financialGeneralContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(param.getManagedCardNo(), param.getGeneralCardNo(), param.getVoucherAmount().toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
@@ -129,8 +106,8 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
     public BusinessResponse transferCashAsset(@RequestParam(name = "generalCardNo") String generalCardNo,
                                               @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
             throws ContractException, TimeoutException, InterruptedException {
-        byte[] bytes = contract.createTransaction("TransferCashAsset")
-                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+        byte[] bytes = financialGeneralContract.createTransaction("TransferCashAsset")
+                .setEndorsingPeers(financialGeneralContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
@@ -151,8 +128,8 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
     public BusinessResponse transferVoucherAsset(@RequestParam(name = "generalCardNo") String generalCardNo,
                                                  @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
             throws ContractException, TimeoutException, InterruptedException {
-        byte[] bytes = contract.createTransaction("TransferVoucherAsset")
-                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+        byte[] bytes = financialGeneralContract.createTransaction("TransferVoucherAsset")
+                .setEndorsingPeers(financialGeneralContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
@@ -174,8 +151,8 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
     public BusinessResponse transferAsset(@RequestParam(name = "generalCardNo") String generalCardNo,
                                           @RequestParam(name = "voucherAmount") BigDecimal voucherAmount)
             throws ContractException, TimeoutException, InterruptedException {
-        byte[] bytes = contract.createTransaction("TransferAsset")
-                .setEndorsingPeers(contract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
+        byte[] bytes = financialGeneralContract.createTransaction("TransferAsset")
+                .setEndorsingPeers(financialGeneralContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
                 .submit(generalCardNo, voucherAmount.toPlainString());
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
@@ -191,7 +168,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
     @GetMapping({"getHistoryForMarble"})
     public BusinessResponse getHistoryForMarble(@RequestParam(name = "financialOrgID") String cardNo)
             throws ContractException {
-        byte[] bytes = contract.evaluateTransaction("GetHistoryForMarble", cardNo);
+        byte[] bytes = financialGeneralContract.evaluateTransaction("GetHistoryForMarble", cardNo);
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseArray(new String(bytes, StandardCharsets.UTF_8), FinancialOrgGeneralAccountPrivateData.class));
     }
@@ -212,7 +189,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
                                                                           @RequestParam(name = "bookmark") String bookmark,
                                                                           @RequestParam(name = "pageSize") Integer pageSize)
             throws ContractException {
-        byte[] bytes = contract.evaluateTransaction("QueryFinancialGeneralByOwnerOrgWithPagination",
+        byte[] bytes = financialGeneralContract.evaluateTransaction("QueryFinancialGeneralByOwnerOrgWithPagination",
                 financialOrgID, certificateNo, bookmark, String.valueOf(pageSize));
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseArray(new String(bytes, StandardCharsets.UTF_8), FinancialOrgGeneralAccountPrivateData.class));
@@ -234,7 +211,7 @@ public class FinancialGeneralAccountClient extends GlobalExceptionHandler {
                                                                 @RequestParam(name = "bookmark") String bookmark,
                                                                 @RequestParam(name = "pageSize") Integer pageSize)
             throws ContractException {
-        byte[] bytes = contract.evaluateTransaction("QueryFinancialGeneralWithPagination",
+        byte[] bytes = financialGeneralContract.evaluateTransaction("QueryFinancialGeneralWithPagination",
                 financialOrgID, certificateNo, bookmark, String.valueOf(pageSize));
         System.out.println("查询结果：" + new String(bytes, StandardCharsets.UTF_8));
         return BusinessResponse.success(JSON.parseArray(new String(bytes, StandardCharsets.UTF_8), FinancialOrgGeneralAccountPrivateData.class));

@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/financial_genera
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial_general_account.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_general_account_1:d5f45b657379f57f2a3341fcba2c88e9b49a5b720bf05c37c56e08a57da57d70
+export CC_PACKAGE_ID=financial_general_account_1:33d2a96d671ce29ca0a5833db7d6300e5f23644679c76eb3eb862b0f75b4188c
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -48,7 +48,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial_gen
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial_general_account.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_general_account_1:d5f45b657379f57f2a3341fcba2c88e9b49a5b720bf05c37c56e08a57da57d70
+export CC_PACKAGE_ID=financial_general_account_1:33d2a96d671ce29ca0a5833db7d6300e5f23644679c76eb3eb862b0f75b4188c
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -122,8 +122,8 @@ peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $COR
 peer chaincode query -C $CHANNEL_NAME -n financial_general_account   -c '{"function":"FindPrivateDataById","Args":["6229486603953152819"]}'
 
 # 新建金融机构一般账户
-export MARBLE=$(echo -n "{\"cardNo\":\"6229486603953201814\",\"financialOrgID:\"F766005404604841984\",\"certificateNo\":\"91370181MA3D7J9W3W\",\"certificateType\":5,\"currentBalance\":0,\"voucherCurrentBalance\":0,\"accStatus\":1}" | base64 | tr -d \\n)
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial_general_account --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":[]}' --transient "{\"generalAccount\":\"$MARBLE\"}" --waitForEvent
+export MARBLE=$(echo -n "{\"cardNo\":\"6229488603953201839\",\"financialOrgID\":\"F766005404604841984\",\"certificateNo\":\"91370181MA3D7J9W3W\",\"certificateType\":5,\"currentBalance\":0,\"voucherCurrentBalance\":0,\"accStatus\":1}" | base64 | tr -d \\n)
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial_general_account --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"function":"Create","Args":[]}' --transient "{\"generalAccount\":\"$MARBLE\"}" --waitForEvent
 
 # 零售商向零售商一般账户充值现金余额
 peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial_general_account --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"TransferCashAsset","Args":["6229486603953201814","101"]}' --waitForEvent

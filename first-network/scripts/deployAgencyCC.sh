@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/agency.tar.gz --
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/agency.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=agency_1:d8a627cb56fea2c4021174f213045a2b951697b0cfc7b7e38e065c4cdbab32e5
+export CC_PACKAGE_ID=agency_1:9b89028dd48b7db90c8cf5fea1d78fb01eaf011c8fdf087ef42bac4fe3256b11
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -69,7 +69,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/agency/config
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/agency.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=agency_1:d8a627cb56fea2c4021174f213045a2b951697b0cfc7b7e38e065c4cdbab32e5
+export CC_PACKAGE_ID=agency_1:9b89028dd48b7db90c8cf5fea1d78fb01eaf011c8fdf087ef42bac4fe3256b11
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -123,7 +123,7 @@ peer chaincode query -C $CHANNEL_NAME -n agency   -c '{"function":"FindById","Ar
 peer chaincode query -C $CHANNEL_NAME -n agency   -c '{"function":"FindPrivateDataById","Args":["A766005404604841984"]}'
 
 # 新建零售商机构
-export MARBLE=$(echo -n "{\"id\":\"A766005404604841975\",\"issueOrgID\":\"I766005404604841984\",\"rateBasic\":0.62}" | base64 | tr -d \\n)
+export MARBLE=$(echo -n "{\"id\":\"736182013215645696\",\"issueOrgID\":\"I766005404604841984\",\"rateBasic\":0.62}" | base64 | tr -d \\n)
 peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n agency --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org4.example.com:13051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE   -c '{"function":"Create","Args":["736182013215645696","新增零售商机构2","82370104MA3DR08A4C"]}'  --transient "{\"agency\":\"$MARBLE\"}" --waitForEvent
 
 

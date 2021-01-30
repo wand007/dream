@@ -116,13 +116,6 @@ public class IndividualClient extends GlobalExceptionHandler {
         Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
                 put("individual", JSON.toJSONString(param).getBytes());
-//                put("id", param.getId().getBytes());
-//                put("name", param.getName().getBytes());
-//                put("certificateNo", param.getCertificateNo().getBytes());
-//                put("platformOrgID", param.getPlatformOrgID().getBytes());
-//                put("certificateNo", param.getCertificateNo().getBytes());
-//                put("certificateType", String.valueOf(param.getCertificateType()).getBytes());
-//                put("status", String.valueOf(param.getStatus()).getBytes());
             }
         };
         byte[] bytes = individualContract.createTransaction("Create")
@@ -145,25 +138,6 @@ public class IndividualClient extends GlobalExceptionHandler {
         Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
                 put("individual", JSON.toJSONString(param).getBytes());
-//                put("id", param.getId().getBytes());
-//                if (!StringUtils.isEmpty(param.getName())) {
-//                    put("name", param.getName().getBytes());
-//                }
-//                if (!StringUtils.isEmpty(param.getCertificateNo())) {
-//                    put("certificateNo", param.getCertificateNo().getBytes());
-//                }
-//                if (!StringUtils.isEmpty(param.getPlatformOrgID())) {
-//                    put("platformOrgID", param.getPlatformOrgID().getBytes());
-//                }
-//                if (!StringUtils.isEmpty(param.getCertificateNo())) {
-//                    put("certificateNo", param.getCertificateNo().getBytes());
-//                }
-//                if (!StringUtils.isEmpty(param.getCertificateType())) {
-//                    put("certificateType", param.getCertificateType().getBytes());
-//                }
-//                if (!StringUtils.isEmpty(param.getStatus())) {
-//                    put("status", param.getStatus().getBytes());
-//                }
             }
         };
         byte[] bytes = individualContract.createTransaction("Update")

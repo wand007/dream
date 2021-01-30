@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/issue.tar.gz --p
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/issue.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=issue_1:7eb180a918689b59238a022867b717c4dfc7a385079d72403c630a04e70eedd1
+export CC_PACKAGE_ID=issue_1:11bb93f8da83d707f4c8827ee9a5169cb6ee0d3583d42c200e19231cc43afe49
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -69,7 +69,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/issue/config/
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/issue.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=issue_1:7eb180a918689b59238a022867b717c4dfc7a385079d72403c630a04e70eedd1
+export CC_PACKAGE_ID=issue_1:11bb93f8da83d707f4c8827ee9a5169cb6ee0d3583d42c200e19231cc43afe49
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled

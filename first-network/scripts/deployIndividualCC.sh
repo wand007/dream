@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/individual.tar.g
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/individual.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=individual_1:605a49ad9b24810c60485bb9bd072f51d8b8e498e0802ce69f22581fa8a35ff3
+export CC_PACKAGE_ID=individual_1:37543ca3d2f23e9f56d8842a2ed81ebb0f835e46b5b5b953a96ada3a4e5cc36e
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled

@@ -75,8 +75,6 @@ public class IssueClient extends GlobalExceptionHandler {
 
         Map<String, byte[]> transienthMap = new HashMap<String, byte[]>(2) {
             {
-//                put("rateBasic", param.getRateBasic().toPlainString().getBytes());
-//                put("id", param.getId().getBytes());
                 put("issue", JSON.toJSONString(param).getBytes());
             }
         };

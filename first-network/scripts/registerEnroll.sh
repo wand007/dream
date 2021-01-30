@@ -2,8 +2,8 @@
 ## 工作目录,除非特殊说明，一般命令的执行都是在工作目录进行。
 ## http://localhost:5984/_utils/
 
-#docker中 启动所有的容器命令
-#docker start $(docker ps -a | awk '{ print $1}' | tail -n +2)
+# docker中 启动所有的容器命令
+# docker start $(docker ps -a | awk '{ print $1}' | tail -n +2)
 
 
 ## 首次运行清除docker影响
@@ -14,7 +14,7 @@
 
 ## docker rm -f $(docker ps -a | awk '($2 ~ /dev-peer.*/) {print $1}')
 ## docker rmi -f $(docker images | awk '($1 ~ /dev-peer.*.example.com/) {print $3}')
-## docker volume prune
+## docker volume prune --force
 
 ## 启动CA服务
 docker-compose -f docker-compose-ca.yaml up -d 2>&1

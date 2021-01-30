@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/distribution_rec
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/distribution_record.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=distribution_record_1:1ff354d50c5486cadcd49d84bc3309c808a398d4d962b50df1a29402591f68c6
+export CC_PACKAGE_ID=distribution_record_1:18e087d0a1678963d7c27762dc043ce5e61b59c15ac6d897ad9e16b0355a8c47
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -69,7 +69,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/distribution_
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/distribution_record.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=distribution_record_1:1ff354d50c5486cadcd49d84bc3309c808a398d4d962b50df1a29402591f68c6
+export CC_PACKAGE_ID=distribution_record_1:18e087d0a1678963d7c27762dc043ce5e61b59c15ac6d897ad9e16b0355a8c47
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -117,7 +117,7 @@ peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $COR
 ## 测试链码
 # 新建下发记录
 export MARBLE=$(echo -n "{\"id\":\"6229486603953201814\",\"individualID\":\"IN760934239574175744\",\"managedAccountCardNo\":\"3036603953562710\",\"individualCardNo\":\"6229486603953152819\",\"amount\":10,\"rate\":0.61}" | base64 | tr -d \\n)
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n distribution_record --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":[]}' --transient "{\"distributionRecord\":\"$MARBLE\"}" --waitForEvent
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n distribution_record --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE --peerAddresses peer0.org3.example.com:11051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org4.example.com:13051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  --peerAddresses peer0.org5.example.com:15051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"function":"Create","Args":[]}' --transient "{\"distributionRecord\":\"$MARBLE\"}" --waitForEvent
 
 # 查询默认私有数据
 peer chaincode query -C $CHANNEL_NAME -n distribution_record   -c '{"function":"FindPrivateDataById","Args":["6229486603953201814"]}'

@@ -5,6 +5,7 @@ import org.dream.core.base.BusinessException;
 import org.hyperledger.fabric.gateway.*;
 import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -39,13 +40,9 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    /**
-     * 金融机构服务合约对象
-     *
-     * @return
-     */
-    @Bean("financial-contract")
-    public ContractImpl financialContract() {
+
+    @Bean("financial-gateway")
+    public GatewayImpl platformGateway() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/financial/src/main/resources/connection.json");
         Path credentialPath = Paths.get("first-network/crypto-config/org2/admin.org2.example.com/msp");
         try {
@@ -66,13 +63,8 @@ public class Application {
 
             builder.identity(wallet, "user").networkConfig(NETWORK_CONFIG_PATH);
             //连接网关
-            Gateway gateway = builder.connect();
-            //获取mychannel通道
-            Network network = gateway.getNetwork(CHANNEL_NAME);
-
-            //获取合约对象
-            ContractImpl contract = (ContractImpl) network.getContract("financial");
-            return contract;
+            GatewayImpl gateway = builder.connect();
+            return gateway;
 
         } catch (IOException e) {
             log.error("网关初始化文件失败", e);
@@ -84,6 +76,34 @@ public class Application {
             log.error("网关初始化密钥失败", e);
             throw new BusinessException("网关初始化密钥失败");
         }
+    }
+
+
+    /**
+     * 金融机构服务合约对象
+     *
+     * @return
+     */
+    @Bean("financial-contract")
+    @DependsOn("financial-gateway")
+    public ContractImpl platformContract(@Qualifier("financial-gateway") GatewayImpl gateway) {
+        //获取mychannel通道
+        Network network = gateway.getNetwork(CHANNEL_NAME);
+        return (ContractImpl) network.getContract("financial");
+    }
+
+    /**
+     * 金融机构一般账户合约对象
+     *
+     * @param gateway
+     * @return
+     */
+    @Bean("financial-general-contract")
+    @DependsOn("financial-gateway")
+    public ContractImpl individualContract(@Qualifier("financial-gateway") GatewayImpl gateway) {
+        //获取mychannel通道
+        Network network = gateway.getNetwork(CHANNEL_NAME);
+        return (ContractImpl) network.getContract("financial_general_account");
     }
 
 

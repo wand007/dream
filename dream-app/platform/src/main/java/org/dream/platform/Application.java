@@ -60,7 +60,7 @@ public class Application {
 
             //根据connection.json 获取Fabric网络连接对象
             GatewayImpl.Builder builder = (GatewayImpl.Builder) Gateway.createBuilder();
-
+            builder.discovery(true);
             builder.identity(wallet, "user").networkConfig(NETWORK_CONFIG_PATH);
             //连接网关
             GatewayImpl gateway = builder.connect();

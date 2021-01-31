@@ -43,9 +43,9 @@ public class FabricLifecycle {
     private static final String DEFAULT_VALDITATION_PLUGIN = "vscc";
     private static final String DEFAULT_ENDORSMENT_PLUGIN = "escc";
 
-    private static final String CHAIN_CODE_PATH = "first-network/chaincode-artifacts";
+    private static final String CHAIN_CODE_PATH = "../chaincode/financial/main";
     private static final String TEST_FIXTURES_PATH = "first-network/chaincode/financial/config/collections_config.json";
-    public static final Path TEST_FIXTURE_PATH = Paths.get("first-network/chaincode/financial/main");
+    public static final Path TEST_FIXTURE_PATH = Paths.get("");
     private static final String CHAIN_CODE_VERSION = "1";
     private static final String ORG_1_MSP = "Org1MSP";
     private static final String ORG_2_MSP = "Org2MSP";
@@ -188,7 +188,7 @@ public class FabricLifecycle {
 
 
             //Sanity check to see if chaincode really is on it's peers and has the hash as expected by querying all chaincodes.
-            out("Org1 check installed chaincode on peers.");
+            out("Org1 check installed chaincode on peers." + org1ChaincodePackageID);
 
             verifyByQueryInstalledChaincodes(org1Client, org1MyPeers, chaincodeLabel, org1ChaincodePackageID);
             // another query test if it works

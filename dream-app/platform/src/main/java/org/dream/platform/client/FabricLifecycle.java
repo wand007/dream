@@ -6,7 +6,6 @@ import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.hyperledger.fabric.sdk.*;
 import org.hyperledger.fabric.sdk.exception.*;
-import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,7 +43,7 @@ public class FabricLifecycle {
     private static final String DEFAULT_VALDITATION_PLUGIN = "vscc";
     private static final String DEFAULT_ENDORSMENT_PLUGIN = "escc";
 
-    private static final String CHAIN_CODE_PATH = "first-network/chaincode/financial/chaincode-artifacts";
+    private static final String CHAIN_CODE_PATH = "first-network/chaincode-artifacts";
     private static final String TEST_FIXTURES_PATH = "first-network/chaincode/financial/config/collections_config.json";
     public static final Path TEST_FIXTURE_PATH = Paths.get("first-network/chaincode/financial/main");
     private static final String CHAIN_CODE_VERSION = "1";
@@ -68,17 +67,23 @@ public class FabricLifecycle {
 
         HFClient org1Client = platformGateway.getClient();
         Channel org1Channel = platformContract.getNetwork().getChannel();
-        Collection<Peer> org1MyPeers = org1Channel.getPeers();
-//        platformGateway.getClient().setUserContext(setUserContext(org1Client,));
-//        org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-
+        Collection<Peer> org1MyPeers = new ArrayList<>();
+        for (Peer peer : org1Channel.getPeers()) {
+            if ("peer0.org1.example.com".equalsIgnoreCase(peer.getName())) {
+                org1MyPeers.add(peer);
+            }
+        }
         verifyNoInstalledChaincodes(org1Client, org1MyPeers);
 
         GatewayImpl financialGateway = financialContract.getNetwork().getGateway();
         HFClient org2Client = financialGateway.getClient();
         Channel org2Channel = financialGateway.getNetwork(CHANNEL_NAME).getChannel();
-        Collection<Peer> org2MyPeers = org2Channel.getPeers();
-        org2Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+        Collection<Peer> org2MyPeers = new ArrayList<>();
+        for (Peer peer : org2Channel.getPeers()) {
+            if ("peer0.org2.example.com".equalsIgnoreCase(peer.getName())) {
+                org2MyPeers.add(peer);
+            }
+        }
 
         verifyNoInstalledChaincodes(org2Client, org2MyPeers);
         //    verifyNotInstalledChaincode(org2Client, org2MyPeers, CHAIN_CODE_NAME, CHAIN_CODE_VERSION);

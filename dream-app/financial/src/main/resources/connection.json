@@ -65,7 +65,7 @@
         "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/signcerts/cert.pem"
       }
     }
   },

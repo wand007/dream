@@ -145,7 +145,7 @@
         "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/signcerts/cert.pem"
       }
     },
     "orderer2.org0.example.com": {
@@ -162,7 +162,7 @@
         "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/signcerts/cert.pem"
       }
     },
     "orderer3.org0.example.com": {
@@ -179,7 +179,7 @@
         "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/keystore/key.pem"
       },
       "signedCertPEM": {
-        "path": "first-network/crypto-config/org0/admin.org0.example.com/signcerts/cert.pem"
+        "path": "first-network/crypto-config/org0/admin.org0.example.com/msp/signcerts/cert.pem"
       }
     }
   },

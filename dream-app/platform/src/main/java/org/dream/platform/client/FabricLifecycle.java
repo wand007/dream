@@ -69,6 +69,7 @@ public class FabricLifecycle {
         HFClient org1Client = platformGateway.getClient();
         Channel org1Channel = platformContract.getNetwork().getChannel();
         Collection<Peer> org1MyPeers = org1Channel.getPeers();
+//        platformGateway.getClient().setUserContext(setUserContext(org1Client,));
 //        org1Client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
 
         verifyNoInstalledChaincodes(org1Client, org1MyPeers);

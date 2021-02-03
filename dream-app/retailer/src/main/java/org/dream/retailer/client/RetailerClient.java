@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.dream.core.base.BusinessResponse;
 import org.dream.core.base.GlobalExceptionHandler;
+import org.dream.retailer.handler.SampleCommitHandlerFactory;
 import org.dream.retailer.param.rqs.RetailerOrgCreate;
 import org.dream.retailer.param.rsp.RetailerOrg;
 import org.dream.retailer.param.rsp.RetailerOrgPrivateData;
 import org.hyperledger.fabric.gateway.ContractException;
+import org.hyperledger.fabric.gateway.Transaction;
 import org.hyperledger.fabric.gateway.impl.ContractImpl;
 import org.hyperledger.fabric.sdk.Peer;
 import org.springframework.web.bind.annotation.*;
@@ -67,10 +69,14 @@ public class RetailerClient extends GlobalExceptionHandler {
     @PostMapping({"create"})
     public BusinessResponse create(@RequestBody @Valid RetailerOrgCreate param)
             throws ContractException, TimeoutException, InterruptedException {
-        byte[] bytes = retailerContract.createTransaction("Create")
-                .setEndorsingPeers(retailerContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)))
-                .submit(param.getId(), param.getName(), param.getAgencyOrgID(), String.valueOf(param.getUnifiedSocialCreditCode()));
+        Transaction transaction = retailerContract.createTransaction("Create")
+                .setEndorsingPeers(retailerContract.getNetwork().getChannel().getPeers(EnumSet.of(Peer.PeerRole.ENDORSING_PEER)));
+        byte[] bytes = transaction.submit(param.getId(), param.getName(), param.getAgencyOrgID(), String.valueOf(param.getUnifiedSocialCreditCode()));
         System.out.println("返回值：" + new String(bytes, StandardCharsets.UTF_8));
+        //测试事件通知
+        SampleCommitHandlerFactory commitHandlerFactory = SampleCommitHandlerFactory.INSTANCE;
+        commitHandlerFactory.create(transaction.getTransactionId(), retailerContract.getNetwork());
+        transaction.setCommitHandler(commitHandlerFactory);
         return BusinessResponse.success(new String(bytes, StandardCharsets.UTF_8));
     }
 

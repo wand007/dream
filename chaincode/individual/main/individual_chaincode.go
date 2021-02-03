@@ -156,20 +156,20 @@ func (t *IndividualChainCode) Create(ctx contractapi.TransactionContextInterface
 	if err != nil {
 		return "", errors.New("个体私有数据查询失败！")
 	}
-	if bytes == nil {
-		fmt.Println("个体私有数据已存在，读到的" + id + "对应的私有数据不为空！")
-		individualPrivateData := &IndividualPrivateData{
-			ID:              individualTransientInput.ID,
-			CertificateNo:   individualTransientInput.CertificateNo,
-			CertificateType: individualTransientInput.CertificateType,
-		}
-		carAsBytes, _ := json.Marshal(individualPrivateData)
-		err = ctx.GetStub().PutPrivateData(COLLECTION_INDIVIDUAL, id, carAsBytes)
-		if err != nil {
-			return "", errors.New("个体私有数据保存失败" + err.Error())
-		}
+	if bytes != nil {
+		return "", errors.New("个体私有数据已存在，读到的" + id + "对应的私有数据不为空！")
 	}
-
+	individualPrivateData := &IndividualPrivateData{
+		ID:              individualTransientInput.ID,
+		CertificateNo:   individualTransientInput.CertificateNo,
+		CertificateType: individualTransientInput.CertificateType,
+	}
+	carAsBytes, _ := json.Marshal(individualPrivateData)
+	err = ctx.GetStub().PutPrivateData(COLLECTION_INDIVIDUAL, id, carAsBytes)
+	if err != nil {
+		return "", errors.New("个体私有数据保存失败" + err.Error())
+	}
+	ctx.GetStub().SetEvent("RetailerOrg", carAsBytes)
 	return id, nil
 }
 

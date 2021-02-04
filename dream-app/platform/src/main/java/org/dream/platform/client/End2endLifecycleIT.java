@@ -1,78 +1,7 @@
 package org.dream.platform.client;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Predicate;
-
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.dream.platform.IntegrationSuite;
-import org.hyperledger.fabric.sdk.BlockEvent.TransactionEvent;
-import org.hyperledger.fabric.sdk.ChaincodeCollectionConfiguration;
-import org.hyperledger.fabric.sdk.ChaincodeResponse;
-import org.hyperledger.fabric.sdk.Channel;
-import org.hyperledger.fabric.sdk.ChannelConfiguration;
-import org.hyperledger.fabric.sdk.Enrollment;
-import org.hyperledger.fabric.sdk.HFClient;
-import org.hyperledger.fabric.sdk.LifecycleApproveChaincodeDefinitionForMyOrgProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleApproveChaincodeDefinitionForMyOrgRequest;
-import org.hyperledger.fabric.sdk.LifecycleChaincodeEndorsementPolicy;
-import org.hyperledger.fabric.sdk.LifecycleChaincodePackage;
-import org.hyperledger.fabric.sdk.LifecycleCheckCommitReadinessProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleCheckCommitReadinessRequest;
-import org.hyperledger.fabric.sdk.LifecycleCommitChaincodeDefinitionProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleCommitChaincodeDefinitionRequest;
-import org.hyperledger.fabric.sdk.LifecycleInstallChaincodeProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleInstallChaincodeRequest;
-import org.hyperledger.fabric.sdk.LifecycleQueryChaincodeDefinitionProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleQueryChaincodeDefinitionsProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleQueryChaincodeDefinitionsRequest;
-import org.hyperledger.fabric.sdk.LifecycleQueryChaincodeDefinitionsResult;
-import org.hyperledger.fabric.sdk.LifecycleQueryInstalledChaincodeProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleQueryInstalledChaincodeRequest;
-import org.hyperledger.fabric.sdk.LifecycleQueryInstalledChaincodesProposalResponse;
-import org.hyperledger.fabric.sdk.LifecycleQueryInstalledChaincodesProposalResponse.LifecycleQueryInstalledChaincodesResult;
-import org.hyperledger.fabric.sdk.Orderer;
-import org.hyperledger.fabric.sdk.Peer;
-import org.hyperledger.fabric.sdk.Peer.PeerRole;
-import org.hyperledger.fabric.sdk.ProposalResponse;
-import org.hyperledger.fabric.sdk.QueryByChaincodeRequest;
-import org.hyperledger.fabric.sdk.QueryLifecycleQueryChaincodeDefinitionRequest;
-
-import org.hyperledger.fabric.sdk.TransactionProposalRequest;
-import org.hyperledger.fabric.sdk.TransactionRequest.Type;
-import org.hyperledger.fabric.sdk.User;
-import org.hyperledger.fabric.sdk.exception.ChaincodeCollectionConfigurationException;
-import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
-import org.hyperledger.fabric.sdk.exception.ProposalException;
-import org.hyperledger.fabric.sdk.security.CryptoSuite;
-
-import org.hyperledger.fabric_ca.sdk.EnrollmentRequest;
-import org.hyperledger.fabric_ca.sdk.HFCAClient;
-import org.hyperledger.fabric_ca.sdk.HFCAInfo;
-import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
-
 
 import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hyperledger.fabric.sdk.Channel.PeerOptions.createPeerOptions;
 
 
 /**

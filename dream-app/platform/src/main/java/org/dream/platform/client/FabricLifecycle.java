@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -43,9 +44,9 @@ public class FabricLifecycle {
     private static final String DEFAULT_VALDITATION_PLUGIN = "vscc";
     private static final String DEFAULT_ENDORSMENT_PLUGIN = "escc";
 
-    private static final String CHAIN_CODE_PATH = "../chaincode/financial/main";
-    private static final String TEST_FIXTURES_PATH = "first-network/chaincode/financial/config/collections_config.json";
-    public static final Path TEST_FIXTURE_PATH = Paths.get("");
+    private static final String CHAIN_CODE_PATH = "/dream/chaincode/financial/main";
+    private static final String TEST_FIXTURES_PATH = "D:/Work/GoLang/src/dream/chaincode/financial/config/collections_config.json";
+    public static final Path TEST_FIXTURE_PATH = Paths.get("D:/Work/GoLang/");
     private static final String CHAIN_CODE_VERSION = "1";
     private static final String ORG_1_MSP = "Org1MSP";
     private static final String ORG_2_MSP = "Org2MSP";
@@ -104,8 +105,7 @@ public class FabricLifecycle {
                 null);
 
         //Org1 also creates the endorsement policy for the chaincode. // also known as validationParameter !
-        LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy = LifecycleChaincodeEndorsementPolicy.fromSignaturePolicyYamlFile(Paths.get(TEST_FIXTURES_PATH +
-                "/sdkintegration/chaincodeendorsementpolicy.yaml"));
+        LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy = LifecycleChaincodeEndorsementPolicy.fromSignaturePolicyYamlFile(Paths.get(TEST_FIXTURES_PATH));
 
         final String goChaincodeName = "lc_example_cc_go";
         runChannel(org1Client, org1Channel, org1MyPeers,
@@ -335,6 +335,7 @@ public class FabricLifecycle {
         log.info(chaincodeLabel + lifecycleChaincodePackage.getLabel()); // what we expect ?
         log.info(chaincodeType + "" + lifecycleChaincodePackage.getType());
         log.info(chaincodePath + lifecycleChaincodePackage.getPath());
+//        log.info(chaincodePath + new String(lifecycleChaincodePackage.getAsBytes(), StandardCharsets.UTF_8));
 
         return lifecycleChaincodePackage;
     }

@@ -45,7 +45,7 @@ public class FabricLifecycle {
     private static final String DEFAULT_ENDORSMENT_PLUGIN = "escc";
 
     private static final String CHAIN_CODE_PATH = "/dream/chaincode/financial/main";
-    private static final String TEST_FIXTURES_PATH = "D:/Work/GoLang/src/dream/chaincode/financial/config/collections_config.json";
+    private static final String TEST_FIXTURES_PATH = "D:/Work/GoLang/src/dream/chaincode/financial/config/chaincodeendorsementpolicy.yaml";
     public static final Path TEST_FIXTURE_PATH = Paths.get("D:/Work/GoLang/");
     private static final String CHAIN_CODE_VERSION = "1";
     private static final String ORG_1_MSP = "Org1MSP";

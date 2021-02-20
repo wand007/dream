@@ -8,7 +8,6 @@ import org.hyperledger.fabric.gateway.impl.GatewayImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -39,7 +38,11 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-
+    /**
+     * 分销商机构合约对象
+     *
+     * @return
+     */
     @Bean(name = "agency-contract")
     public ContractImpl agencyContract() {
         Path NETWORK_CONFIG_PATH = Paths.get("dream-app/agency/src/main/resources/connection.json");

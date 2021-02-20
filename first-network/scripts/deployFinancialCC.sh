@@ -23,7 +23,7 @@ peer lifecycle chaincode package /usr/local/chaincode-artifacts/financial.tar.gz
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:72f8d1522aeb44fd837163fd9d9ade5d8b20aafc25fa72ea7b35537710f8e24a
+export CC_PACKAGE_ID=financial_1:9daf4c464e8c91d715162a645edcde5dd04d4d26cc301f3a3310812f4724916a
 
 # 查看peer0.org1.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -48,7 +48,7 @@ export CC_CC_PATH=/opt/gopath/src/github.com/hyperledger/chaincode/financial/con
 peer lifecycle chaincode install /usr/local/chaincode-artifacts/financial.tar.gz
 
 # 将链码id设置变量,便于我们后面的使用
-export CC_PACKAGE_ID=financial_1:72f8d1522aeb44fd837163fd9d9ade5d8b20aafc25fa72ea7b35537710f8e24a
+export CC_PACKAGE_ID=financial_1:9daf4c464e8c91d715162a645edcde5dd04d4d26cc301f3a3310812f4724916a
 
 # 查看peer0.org2.example.com链码安装结果
 peer lifecycle chaincode queryinstalled
@@ -122,8 +122,8 @@ peer chaincode query -C $CHANNEL_NAME -n financial   -c '{"function":"FindById",
 # 查询默认私有数据
 peer chaincode query -C $CHANNEL_NAME -n financial   -c '{"function":"FindPrivateDataById","Args":["F766005404604841984"]}'
 
-# 新建分销商机构
-peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE   --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":["F736182013215645696","新增分销商机构1","3","1"]}' --waitForEvent
+# 新建金融机构
+peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE   --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"Create","Args":["F736182013215645696","新建金融机构1","3","1"]}' --waitForEvent
 
 # 一般账户向共管账户现金兑换票据
 peer chaincode invoke -o orderer1.org0.example.com:7050 --tls true --cafile $CORE_PEER_TLS_ROOTCERT_FILE -C $CHANNEL_NAME -n financial --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE   --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  -c '{"function":"TransferAsset","Args":["F766374712807800832","F766374712807800832","3"]}' --waitForEvent

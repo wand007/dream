@@ -168,6 +168,40 @@ public class FabricLifecycle {
                 ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
                 true  // initRequired
         );
+
+
+        runChannelBack(org2Client, org2Channel, org2MyPeers,
+                lifecycleChaincodePackage, goChaincodeName,
+                chaincodeVersion, //Version - bump up next time.
+                chaincodeEndorsementPolicy,
+                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
+                true // initRequired
+        );
+
+        runChannelBack(org3Client, org3Channel, org3MyPeers,
+                lifecycleChaincodePackage, goChaincodeName,
+                chaincodeVersion, //Version - bump up next time.
+                chaincodeEndorsementPolicy,
+                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
+                true  // initRequired
+        );
+
+        runChannelBack(org4Client, org4Channel, org4MyPeers,
+                lifecycleChaincodePackage, goChaincodeName,
+                chaincodeVersion, //Version - bump up next time.
+                chaincodeEndorsementPolicy,
+                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
+                true  // initRequired
+        );
+
+        runChannelBack(org5Client, org5Channel, org5MyPeers,
+                lifecycleChaincodePackage, goChaincodeName,
+                chaincodeVersion, //Version - bump up next time.
+                chaincodeEndorsementPolicy,
+                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
+                true  // initRequired
+        );
+
         runInitLedger(org1Client, org1Channel, org1MyPeers,
                 org2Client, org2Channel, org2MyPeers,
                 lifecycleChaincodePackage, goChaincodeName,
@@ -176,50 +210,6 @@ public class FabricLifecycle {
                 ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
                 true  // initRequired
         );
-
-//        runChannelBack(org2Client, org2Channel, org2MyPeers,
-//                lifecycleChaincodePackage, goChaincodeName,
-//                chaincodeVersion, //Version - bump up next time.
-//                chaincodeEndorsementPolicy,
-//                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
-//                true,  // initRequired
-//                new HashMap<String, Object>() {{
-//                    put("sequence", 1L);  // this is an update sequence should be 2
-//                    put("FindById", "F766005404604841984");   // init is run which set back to 300.  new chaincoode doubles the move of 10 to 20 so expect 320
-//                }});
-//
-//        runChannelBack(org3Client, org3Channel, org3MyPeers,
-//                lifecycleChaincodePackage, goChaincodeName,
-//                chaincodeVersion, //Version - bump up next time.
-//                chaincodeEndorsementPolicy,
-//                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
-//                true,  // initRequired
-//                new HashMap<String, Object>() {{
-//                    put("sequence", 1L);  // this is an update sequence should be 2
-//                    put("FindById", "F766005404604841984");   // init is run which set back to 300.  new chaincoode doubles the move of 10 to 20 so expect 320
-//                }});
-//
-//        runChannelBack(org4Client, org4Channel, org4MyPeers,
-//                lifecycleChaincodePackage, goChaincodeName,
-//                chaincodeVersion, //Version - bump up next time.
-//                chaincodeEndorsementPolicy,
-//                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
-//                true,  // initRequired
-//                new HashMap<String, Object>() {{
-//                    put("sequence", 1L);  // this is an update sequence should be 2
-//                    put("FindById", "F766005404604841984");   // init is run which set back to 300.  new chaincoode doubles the move of 10 to 20 so expect 320
-//                }});
-//
-//        runChannelBack(org5Client, org5Channel, org5MyPeers,
-//                lifecycleChaincodePackage, goChaincodeName,
-//                chaincodeVersion, //Version - bump up next time.
-//                chaincodeEndorsementPolicy,
-//                ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
-//                true,  // initRequired
-//                new HashMap<String, Object>() {{
-//                    put("sequence", 1L);  // this is an update sequence should be 2
-//                    put("FindById", "F766005404604841984");   // init is run which set back to 300.  new chaincoode doubles the move of 10 to 20 so expect 320
-//                }});
 
         //// Do Go update. Use same chaincode name, new version and chaincode package. This chaincode doubles move result so we know it changed.
 

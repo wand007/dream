@@ -294,7 +294,7 @@ public class FabricLifecycle {
         verifyByQueryInstalledChaincode(org1Client, org1MyPeers, org1ChaincodePackageID, chaincodeLabel);
 
         // Sequence  number increase with each change and is used to make sure you are referring to the same change.
-        long sequence = -1L;
+        long sequence = 1L;
         final QueryLifecycleQueryChaincodeDefinitionRequest queryLifecycleQueryChaincodeDefinitionRequest = org1Client.newQueryLifecycleQueryChaincodeDefinitionRequest();
         queryLifecycleQueryChaincodeDefinitionRequest.setChaincodeName(chaincodeName);
 
@@ -437,7 +437,7 @@ public class FabricLifecycle {
         verifyByQueryInstalledChaincode(org1Client, org1MyPeers, org1ChaincodePackageID, chaincodeLabel);
 
         // Sequence  number increase with each change and is used to make sure you are referring to the same change.
-        long sequence = -1L;
+        long sequence = 1L;
         final QueryLifecycleQueryChaincodeDefinitionRequest queryLifecycleQueryChaincodeDefinitionRequest = org1Client.newQueryLifecycleQueryChaincodeDefinitionRequest();
         queryLifecycleQueryChaincodeDefinitionRequest.setChaincodeName(chaincodeName);
 
@@ -552,7 +552,7 @@ public class FabricLifecycle {
 //        verifyByQueryInstalledChaincode(org1Client, org1MyPeers, org1ChaincodePackageID, chaincodeLabel);
 
         // Sequence  number increase with each change and is used to make sure you are referring to the same change.
-        long sequence = -1L;
+        long sequence = 1L;
 //        final QueryLifecycleQueryChaincodeDefinitionRequest queryLifecycleQueryChaincodeDefinitionRequest = org1Client.newQueryLifecycleQueryChaincodeDefinitionRequest();
 //        queryLifecycleQueryChaincodeDefinitionRequest.setChaincodeName(chaincodeName);
 //
@@ -632,8 +632,9 @@ public class FabricLifecycle {
 
         // Get collection of one of org2 orgs peers and one from the other.
 
-//        Collection<Peer> org2EndorsingPeers = Arrays.asList(org2MyPeers.iterator().next());
-        BlockEvent.TransactionEvent transactionEvent = commitChaincodeDefinitionRequest(org2Client, org2Channel, sequence, chaincodeName, chaincodeVersion, org2ChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2EndorsingPeers)
+        org2EndorsingPeers = Arrays.asList(org2MyPeers.iterator().next());
+        BlockEvent.TransactionEvent transactionEvent = commitChaincodeDefinitionRequest(org2Client, org2Channel, sequence,
+                chaincodeName, chaincodeVersion, org2ChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2EndorsingPeers)
                 .get(300000, TimeUnit.SECONDS);
 
 
@@ -1031,4 +1032,6 @@ public class FabricLifecycle {
         }
 
     }
+
+
 }

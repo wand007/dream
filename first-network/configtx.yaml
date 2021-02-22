@@ -452,7 +452,7 @@ Profiles:
                 - *Org3
                 - *Org4
                 - *Org5
-                - *Org6
+#                - *Org6
             Capabilities:
                 <<: *ApplicationCapabilities
 
@@ -498,4 +498,4 @@ Profiles:
                 - *Org3
                 - *Org4
                 - *Org5
-                - *Org6
+#                - *Org6

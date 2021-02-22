@@ -202,13 +202,15 @@ public class FabricLifecycle {
                 true  // initRequired
         );
 
-        runInitLedger(org1Client, org1Channel, org1MyPeers,
-                org2Client, org2Channel, org2MyPeers,
+        Collection<Peer> org2EndorsingPeers = Arrays.asList(org1MyPeers.iterator().next(), org2MyPeers.iterator().next(),
+                org3MyPeers.iterator().next(), org4MyPeers.iterator().next(), org5MyPeers.iterator().next());
+        runInitLedger(org2Client, org2Channel, org2MyPeers,
                 lifecycleChaincodePackage, goChaincodeName,
                 chaincodeVersion, //Version - bump up next time.
                 chaincodeEndorsementPolicy,
                 ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
-                true  // initRequired
+                true,  // initRequired
+                org2EndorsingPeers
         );
 
         //// Do Go update. Use same chaincode name, new version and chaincode package. This chaincode doubles move result so we know it changed.
@@ -521,16 +523,15 @@ public class FabricLifecycle {
     }
 
     //CHECKSTYLE.OFF: ParameterNumber
-    void runInitLedger(HFClient org1Client, Channel org1Channel, Collection<Peer> org1MyPeers,
-                       HFClient org2Client, Channel org2Channel, Collection<Peer> org2MyPeers,
+    void runInitLedger(HFClient org2Client, Channel org2Channel, Collection<Peer> org2MyPeers,
                        LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName,
                        String chaincodeVersion, LifecycleChaincodeEndorsementPolicy lifecycleChaincodeEndorsementPolicy,
-                       ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired)
+                       ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired, Collection<Peer> org2EndorsingPeers)
             throws IOException, ProposalException, InvalidArgumentException, ExecutionException, InterruptedException,
             TimeoutException, ChaincodeCollectionConfigurationException {
 
 
-        User org1 = org1Client.getUserContext();
+//        User org1 = org1Client.getUserContext();
         User org2 = org2Client.getUserContext();
         //Should be no chaincode installed at this time.
 
@@ -574,7 +575,7 @@ public class FabricLifecycle {
         //     ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = collectionConfiguration == null ? null : ChaincodeCollectionConfiguration.fromYamlFile(new File(collectionConfiguration));
 //            // ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = ChaincodeCollectionConfiguration.fromYamlFile(new File("src/test/fixture/collectionProperties/PrivateDataIT.yaml"));
 //            chaincodeCollectionConfiguration = null;
-        final Peer anOrg1Peer = org1MyPeers.iterator().next();
+//        final Peer anOrg1Peer = org1MyPeers.iterator().next();
         out("Org1 approving chaincode definition for my org.");
 //        BlockEvent.TransactionEvent transactionEvent = lifecycleApproveChaincodeDefinitionForMyOrg(org1Client, org1Channel,
 //                Collections.singleton(anOrg1Peer),  //support approve on multiple peers but really today only need one. Go with minimum.
@@ -631,23 +632,23 @@ public class FabricLifecycle {
 
         // Get collection of one of org2 orgs peers and one from the other.
 
-        Collection<Peer> org2EndorsingPeers = Arrays.asList(org2MyPeers.iterator().next());
+//        Collection<Peer> org2EndorsingPeers = Arrays.asList(org2MyPeers.iterator().next());
         BlockEvent.TransactionEvent transactionEvent = commitChaincodeDefinitionRequest(org2Client, org2Channel, sequence, chaincodeName, chaincodeVersion, org2ChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org2EndorsingPeers)
                 .get(300000, TimeUnit.SECONDS);
 
 
         verifyByQueryChaincodeDefinition(org2Client, org2Channel, chaincodeName, org2MyPeers, sequence, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
-        verifyByQueryChaincodeDefinition(org1Client, org1Channel, chaincodeName, org1MyPeers, sequence, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
+//        verifyByQueryChaincodeDefinition(org1Client, org1Channel, chaincodeName, org1MyPeers, sequence, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
 
         verifyByQueryChaincodeDefinitions(org2Client, org2Channel, org2MyPeers, chaincodeName);
-        verifyByQueryChaincodeDefinitions(org1Client, org1Channel, org1MyPeers, chaincodeName);
+//        verifyByQueryChaincodeDefinitions(org1Client, org1Channel, org1MyPeers, chaincodeName);
 
         //Now org2 could also do the init for the chaincode but it just informs org2 admin of the commit so it does it.
 
-        transactionEvent = executeChaincode(org1Client, org1, org1Channel, "",
-                initRequired ? true : null, // doInit don't even specify it has it should default to false
-//                chaincodeName, chaincodeType, "a,", "100", "b", "300").get(10000, TimeUnit.SECONDS);
-                chaincodeName, chaincodeType, "").get(300000, TimeUnit.SECONDS);
+//        transactionEvent = executeChaincode(org1Client, org1, org1Channel, "",
+//                initRequired ? true : null, // doInit don't even specify it has it should default to false
+////                chaincodeName, chaincodeType, "a,", "100", "b", "300").get(10000, TimeUnit.SECONDS);
+//                chaincodeName, chaincodeType, "").get(300000, TimeUnit.SECONDS);
 
 
         transactionEvent = executeChaincode(org2Client, org2, org2Channel, "InitLedger",

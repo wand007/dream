@@ -27,10 +27,33 @@ Fabric网络结构
 
 |  **节点类型** | **节点名**      |  **所属组织** | **ip**     |  **服务端口** | 
 | -------------|-------------| -------------|-------------| -------------|
-| orderer	   |orderer.example.com	-	|org0   |192.168.0.2	|7050
+| orderer	   |orderer1.org0.example.com	|org0   |192.168.0.2	|7050
+| orderer	   |orderer2.org0.example.com	|org0   |192.168.0.2	|8050
+| orderer	   |orderer3.org0.example.com	|org0   |192.168.0.2	|9050
 | peer	       |peer0.org1.example.com	|org1	|192.168.0.2	|7051
 | peer	       |peer1.org1.example.com	|org1	|192.168.0.2	|8051
 | peer	       |peer0.org2.example.com	|org2	|192.168.0.2	|9051
-| peer	       |peer1org2.example.com	|org2	|192.168.0.2	|10051
-| ca	       |ca1.org1.example.com	|org1	|192.168.0.2	|7054
-| ca	       |ca2.org1.example.com	|org2	|192.168.0.2	|8054
+| peer	       |peer1.org2.example.com	|org2	|192.168.0.2	|10051
+| peer	       |peer0.org3.example.com	|org3	|192.168.0.2	|11051
+| peer	       |peer1.org3.example.com	|org3	|192.168.0.2	|12051
+| peer	       |peer0.org4.example.com	|org4	|192.168.0.2	|13051
+| peer	       |peer1.org4.example.com	|org4	|192.168.0.2	|14051
+| peer	       |peer0.org5.example.com	|org5	|192.168.0.2	|15051
+| peer	       |peer1.org5.example.com	|org5	|192.168.0.2	|16051
+| couchdb	   |couchdb0.org1.example.com	|org1	|192.168.0.2	|5984
+| couchdb	   |couchdb1.org1.example.com	|org1	|192.168.0.2	|6984
+| couchdb	   |couchdb0.org2.example.com	|org2	|192.168.0.2	|7984
+| couchdb	   |couchdb1.org2.example.com	|org2	|192.168.0.2	|8984
+| couchdb	   |couchdb0.org3.example.com	|org3	|192.168.0.2	|9984
+| couchdb	   |couchdb1.org3.example.com	|org3	|192.168.0.2	|10984
+| couchdb	   |couchdb0.org4.example.com	|org4	|192.168.0.2	|11984
+| couchdb	   |couchdb1.org4.example.com	|org4	|192.168.0.2	|12984
+| couchdb	   |couchdb0.org5.example.com	|org5	|192.168.0.2	|13984
+| couchdb	   |couchdb1.org5.example.com	|org5	|192.168.0.2	|14984
+| ca	       |ca-tls.ca.example.com	|tls	|192.168.0.2	|7052
+| ca	       |ca-org0.ca.example.com	|org0	|192.168.0.2	|7053
+| ca	       |ca-org1.ca.example.com	|org1	|192.168.0.2	|7054
+| ca	       |ca-org2.ca.example.com	|org2	|192.168.0.2	|7055
+| ca	       |ca-org3.ca.example.com	|org3	|192.168.0.2	|7056
+| ca	       |ca-org4.ca.example.com	|org4	|192.168.0.2	|7057
+| ca	       |ca-org5.ca.example.com	|org5	|192.168.0.2	|7058

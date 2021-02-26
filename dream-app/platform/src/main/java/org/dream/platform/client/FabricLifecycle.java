@@ -80,6 +80,10 @@ public class FabricLifecycle {
 
     }
 
+
+    /**
+     * 安装链码
+     */
     @GetMapping({"runFabricLifecycle"})
     public void runFabricLifecycle() throws IOException, InvalidArgumentException, ChaincodeEndorsementPolicyParseException,
             ProposalException, ChaincodeCollectionConfigurationException, InterruptedException, ExecutionException, TimeoutException {
@@ -161,8 +165,8 @@ public class FabricLifecycle {
         //Org1 also creates the endorsement policy for the chaincode. // also known as validationParameter !
         LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy = LifecycleChaincodeEndorsementPolicy.fromSignaturePolicyYamlFile(Paths.get(TEST_FIXTURES_PATH.toString()));
 
-
-        runChannel(org1Client, org1Channel, org1MyPeers,
+        //安装链码
+        runInstallLifecycle(org1Client, org1Channel, org1MyPeers,
                 lifecycleChaincodePackage, CHAINCODE_NAME,
                 CHAIN_CODE_VERSION, //Version - bump up next time.
                 chaincodeEndorsementPolicy,
@@ -170,42 +174,40 @@ public class FabricLifecycle {
                 true  // initRequired
         );
 
-
-        runChannel(org2Client, org2Channel, org2MyPeers,
+        //安装链码
+        runInstallLifecycle(org2Client, org2Channel, org2MyPeers,
                 lifecycleChaincodePackage, CHAINCODE_NAME,
                 CHAIN_CODE_VERSION, //Version - bump up next time.
                 chaincodeEndorsementPolicy,
                 ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
                 true // initRequired
         );
-
-        runChannel(org3Client, org3Channel, org3MyPeers,
+        //安装链码
+        runInstallLifecycle(org3Client, org3Channel, org3MyPeers,
                 lifecycleChaincodePackage, CHAINCODE_NAME,
                 CHAIN_CODE_VERSION, //Version - bump up next time.
                 chaincodeEndorsementPolicy,
                 ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
                 true  // initRequired
         );
-
-        runChannel(org4Client, org4Channel, org4MyPeers,
+        //安装链码
+        runInstallLifecycle(org4Client, org4Channel, org4MyPeers,
                 lifecycleChaincodePackage, CHAINCODE_NAME,
                 CHAIN_CODE_VERSION, //Version - bump up next time.
                 chaincodeEndorsementPolicy,
                 ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
                 true  // initRequired
         );
-
-        runChannel(org5Client, org5Channel, org5MyPeers,
+        //安装链码
+        runInstallLifecycle(org5Client, org5Channel, org5MyPeers,
                 lifecycleChaincodePackage, CHAINCODE_NAME,
                 CHAIN_CODE_VERSION, //Version - bump up next time.
                 chaincodeEndorsementPolicy,
                 ChaincodeCollectionConfiguration.fromYamlFile(new File(TEST_PRIVATE_PATH.toString())), // ChaincodeCollectionConfiguration
                 true  // initRequired
         );
-
-        Collection<Peer> org2EndorsingPeers = Arrays.asList(org1MyPeers.iterator().next(), org2MyPeers.iterator().next(),
-                org3MyPeers.iterator().next(), org4MyPeers.iterator().next(), org5MyPeers.iterator().next());
-        runInitLedger(org1Client, org1Channel, org1MyPeers,
+        //提交链码
+        runCommitLifecycle(org1Client, org1Channel, org1MyPeers,
                 lifecycleChaincodePackage, CHAINCODE_NAME,
                 CHAIN_CODE_VERSION, //Version - bump up next time.
                 chaincodeEndorsementPolicy,
@@ -213,19 +215,25 @@ public class FabricLifecycle {
                 true,  // initRequired
                 org1Channel.getPeers()
         );
+        //链码执行
+        runInvokeLifecycle(org1Client, org1Channel, lifecycleChaincodePackage, CHAINCODE_NAME);
 
 //        org1Channel.shutdown(true); // Force foo channel to shutdown clean up resources.
 
     }
 
+    /**
+     * 安装链码
+     */
+
     //CHECKSTYLE.OFF: ParameterNumber
-    void runChannel(HFClient org1Client, Channel org1Channel, Collection<Peer> org1MyPeers,
-                    LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName,
-                    String chaincodeVersion, LifecycleChaincodeEndorsementPolicy lifecycleChaincodeEndorsementPolicy,
-                    ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired) throws IOException, ProposalException, InvalidArgumentException, ExecutionException, InterruptedException, TimeoutException, ChaincodeCollectionConfigurationException {
+    void runInstallLifecycle(HFClient org1Client, Channel org1Channel, Collection<Peer> org1MyPeers,
+                             LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName,
+                             String chaincodeVersion, LifecycleChaincodeEndorsementPolicy lifecycleChaincodeEndorsementPolicy,
+                             ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired)
+            throws IOException, ProposalException, InvalidArgumentException, ExecutionException, InterruptedException, TimeoutException {
 
         final String chaincodeLabel = lifecycleChaincodePackage.getLabel();
-        final TransactionRequest.Type chaincodeType = lifecycleChaincodePackage.getType();
 
         //Org1 installs the chaincode on its peers.
         out("Org1 installs the chaincode on its peers.");
@@ -265,8 +273,8 @@ public class FabricLifecycle {
         out("Org1 approving chaincode definition for my org.");
         BlockEvent.TransactionEvent transactionEvent = lifecycleApproveChaincodeDefinitionForMyOrg(org1Client, org1Channel,
                 Collections.singleton(anOrg1Peer),  //support approve on multiple peers but really today only need one. Go with minimum.
-                CHAIN_CODE_SEQUENCE, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1ChaincodePackageID)
-                .get(30000, TimeUnit.SECONDS);
+                CHAIN_CODE_SEQUENCE, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration,
+                initRequired, org1ChaincodePackageID).get(30000, TimeUnit.SECONDS);
         out("Org1 approving chaincode TransactionEvent for my org." + transactionEvent.getBlockEvent().getChannelId());
 
         verifyByCheckCommitReadinessStatus(org1Client, org1Channel, CHAIN_CODE_SEQUENCE, chaincodeName, chaincodeVersion,
@@ -276,7 +284,8 @@ public class FabricLifecycle {
 
         //Serialize these to bytes to give to other organizations.
         byte[] chaincodePackageBtyes = lifecycleChaincodePackage.getAsBytes();
-        final byte[] chaincodeEndorsementPolicyAsBytes = lifecycleChaincodeEndorsementPolicy == null ? null : lifecycleChaincodeEndorsementPolicy.getSerializedPolicyBytes();
+        final byte[] chaincodeEndorsementPolicyAsBytes = lifecycleChaincodeEndorsementPolicy == null
+                ? null : lifecycleChaincodeEndorsementPolicy.getSerializedPolicyBytes();
 
         ///////////////////////////////////
         //org1 communicates to org2 out of bounds (email, floppy, etc) : CHAIN_CODE_NAME, CHAIN_CODE_VERSION, chaincodeHash, definitionSequence, chaincodePackageBtyes and chaincodeEndorsementPolicyAsBytes.
@@ -286,7 +295,8 @@ public class FabricLifecycle {
                 LifecycleChaincodeEndorsementPolicy.fromBytes(chaincodeEndorsementPolicyAsBytes);
 
         out("Checking on org1's network for approvals");
-        verifyByCheckCommitReadinessStatus(org1Client, org1Channel, CHAIN_CODE_SEQUENCE, chaincodeName, chaincodeVersion, lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1MyPeers,
+        verifyByCheckCommitReadinessStatus(org1Client, org1Channel, CHAIN_CODE_SEQUENCE, chaincodeName, chaincodeVersion,
+                lifecycleChaincodeEndorsementPolicy, chaincodeCollectionConfiguration, initRequired, org1MyPeers,
                 new HashSet<>(Arrays.asList(ORG_1_MSP, ORG_2_MSP)), // Approved
                 Collections.emptySet()); // unapproved.
 
@@ -302,27 +312,22 @@ public class FabricLifecycle {
 
     }
 
+    /**
+     * 提交链码
+     */
     //CHECKSTYLE.OFF: ParameterNumber
-    void runInitLedger(HFClient org2Client, Channel org2Channel, Collection<Peer> org2MyPeers,
-                       LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName,
-                       String chaincodeVersion, LifecycleChaincodeEndorsementPolicy lifecycleChaincodeEndorsementPolicy,
-                       ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired, Collection<Peer> org2EndorsingPeers)
+    void runCommitLifecycle(HFClient org2Client, Channel org2Channel, Collection<Peer> org2MyPeers,
+                            LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName,
+                            String chaincodeVersion, LifecycleChaincodeEndorsementPolicy lifecycleChaincodeEndorsementPolicy,
+                            ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired, Collection<Peer> org2EndorsingPeers)
             throws IOException, ProposalException, InvalidArgumentException, ExecutionException, InterruptedException,
             TimeoutException, ChaincodeCollectionConfigurationException {
-
-
-        User org2 = org2Client.getUserContext();
-        //Should be no chaincode installed at this time.
-
-
-        final String chaincodeLabel = lifecycleChaincodePackage.getLabel();
-        final TransactionRequest.Type chaincodeType = lifecycleChaincodePackage.getType();
-
 
         //     ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = collectionConfiguration == null ? null : ChaincodeCollectionConfiguration.fromYamlFile(new File(collectionConfiguration));
 //            // ChaincodeCollectionConfiguration chaincodeCollectionConfiguration = ChaincodeCollectionConfiguration.fromYamlFile(new File("src/test/fixture/collectionProperties/PrivateDataIT.yaml"));
         out("Org1 approving chaincode definition for my org.");
-        final byte[] chaincodeEndorsementPolicyAsBytes = lifecycleChaincodeEndorsementPolicy == null ? null : lifecycleChaincodeEndorsementPolicy.getSerializedPolicyBytes();
+        final byte[] chaincodeEndorsementPolicyAsBytes = lifecycleChaincodeEndorsementPolicy == null
+                ? null : lifecycleChaincodeEndorsementPolicy.getSerializedPolicyBytes();
 
         ///////////////////////////////////
         //org1 communicates to org2 out of bounds (email, floppy, etc) : CHAIN_CODE_NAME, CHAIN_CODE_VERSION, chaincodeHash, definitionSequence, chaincodePackageBtyes and chaincodeEndorsementPolicyAsBytes.
@@ -335,18 +340,13 @@ public class FabricLifecycle {
                 .get(300000, TimeUnit.SECONDS);
 
 
-        verifyByQueryChaincodeDefinition(org2Client, org2Channel, chaincodeName, org2MyPeers, CHAIN_CODE_SEQUENCE, initRequired, chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
+        verifyByQueryChaincodeDefinition(org2Client, org2Channel, chaincodeName, org2MyPeers, CHAIN_CODE_SEQUENCE, initRequired,
+                chaincodeEndorsementPolicyAsBytes, chaincodeCollectionConfiguration);
 
         verifyByQueryChaincodeDefinitions(org2Client, org2Channel, org2MyPeers, chaincodeName);
 
         //Now org2 could also do the init for the chaincode but it just informs org2 admin of the commit so it does it.
 
-
-        transactionEvent = executeChaincode(org2Client, org2, org2Channel, "InitLedger",
-                true, // doInit
-                chaincodeName, chaincodeType, "").get(300000, TimeUnit.SECONDS);
-
-        executeVerifyByQuery(org2Client, org2Channel, chaincodeName, null);
 
         /// Upgrading chaincode is really the same processes as the initial install. Any change requires a new CHAIN_CODE_SEQUENCE.
         /// Upgrading the actual code will need same chaincode name,  new chaincode package and version.
@@ -357,6 +357,25 @@ public class FabricLifecycle {
         //  also the ApproveChaincodeDefinitionForMyOrg operation is needed which in this case would use the same CHAIN_CODE_SEQUENCE number since there is
         // no actual change to the definition.
 
+
+    }
+
+    /**
+     * 链码执行
+     *
+     * @param org2Client
+     */
+    void runInvokeLifecycle(HFClient org2Client, Channel org2Channel, LifecycleChaincodePackage lifecycleChaincodePackage, String chaincodeName)
+            throws IOException, ProposalException, InvalidArgumentException, ExecutionException, InterruptedException,
+            TimeoutException {
+        User org2 = org2Client.getUserContext();
+        final TransactionRequest.Type chaincodeType = lifecycleChaincodePackage.getType();
+
+        BlockEvent.TransactionEvent transactionEvent = executeChaincode(org2Client, org2, org2Channel, "InitLedger",
+                true, // doInit
+                chaincodeName, chaincodeType, "").get(300000, TimeUnit.SECONDS);
+
+        executeVerifyByQuery(org2Client, org2Channel, chaincodeName, null);
 
     }
 
@@ -392,7 +411,8 @@ public class FabricLifecycle {
         return lifecycleChaincodePackage;
     }
 
-    private String lifecycleInstallChaincode(HFClient client, Collection<Peer> peers, LifecycleChaincodePackage lifecycleChaincodePackage) throws InvalidArgumentException, ProposalException, InvalidProtocolBufferException {
+    private String lifecycleInstallChaincode(HFClient client, Collection<Peer> peers, LifecycleChaincodePackage lifecycleChaincodePackage)
+            throws InvalidArgumentException, ProposalException, InvalidProtocolBufferException {
 
         int numInstallProposal = 0;
 
@@ -442,9 +462,11 @@ public class FabricLifecycle {
                                                                                                String chaincodeName, String chaincodeVersion,
                                                                                                LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy,
                                                                                                ChaincodeCollectionConfiguration chaincodeCollectionConfiguration,
-                                                                                               boolean initRequired, String org1ChaincodePackageID) throws InvalidArgumentException, ProposalException {
+                                                                                               boolean initRequired, String org1ChaincodePackageID)
+            throws InvalidArgumentException, ProposalException {
 
-        LifecycleApproveChaincodeDefinitionForMyOrgRequest lifecycleApproveChaincodeDefinitionForMyOrgRequest = client.newLifecycleApproveChaincodeDefinitionForMyOrgRequest();
+        LifecycleApproveChaincodeDefinitionForMyOrgRequest lifecycleApproveChaincodeDefinitionForMyOrgRequest =
+                client.newLifecycleApproveChaincodeDefinitionForMyOrgRequest();
         lifecycleApproveChaincodeDefinitionForMyOrgRequest.setSequence(sequence);
         lifecycleApproveChaincodeDefinitionForMyOrgRequest.setChaincodeName(chaincodeName);
         lifecycleApproveChaincodeDefinitionForMyOrgRequest.setChaincodeVersion(chaincodeVersion);
@@ -460,8 +482,9 @@ public class FabricLifecycle {
 
         lifecycleApproveChaincodeDefinitionForMyOrgRequest.setPackageId(org1ChaincodePackageID);
 
-        Collection<LifecycleApproveChaincodeDefinitionForMyOrgProposalResponse> lifecycleApproveChaincodeDefinitionForMyOrgProposalResponse = channel.sendLifecycleApproveChaincodeDefinitionForMyOrgProposal(lifecycleApproveChaincodeDefinitionForMyOrgRequest,
-                peers);
+        Collection<LifecycleApproveChaincodeDefinitionForMyOrgProposalResponse> lifecycleApproveChaincodeDefinitionForMyOrgProposalResponse =
+                channel.sendLifecycleApproveChaincodeDefinitionForMyOrgProposal(lifecycleApproveChaincodeDefinitionForMyOrgRequest,
+                        peers);
 
         log.info("{}", peers.size() + lifecycleApproveChaincodeDefinitionForMyOrgProposalResponse.size());
         for (LifecycleApproveChaincodeDefinitionForMyOrgProposalResponse response : lifecycleApproveChaincodeDefinitionForMyOrgProposalResponse) {
@@ -476,10 +499,12 @@ public class FabricLifecycle {
 
     }
 
-    private CompletableFuture<BlockEvent.TransactionEvent> commitChaincodeDefinitionRequest(HFClient client, Channel channel, long definitionSequence, String chaincodeName, String chaincodeVersion,
+    private CompletableFuture<BlockEvent.TransactionEvent> commitChaincodeDefinitionRequest(HFClient client, Channel channel,
+                                                                                            long definitionSequence, String chaincodeName, String chaincodeVersion,
                                                                                             LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy,
                                                                                             ChaincodeCollectionConfiguration chaincodeCollectionConfiguration,
-                                                                                            boolean initRequired, Collection<Peer> endorsingPeers) throws ProposalException, InvalidArgumentException, InterruptedException, ExecutionException {
+                                                                                            boolean initRequired, Collection<Peer> endorsingPeers)
+            throws ProposalException, InvalidArgumentException {
         LifecycleCommitChaincodeDefinitionRequest lifecycleCommitChaincodeDefinitionRequest = client.newLifecycleCommitChaincodeDefinitionRequest();
 
         lifecycleCommitChaincodeDefinitionRequest.setSequence(definitionSequence);
@@ -512,8 +537,10 @@ public class FabricLifecycle {
 
     private void verifyByCheckCommitReadinessStatus(HFClient client, Channel channel, long definitionSequence, String chaincodeName,
                                                     String chaincodeVersion, LifecycleChaincodeEndorsementPolicy chaincodeEndorsementPolicy,
-                                                    ChaincodeCollectionConfiguration chaincodeCollectionConfiguration, boolean initRequired, Collection<Peer> org1MyPeers,
-                                                    Set<String> expectedApproved, Set<String> expectedUnApproved) throws InvalidArgumentException, ProposalException {
+                                                    ChaincodeCollectionConfiguration chaincodeCollectionConfiguration,
+                                                    boolean initRequired, Collection<Peer> org1MyPeers,
+                                                    Set<String> expectedApproved, Set<String> expectedUnApproved)
+            throws InvalidArgumentException, ProposalException {
         LifecycleCheckCommitReadinessRequest lifecycleCheckCommitReadinessRequest = client.newLifecycleSimulateCommitChaincodeDefinitionRequest();
         lifecycleCheckCommitReadinessRequest.setSequence(definitionSequence);
         lifecycleCheckCommitReadinessRequest.setChaincodeName(chaincodeName);
@@ -535,7 +562,8 @@ public class FabricLifecycle {
         }
     }
 
-    private void verifyByQueryChaincodeDefinitions(HFClient client, Channel channel, Collection<Peer> peers, String expectChaincodeName) throws InvalidArgumentException, ProposalException {
+    private void verifyByQueryChaincodeDefinitions(HFClient client, Channel channel, Collection<Peer> peers, String expectChaincodeName)
+            throws InvalidArgumentException, ProposalException {
 
         final LifecycleQueryChaincodeDefinitionsRequest request = client.newLifecycleQueryChaincodeDefinitionsRequest();
 
@@ -554,13 +582,17 @@ public class FabricLifecycle {
         }
     }
 
-    private void verifyByQueryChaincodeDefinition(HFClient client, Channel channel, String chaincodeName, Collection<Peer> peers, long expectedSequence, boolean expectedInitRequired, byte[] expectedValidationParameter,
-                                                  ChaincodeCollectionConfiguration expectedChaincodeCollectionConfiguration) throws ProposalException, InvalidArgumentException, ChaincodeCollectionConfigurationException {
+    private void verifyByQueryChaincodeDefinition(HFClient client, Channel channel, String chaincodeName, Collection<Peer> peers,
+                                                  long expectedSequence, boolean expectedInitRequired, byte[] expectedValidationParameter,
+                                                  ChaincodeCollectionConfiguration expectedChaincodeCollectionConfiguration)
+            throws ProposalException, InvalidArgumentException, ChaincodeCollectionConfigurationException {
 
-        final QueryLifecycleQueryChaincodeDefinitionRequest queryLifecycleQueryChaincodeDefinitionRequest = client.newQueryLifecycleQueryChaincodeDefinitionRequest();
+        final QueryLifecycleQueryChaincodeDefinitionRequest queryLifecycleQueryChaincodeDefinitionRequest =
+                client.newQueryLifecycleQueryChaincodeDefinitionRequest();
         queryLifecycleQueryChaincodeDefinitionRequest.setChaincodeName(chaincodeName);
 
-        Collection<LifecycleQueryChaincodeDefinitionProposalResponse> queryChaincodeDefinitionProposalResponses = channel.lifecycleQueryChaincodeDefinition(queryLifecycleQueryChaincodeDefinitionRequest, peers);
+        Collection<LifecycleQueryChaincodeDefinitionProposalResponse> queryChaincodeDefinitionProposalResponses =
+                channel.lifecycleQueryChaincodeDefinition(queryLifecycleQueryChaincodeDefinitionRequest, peers);
 
         log.info("{}", queryChaincodeDefinitionProposalResponses);
         log.info("{},{}", peers.size(), queryChaincodeDefinitionProposalResponses.size());
@@ -652,9 +684,10 @@ public class FabricLifecycle {
 
     // Not new =================
 
-    CompletableFuture<BlockEvent.TransactionEvent> executeChaincode(HFClient client, User userContext, Channel channel, String fcn, Boolean doInit, String chaincodeName, TransactionRequest.Type chaincodeType, String... args) throws InvalidArgumentException, ProposalException {
-
-        final ExecutionException[] executionExceptions = new ExecutionException[1];
+    CompletableFuture<BlockEvent.TransactionEvent> executeChaincode(HFClient client, User userContext, Channel channel,
+                                                                    String fcn, Boolean doInit, String chaincodeName,
+                                                                    TransactionRequest.Type chaincodeType, String... args)
+            throws InvalidArgumentException, ProposalException {
 
         Collection<ProposalResponse> successful = new LinkedList<>();
         Collection<ProposalResponse> failed = new LinkedList<>();
@@ -692,8 +725,6 @@ public class FabricLifecycle {
                     ". Was verified: " + firstTransactionProposalResponse.isVerified());
         }
         log.info("Successfully received transaction proposal responses.");
-
-        //  System.exit(10);
 
         ////////////////////////////
         // Send Transaction Transaction to orderer

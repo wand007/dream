@@ -24,6 +24,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <spring-cloud.version>Finchley.SR1</spring-cloud.version>
+        <httpclient.version>4.5.13</httpclient.version>
     </properties>
 
     <!--这是Spring Boot的父级依赖，这样当前的项目就是Spring Boot项目了-->
@@ -148,6 +149,13 @@
             <version>1.2.75</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${httpclient.version}</version>
+
+        </dependency>
     </dependencies>
 
 

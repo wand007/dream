@@ -92,11 +92,11 @@ public class UpdateChannel {
 //    private Collection<SampleOrg> testSampleOrgs;
 
     //    SampleStore sampleStore;
-    HFClient client;
+//    HFClient client;
     //    SampleUser ordererAdmin;
     HttpClient httpclient;
     //    SampleOrg sampleOrg;
-    User baduser;
+//    User baduser;
 
 
 //    public void checkConfig() throws Exception {
@@ -177,7 +177,7 @@ public class UpdateChannel {
             ////////////////////////////
             //Reconstruct and run the channels
 
-            Channel fooChannel = reconstructChannel(false, FOO_CHANNEL_NAME, client, user);
+            Channel fooChannel = reconstructChannel(false, FOO_CHANNEL_NAME, org1Client, orderers);
 
             // Getting foo channels current configuration bytes.
             byte[] channelConfigurationBytes = fooChannel.getChannelConfigurationBytes();
@@ -208,7 +208,7 @@ public class UpdateChannel {
             //certificate:  src/test/fixture/sdkintegration/e2e-2Orgs/channel/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp/signcerts/Admin@example.com-cert.pem
 
             //Ok now do actual channel update.
-            fooChannel.updateChannelConfiguration(updateChannelConfiguration, client.getUpdateChannelConfigurationSignature(updateChannelConfiguration, user));
+            fooChannel.updateChannelConfiguration(updateChannelConfiguration, org1Client.getUpdateChannelConfigurationSignature(updateChannelConfiguration, user));
 
             Thread.sleep(3000); // give time for events to happen
 
@@ -246,7 +246,7 @@ public class UpdateChannel {
 
             //Now add anchor peer to channel configuration.
             fooChannel.updateChannelConfiguration(configUpdateAnchorPeers.getUpdateChannelConfiguration(),
-                    client.getUpdateChannelConfigurationSignature(configUpdateAnchorPeers.getUpdateChannelConfiguration(), user));
+                    org1Client.getUpdateChannelConfigurationSignature(configUpdateAnchorPeers.getUpdateChannelConfiguration(), user));
             Thread.sleep(3000); // give time for events to happen
 
             // Getting foo channels current configuration bytes to check with configtxlator
@@ -279,7 +279,7 @@ public class UpdateChannel {
 
             // Now do the actual update.
             fooChannel.updateChannelConfiguration(configUpdateAnchorPeers.getUpdateChannelConfiguration(),
-                    client.getUpdateChannelConfigurationSignature(configUpdateAnchorPeers.getUpdateChannelConfiguration(), user));
+                    org1Client.getUpdateChannelConfigurationSignature(configUpdateAnchorPeers.getUpdateChannelConfiguration(), user));
             Thread.sleep(3000); // give time for events to happen
             // Getting foo channels current configuration bytes to check with configtxlator.
             channelConfigurationBytes = fooChannel.getChannelConfigurationBytes(user, fooChannel.getPeers().iterator().next());
@@ -358,11 +358,9 @@ public class UpdateChannel {
             ////////////////////////////
             //Reconstruct and run the channels
             //    SampleOrg sampleOrg = testConfig.getIntegrationTestsSampleOrg("peerOrg1");
-            Channel channel = reconstructChannel(true, SYSTEM_CHANNEL_NAME, client, user);
+            Channel channel = reconstructChannel(true, SYSTEM_CHANNEL_NAME, org1Client, orderers);
 
             log.info("" + channel.getPeers().isEmpty()); // no peers
-
-            client.setUserContext(baduser);
 
             // Getting foo channels current configuration bytes.
             byte[] channelConfigurationBytes = channel.getChannelConfigurationBytes(user, channel.getOrderers().iterator().next());
@@ -396,14 +394,13 @@ public class UpdateChannel {
             //Ok now do actual channel update.
             channel.updateChannelConfiguration(user, updateChannelConfiguration,
                     channel.getOrderers().iterator().next(),
-                    client.getUpdateChannelConfigurationSignature(updateChannelConfiguration, user));
+                    org1Client.getUpdateChannelConfigurationSignature(updateChannelConfiguration, user));
 
             Thread.sleep(3000); // give time for events to happen
 
             //Let's add some additional verification...
 
             // client.setUserContext(sampleOrg.getPeerAdmin());
-            client.setUserContext(baduser);
 
             final byte[] modChannelBytes = channel.getChannelConfigurationBytes(user);
 
@@ -476,10 +473,13 @@ public class UpdateChannel {
     int eventCountFilteredBlock = 0;
     int eventCountBlock = 0;
 
-    private Channel reconstructChannel(final boolean isSystemChannel, String name, HFClient client, User sampleOrg) throws Exception {
+    private Channel reconstructChannel(final boolean isSystemChannel, String name, HFClient client, Collection<Orderer> orderers) throws Exception {
 
         Channel newChannel = client.newChannel(name);
 
+        for (Orderer orderName : orderers) {
+            newChannel.addOrderer(orderName);
+        }
         if (isSystemChannel) { // done
             newChannel.initialize();
             return newChannel;
